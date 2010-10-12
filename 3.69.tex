@@ -1,0 +1,22 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (triples s t u)
+  (let ((tri (stream-map
+              (lambda (pair)
+                (cons (stream-car s) pair))
+              (stream-filter
+               (lambda (pair)
+                 (<= (stream-car s) (car pair)))
+               (pairs t u)))))
+    (cons-stream
+     (car tri)
+     (interleave (stream-cdr tri)
+                 (triples (stream-cdr s)
+                          (stream-cdr t)
+                          (stream-cdr u))))))
+\end{lstlisting}
+\end{document}

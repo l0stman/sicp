@@ -1,0 +1,68 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\noindent
+a. Here's an iterative procedure defining \lstinline!cont-frac!
+\begin{lstlisting}
+(define (cont-frac n d k)
+  (define (iter res k)
+    (if (= k 0)
+	res
+	(iter (/ (n k)
+		 (+ (d k) res))
+	      (- k 1))))
+  (iter 0 k))
+\end{lstlisting}
+Let's check it for the inverse of the golden ratio
+\begin{lstlisting}
+(define inv-phi
+  (/ 1
+     (/ (+ 1 (sqrt 5))
+	2)))
+(define (f k)
+  (cont-frac (lambda (i) 1.0)
+	     (lambda (i) 1.0)
+	     k))
+inv-phi
+\end{lstlisting}
+$\rightarrow$ 0.6180339887498948.
+\begin{lstlisting}
+(f 4)
+\end{lstlisting}
+$\rightarrow$ 0.6000000000000001
+\begin{lstlisting}
+(f 12)
+\end{lstlisting}
+$\rightarrow$ 0.6180257510729613
+
+\medskip We can see that the successive value of the procedure
+\lstinline!f! approaches the inverse of the golden ratio.
+
+To find the value of $k$ in order to get an approximation that is
+accurate to $4$ decimal places we define the following procedure
+\begin{lstlisting}
+(define (find k acc)
+  (let ((x (f k)))
+    (if (< (abs (- x inv-phi))
+	   acc)
+	k
+	(find (+ k 1) acc))))
+(find 1 0.0001)
+\end{lstlisting}
+$\rightarrow$ 10
+
+\medskip \noindent
+b.  Here's a recursive version of \lstinline!cont-frac!
+\begin{lstlisting}
+(define (cont-frac n d k)
+  (define (iter i)
+    (if (> i k)
+	0
+	(/ (n i)
+	   (+ (d i)
+	      (iter (+ i 1))))))
+  (iter 1))
+\end{lstlisting}
+\end{document}

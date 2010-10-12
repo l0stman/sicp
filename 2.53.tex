@@ -1,0 +1,34 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+  (list 'a 'b 'c)
+\end{lstlisting}
+$\rightarrow$ (a b c)
+\begin{lstlisting}
+  (list (list 'george))
+\end{lstlisting}
+$\rightarrow$ ((george))
+\begin{lstlisting}
+  (cdr '((x1 x2) (y1 y2)))
+\end{lstlisting}
+$\rightarrow$ (y1 y2)
+\begin{lstlisting}
+  (cadr '((x1 x2) (y1 y2)))
+\end{lstlisting}
+$\rightarrow$ y1
+\begin{lstlisting}
+  (pair? (car '(a short list)))
+\end{lstlisting}
+$\rightarrow$ \#f
+\begin{lstlisting}
+  (memq 'red '((red shoes) (blue socks)))
+\end{lstlisting}
+$\rightarrow$ \#f
+\begin{lstlisting}
+  (memq 'red '(ed shoes blue socks)listing}
+\end{lstlisting}
+$\rightarrow$ (red shoes blue socks)
+\end{document}

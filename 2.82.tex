@@ -1,0 +1,46 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\subpar}[1] {\medskip \noindent #1.}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (coerce-lst args type-tags)
+  (define (totype type args res)
+    (if (null? args)
+        (reverse res)
+        (let ((old-type (type-tag (car args))))
+          (if (eq? type old-type)
+              (totype type (cdr args) (cons (car args) res)) 
+              (let ((obj->type (get-coercion old-type type)))
+                (if obj->type
+                    (totype type
+                            (cdr args)
+                            (cons (obj->type (car args)) res))
+                    #f))))))
+  (define (iter type-tags)
+    (if (null? type-tags)
+        #f
+        (let ((lst (totype (car type-tags) args '())))
+          (if lst
+              lst
+              (iter (cdr type-tags))))))
+  (iter type-tags))
+
+(define (apply-generic op . args)
+  (let ((type-tags (map type-tag args)))
+    (let ((proc (get op type-args)))
+      (if proc
+          (apply proc (map contents args))
+          (let ((lst (coerce-lst args type-tags)))
+            (if lst
+                (apply-generic op lst)
+                (error "No method for these types"
+                       (list op type-tags))))))))
+\end{lstlisting}
+This strategy is not sufficiently general.  Suppose we have
+implemented a binary operation only for complex numbers.  If the
+arguments are a scheme-number and a rational,
+\lstinline!apply-generic! will fail although both these numbers could
+be coerced into a complex one.
+\end{document}

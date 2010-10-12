@@ -1,0 +1,29 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+Let $a$, $b$, $c$ and $b$ be non negative integers such that,
+$ 2^a 3^b = 2^c 3^d$.
+
+\medskip
+We have $\gcd(2, 3) = 1$, so $2^a$ divide $2^c$.  Thus we deduce that
+$2^a \le 2^c$ thus $a \le c$.  By symmetry, we have too $c \le a$, so
+$a = c$.  We then conclude too that $b = d$.
+
+The uniqueness of the couple $a$ and $b$ permits the representation of
+a pair of non negative integers as $2^a 3^b$.
+\begin{lstlisting}
+(define (cons a b)
+  (* (expt 2 a)
+     (expt 3 b)))
+(define (car n)
+  (if (odd? n)
+      0
+      (+ 1 (car (/ n 2)))))
+(define (cdr n)
+  (if (even? n)
+      0
+      (+ 1 (cdr (/ n 3)))))
+\end{lstlisting}
+\end{document}

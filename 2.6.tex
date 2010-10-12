@@ -1,0 +1,35 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+We have,
+\begin{lstlisting}
+(add-1 zero)
+\end{lstlisting}
+$\rightarrow$ \lstinline!(lambda (f) (lambda (x) (f ((zero f) x))))! \\
+$\rightarrow$ \lstinline!(lambda (f) (lambda (x) (f x)))!
+
+\medskip
+Thus we can define \lstinline!one! as
+\begin{lstlisting}
+(define one (lambda (f) (lambda (x) (f x))))
+\end{lstlisting}
+Continuing the evaluation
+\begin{lstlisting}
+(add-1 one)
+\end{lstlisting}
+$\rightarrow$ \lstinline!(lambda (f) (lambda (x) (f ((one f) x))))! \\
+$\rightarrow$ \lstinline!(lambda (f) (lambda (x) (f (f x))))!
+
+\medskip
+Thus, we have
+\begin{lstlisting}
+(define two (lambda (f) (lambda (x) (f (f x)))))
+\end{lstlisting}
+And finally we can define $+$ as,
+\begin{lstlisting}
+(define (+ m n)
+  (lambda (f) (lambda (x) ((m f) ((n f) x)))))
+\end{lstlisting}
+\end{document}

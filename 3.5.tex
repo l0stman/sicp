@@ -1,0 +1,60 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (estimate-integral P x1 x2 y1 y2 trials)
+  (define (iter trials-remaining trials-passed)
+    (cond ((= trials-remaining 0)
+           (/ trials-passed trials))
+          ((P (random-in-range x1 x2)
+              (random-in-range y1 y2))
+           (iter (- trials-remaining 1)
+                 (+ trials-passed 1)))
+          (else
+           (iter (- trials-remaining 1)
+                 trials-passed))))
+  (* 1.0 (iter trials 0) (- x2 x1) (- y2 y1)))
+
+(define (random-in-range low high)
+  (let ((range (- high low)))
+    (+ low (* (random) range))))
+(define (square x) (* x x))
+(define (app-pi trials)
+  (estimate-integral
+   (lambda (x y)
+     (<= (+ (square x) (square y))
+         1))
+   -1 1 -1 1 trials))
+\end{lstlisting}
+Here are the results of some tests:
+\begin{lstlisting}
+  (app-pi 100)
+\end{lstlisting}
+$\rightarrow$ 3.4
+\begin{lstlisting}
+  (app-pi 1000)
+\end{lstlisting}
+$\rightarrow$ 3.2
+\begin{lstlisting}
+  (app-pi 10000)
+\end{lstlisting}
+$\rightarrow$ 3.108
+\begin{lstlisting}
+  (app-pi 10000)
+\end{lstlisting}
+$\rightarrow$ 3.1548
+\begin{lstlisting}
+  (app-pi 10000)
+\end{lstlisting}
+$\rightarrow$ 3.1496
+\begin{lstlisting}
+  (app-pi 100000)
+\end{lstlisting}
+$\rightarrow$ 3.14108
+\begin{lstlisting}
+  (app-pi 1000000)
+\end{lstlisting}
+$\rightarrow$ 3.143256
+\end{document}

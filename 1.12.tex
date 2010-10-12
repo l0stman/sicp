@@ -1,0 +1,16 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (pascal n k)
+  (if (or (= k 1)
+	  (= k n))
+      1
+      (+ (pascal (- n 1)
+		 (- k 1))
+	 (pascal (- n 1)
+		 k))))
+\end{lstlisting}
+\end{document}

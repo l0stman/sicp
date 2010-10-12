@@ -1,0 +1,27 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\begin{lstlisting}
+(define unique-query car)
+(define (singleton-stream? frame-stream)
+  (and (not (stream-null? frame-stream))
+       (stream-null? (stream-cdr frame-stream))))
+
+(define (uniquely-asserted operands frame-stream)
+  (stream-flatmap
+   (lambda (frame)
+     (let ((result (qeval (unique-query operands)
+                          (singleton-stream frame))))
+       (if (singleton-stream? result)
+           result
+           the-empty-stream)))
+   frame-stream))
+
+(put 'unique 'qeval uniquely-asserted)
+\end{lstlisting}
+
+\end{document}

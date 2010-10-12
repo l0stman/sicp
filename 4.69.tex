@@ -1,0 +1,21 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\begin{lstlisting}
+(rule (end-in-grandson (grandson)))
+(rule (end-in-grandson (?x . ?rest))
+      (end-in-grandson ?rest))
+
+(rule ((grandson) ?x ?y)
+      (grandson ?x ?y))
+(rule ((great . ?rel) ?x ?y)
+      (and (end-in-grandson ?rel)
+           (son ?x ?z)
+           (?rel ?z ?y)))
+\end{lstlisting}
+
+\end{document}

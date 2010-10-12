@@ -1,0 +1,18 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define rand
+  (let ((x random-init))
+    (lambda (m)
+      (cond ((eq? m 'generate)
+             (set! x (rand-update x))
+             x)
+            ((eq? m 'reset)
+             (lambda (y) (set! x y)))
+            (else (error "Unknown request -- RAND"
+                         m))))))
+\end{lstlisting}
+\end{document}

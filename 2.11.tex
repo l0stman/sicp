@@ -1,0 +1,34 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (mul-interval x y)
+  (let ((l1 (lower-bound x))
+        (l2 (lower-bound y))
+        (u1 (upper-bound x))
+        (u2 (upper-bound y)))
+    (cond ((and (>= l1 0) (>= l2 0))
+           (make-interval (* l1 l2) (* u1 u2)))
+          ((and (>= l1 0) (<= u2 0))
+           (make-interval (* u1 l2) (* u2 l1)))
+          ((and (>= l1 0) (> u2 0))
+           (make-interval (* u1 l2) (* u1 u2)))
+          ((and (<= u1 0) (<= u2 0))
+           (make-interval (* u1 u2) (* l1 l2)))
+          ((and (<= u1 0) (>= l2 0))
+           (make-interval (* u2 l1) (* u1 l2)))
+          ((<= u1 0)
+           (make-interval (* u2 l1) (* l1 l2)))
+          ((>= l2 0)
+           (make-interval (* u2 l1) (* u1 u2)))
+          ((<= u2 0)
+           (make-interval (* u1 l2) (* l1 l2)))
+          (else
+           (make-interval (min (* u1 l2)
+                               (* u2 l1))
+                          (max (* l1 l2)
+                               (* u1 u2)))))))
+\end{lstlisting}
+\end{document}

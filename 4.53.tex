@@ -1,0 +1,14 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+The result is the list \lstinline!((8 35) (3 110) (3 20))!, that is
+all the pairs of integers whose sum is prime.  This happens since each
+time we find such a pair, we permanently add it to \lstinline!pairs!
+then fails.  Thus triggering another search for a pair, until there's
+nothing left and we return \lstinline!pairs!.
+
+\end{document}

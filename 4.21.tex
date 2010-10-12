@@ -1,0 +1,84 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\subpar{a}
+
+\begin{lstlisting}
+((lambda (n)
+   ((lambda (fact)
+      (fact fact n))
+    (lambda (ft k)
+      (if (= k 1)
+          1
+          (* k (ft ft (- k 1)))))))
+ 10)
+
+((lambda (fact)
+   (fact fact 10))
+ (lambda (ft k)
+   (if (= k 1)
+       1
+       (* k (ft ft (- k 1))))))
+
+((lambda (ft k)
+   (if (= k 1)
+       1
+       (* k (ft ft (- k 1)))))
+ (lambda (ft k)
+   (if (= k 1)
+       1
+       (* k (ft ft (- k 1)))))
+ 10)
+
+(* 10
+   ((lambda (ft k)
+      (if (= k 1)
+          1
+          (* k (ft ft (- k 1)))))
+    (lambda (ft k)
+      (if (= k 1)
+          1
+          (* k (ft ft (- k 1)))))
+    9))
+
+(* 10
+   (* 9
+      ((lambda (ft k)
+         (if (= k 1)
+             1
+             (* k (ft ft (- k 1)))))
+       (lambda (ft k)
+         (if (= k 1)
+             1
+             (* k (ft ft (- k 1)))))
+       8)))
+\end{lstlisting}
+
+Here's an analogous expression for computing Fibonacci numbers.
+
+\begin{lstlisting}
+(lambda (n)
+  ((lambda (fib)
+     (fib fib n))
+   (lambda (ft k)
+     (if (or (= k 1) (= k 2))
+         1
+         (+ (ft ft (- k 1))
+            (ft ft (- k 2)))))))
+\end{lstlisting}
+
+\subpar{b}
+\begin{lstlisting}
+(define (f x)
+  ((lambda (even? odd?)
+     (even? even? odd? x))
+   (lambda (ev? od? n)
+     (if (= n 0) #t (od? ev? od? (- n 1))))
+   (lambda (ev? od? n)
+     (if (= n 0) #f (ev? ev? od? (- n 1))))))
+\end{lstlisting}
+\end{document}

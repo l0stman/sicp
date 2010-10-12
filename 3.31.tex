@@ -1,0 +1,20 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+The procedure is immediately run to add the current action to the
+agenda \lstinline!the-agenda!.  The procedure added to the actions of a
+wire affects only future events, not the current one.
+
+For example, if \lstinline!accept-action-procedure! had been defined
+as
+\begin{lstlisting}
+(define (accept-action-procedure! proc)
+  (set! action-procedures
+        (cons proc action-procedures)))
+\end{lstlisting}
+If we run \lstinline!propagate!, there's no change in the values of
+the four wires.  Whereas in the first case, the value of the signal e
+would become $1$.
+\end{document}

@@ -1,0 +1,15 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+The problem is that the answers in a query result may not be unique.
+If one result appear more than once like in Cy's case, then the
+accumulation function will give the wrong result.
+
+So Ben needs to remove duplicates in the query results before mapping
+and accumulating it.
+
+\end{document}

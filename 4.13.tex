@@ -1,0 +1,32 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+We decide to remove all the bindings in the environment since defining
+a variable and removing it from the first frame could be alternatively
+accomplished with a \emph{let}.
+\begin{lstlisting}
+(define (make-unbound! var env)
+  (define (env-loop env)
+    (define (scan prev current)
+      (cond ((null? current)
+             (env-loop (enclosing-environment env)))
+            ((eq? var (caar current))
+             (set-cdr! prev (cdr current))
+             (env-loop (enclosing-environment env)))
+            (else (scan current (cdr current)))))
+    (unless (eq? env the-empty-environment)
+      (let ((frame (first-frame env)))
+        (if (eq? var (caar frame))
+            (begin (set-car! env (cdr frame))
+                   (env-loop
+                    (enclosing-environment env)))
+            (scan frame (cdr frame))))))
+  (env-loop env))
+\end{lstlisting}
+
+The drawback is that we have to track down all the codes that
+references this variable.  Otherwise the program will break.
+\end{document}

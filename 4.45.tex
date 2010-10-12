@@ -1,0 +1,116 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\begin{lstlisting}
+(sentence
+ (simple-noun-phrase (article the) (noun professor))
+ (verb-phrase
+  (verb-phrase
+   (verb-phrase (verb lectures)
+                (prep-phrase
+                 (prep to)
+                 (simple-noun-phrase
+                  (article the) (noun student))))
+   (prep-phrase (prep in)
+                (simple-noun-phrase
+                 (article the) (noun class))))
+  (prep-phrase (prep with)
+               (simple-noun-phrase
+                (article the) (noun cat)))))
+\end{lstlisting}
+
+The first parsing means that the professor's lecturing with  the cat
+to the student.
+
+\begin{lstlisting}
+(sentence
+ (simple-noun-phrase (article the) (noun professor))
+ (verb-phrase
+  (verb-phrase (verb lectures)
+               (prep-phrase
+                (prep to)
+                (simple-noun-phrase
+                 (article the) (noun student))))
+  (prep-phrase
+   (prep in)
+   (noun-phrase
+    (simple-noun-phrase (article the) (noun class))
+    (prep-phrase
+     (prep with)
+     (simple-noun-phrase (article the) (noun cat)))))))
+\end{lstlisting}
+
+The second one means that the professor is lecturing the student in
+the class where there's cat.
+
+\begin{lstlisting}
+(sentence
+ (simple-noun-phrase (article the) (noun professor))
+ (verb-phrase
+  (verb-phrase
+   (verb lectures)
+   (prep-phrase
+    (prep to)
+    (noun-phrase
+     (simple-noun-phrase (article the) (noun student))
+     (prep-phrase
+      (prep in)
+      (simple-noun-phrase
+       (article the) (noun class))))))
+  (prep-phrase
+   (prep with)
+   (simple-noun-phrase (article the) (noun cat)))))
+\end{lstlisting}
+
+The third one means that the professor is lecturing with the cat to
+the student in the class.
+
+\begin{lstlisting}
+(sentence
+ (simple-noun-phrase (article the) (noun professor))
+ (verb-phrase
+  (verb lectures)
+  (prep-phrase
+   (prep to)
+   (noun-phrase
+    (noun-phrase
+     (simple-noun-phrase (article the) (noun student))
+     (prep-phrase
+      (prep in)
+      (simple-noun-phrase
+       (article the) (noun class))))
+    (prep-phrase
+     (prep with)
+     (simple-noun-phrase (article the) (noun cat)))))))
+\end{lstlisting}
+
+The fourth one means that the professor is lecturing to the student in
+the class who has a cat.
+
+\begin{lstlisting}
+(sentence
+ (simple-noun-phrase (article the) (noun professor))
+ (verb-phrase
+  (verb lectures)
+  (prep-phrase
+   (prep to)
+   (noun-phrase
+    (simple-noun-phrase (article the) (noun student))
+    (prep-phrase
+     (prep in)
+     (noun-phrase
+      (simple-noun-phrase (article the) (noun class))
+      (prep-phrase
+       (prep with)
+       (simple-noun-phrase (article the)
+                           (noun cat)))))))))
+\end{lstlisting}
+
+The last one means that the professor is lecturing to the student in
+the class where there's a cat.
+
+\end{document}

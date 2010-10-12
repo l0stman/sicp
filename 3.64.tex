@@ -1,0 +1,14 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (stream-limit s tol)
+  (define (iter last s)
+    (if (< (abs (- last (stream-car s))) tol)
+        (stream-car s)
+        (iter (stream-car s) (stream-cdr s))))
+  (iter (stream-car s) (stream-cdr s)))
+\end{lstlisting}
+\end{document}

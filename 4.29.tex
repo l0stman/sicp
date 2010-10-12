@@ -1,0 +1,26 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+Consider the following piece of code:
+\begin{lstlisting}
+(define (expt x n)
+  (if (zero? n)
+      1
+      (* x (expt x (- n 1)))))
+
+(expt (expt 2 10) 5)
+\end{lstlisting}
+
+Without memoization, the code would run much more slowly since at each
+step, the thunk representing \lstinline!(expt 2 10)! is recomputed.
+
+With memoization, we obtain: \lstinline!(square (id 10))! $\rightarrow
+100$, $count \rightarrow 1$.
+
+Without memoization, we have: \lstinline!(square (id 10))!
+$\rightarrow 100$, $count \rightarrow 2$.
+\end{document}

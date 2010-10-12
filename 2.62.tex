@@ -1,0 +1,29 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (union-set set1 set2)
+  (define (iter res set1 set2)
+    (cond ((null? set1)
+           (foldl cons set2 res))
+          ((null? set2)
+           (foldl cons set1 res)) 
+          (else
+           (let ((x1 (car set1)) (x2 (car set2)))
+            (cond ((< x1 x2)
+                   (iter (cons x1 res)
+                         (cdr set1)
+                         set2))
+                  ((= x1 x2)
+                   (iter (cons x1 res)
+                         (cdr set1)
+                         (cdr set2)))
+                  (else
+                   (iter (cons x2 res)
+                         set1
+                         (cdr set2))))))))
+  (iter '() set1 set2))
+\end{lstlisting}
+\end{document}

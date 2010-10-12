@@ -1,0 +1,70 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (cc amount coin-values)
+  (cond ((= amount 0) 1)
+        ((or (< amount 0) (no-more? coin-values)) 0)
+        (else
+         (+ (cc amount
+                (except-first-denomination
+                 coin-values))
+            (cc (- amount
+                   (first-denomination
+                    coin-values))
+                coin-values)))))
+
+(define no-more? null?)
+(define except-first-denomination cdr)
+(define first-denomination car)
+\end{lstlisting}
+The order of the list \lstinline!coin-values! doesn't affect the
+answer produced by \lstinline!cc!.  Let's proove this by induction
+according to the number $m$ of the elements of
+\lstinline!coin-values!.
+
+The result is trivial for $m = 1$.  Suppose we have the result for
+$m$.  Note $a_1, a_2, \ldots, a_{m+1}$ the elements of
+\lstinline!coin-values!.  And let $k$ be an integer verifying
+$ 2 \le k \le m+1$.  Let's show that we can swap $a_1$ and $a_k$
+without modifying the value returned by \lstinline!cc!.
+
+Note $n$ the amount we want to count the number of changes. Suppose
+$n > 0$ otherwise the result is straightforward.  We have,
+\begin{eqnarray*}
+  \mathrm{cc}(n, a_1,\ldots,a_k,\ldots,a_{m+1}) &=&
+  \mathrm{cc}(n, a_2,\ldots,a_k,\ldots,a_{m+1}) + \\ &&
+  \mathrm{cc}(n-a_1,a_2,\ldots,a_k,\ldots,a_{m+1}) 
+\end{eqnarray*}
+Note that we have only $m$ coins left in the right-hand side of the
+equality, so by induction we have
+\begin{eqnarray*}
+  \mathrm{cc}(n, a_1,\ldots,a_k,\ldots,a_{m+1}) &=&
+  \mathrm{cc}(n, a_k, a_2,\ldots,a_{k-1},a_{k+1},\ldots,a_{m+1}) +
+  \\&&
+  \mathrm{cc}(n-a_1, a_k, a_2, \ldots, a_{k-1}, a_{k+1}, \ldots,
+  a_{m+1}) \\ &=&
+  \mathrm{cc}(n, a_2, \ldots, a_{k-1},a_{k+1},\ldots, a_{m+1}) + \\ &&
+  \mathrm{cc}(n-a_k, a_2, \ldots, a_{k-1}, a_{k+1},\ldots,a_{m+1}) +
+  \\ &&
+  \mathrm{cc}(n-a_1, a_2, \ldots, a_{k-1}, a_{k+1}, \ldots, a_{m+1}) +
+  \\ &&
+  \mathrm{cc}(n-a_1-a_k, a_2, \ldots, a_{k-1}, a_{k+1}, \ldots,
+  a_{m+1}) \\
+\end{eqnarray*}
+Grouping the first and third terms and the second and last one we
+obtain
+\newpage
+\begin{eqnarray*}
+  \mathrm{cc}(n, a_1,\ldots,a_k,\ldots,a_{m+1}) &=&
+  \mathrm{cc}(n, a_1, a_2, \ldots, a_{k-1}, a_{k+1}, \ldots, a_{m+1}) +
+  \\ &&
+  \mathrm{cc}(n-a_k, a_1, a_2, \ldots, a_{k-1}, a_{k+1}, \ldots,
+  a_{m+1}) \\ &=&
+  \mathrm{cc}(n, a_k, a_1, a_2, \ldots, a_{k-1}, a_{k+1}, \ldots, a_{m+1})
+\end{eqnarray*}
+So finally we deduce that the order of the list doesn't affect the
+result of \lstinline!cc!.
+\end{document}

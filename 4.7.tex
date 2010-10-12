@@ -1,0 +1,12 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+\begin{lstlisting}
+(define (let*->nested-lets exp)
+  (foldr make-let (cddr exp) (second exp)))
+\end{lstlisting}
+It's sufficient to add a clause to \lstinline!eval!.
+\end{document}

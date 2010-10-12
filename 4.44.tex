@@ -1,0 +1,38 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\begin{lstlisting}
+(define (an-integer-between low high)
+  (require (<= low high))
+  (amb low (an-integer-between (+ 1 low) high)))
+
+(define (make-point x y) (cons x y))
+(define (xcord p) (car p))
+(define (ycord p) (cdr p))
+
+(define (for-each proc lst)
+  (if (not (null? lst))
+      (begin (proc (car lst))
+             (for-each proc (cdr lst)))))
+
+(define (queens board-size)
+  (define (loop xmax)
+    (if (= xmax 0)
+        '()
+        (let ((other-queens (loop (- xmax 1)))
+              (y (an-integer-between 1 board-size)))
+          (for-each (lambda (pos)
+                      (require (not (= (ycord pos) y)))
+                      (require
+                       (not (= (abs (- (ycord pos) y))
+                               (abs (- (xcord pos)
+                                       xmax))))))
+                    other-queens)
+          (cons (make-point xmax y) other-queens))))
+  (loop board-size))
+\end{lstlisting}
+\end{document}

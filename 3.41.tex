@@ -1,0 +1,12 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+Suppose Ben and Louis have a shared account.  Suppose that Ben decides
+to withdraw from his bank account and Louis ask for the current
+balance.  Since these two operations are not serialized, Louis could
+obtain an outdated value of the balance.  The problem lies in the
+fact that the client could obtain bogus information even if the
+balance is always consistent.
+\end{document}

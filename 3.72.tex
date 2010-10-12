@@ -1,0 +1,27 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (square x) (* x x))
+(define (weight p)
+  (+ (square (car p)) (square (cadr p))))
+
+(define (generate s weight)
+  (let ((e1 (stream-ref s 0))
+        (e2 (stream-ref s 1))
+        (e3 (stream-ref s 2)))
+    (if (= (weight e1) (weight e2) (weight e3))
+        (cons-stream
+         (list (weight e1) e1 e2 e3)
+         (generate (stream-cdr
+                    (stream-cdr (stream-cdr s)))
+                   weight))
+        (generate (stream-cdr s) weight))))
+
+(define sum-of-squares
+  (generate (weighted-pairs integers integers weight)
+            weight))
+\end{lstlisting}
+\end{document}

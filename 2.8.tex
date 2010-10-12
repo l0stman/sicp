@@ -1,0 +1,16 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+The minimum value of the difference could be is the difference between
+the lower bound of the first interval and the upper bound of the
+second one.  And the maximum value it could be is the difference
+between the upper bound of the first interval and the lower bound the
+second one.
+\begin{lstlisting}
+(define (add-interval x y)
+  (make-interval (- (lower-bound x) (upper-bound y))
+                 (- (upper-bound x) (lower-bound y))))
+\end{lstlisting}
+\end{document}

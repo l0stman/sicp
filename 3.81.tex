@@ -1,0 +1,28 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+The stream of requests to process is composed of the symbol
+\emph{generate} or a pair whose \lstinline!car! is the symbol
+\emph{reset} and whose \lstinline!cdr! is the new value taken by the
+random numbers.
+
+\begin{lstlisting}
+(define (process-request requests)
+  (define (iter requests random-number)
+    (let ((r (stream-car requests)))
+      (cond ((eq r 'generate)
+             (let ((num (rand-update random-number)))
+               (cons-stream num
+                            (iter (stream-cdr requests)
+                                  num))))
+            ((and (pair r) (eq (car r) 'reset))
+             (let ((new-val (cdr r)))
+               (cons-stream new-val
+                            (iter (stream-cdr (stream-cdr requests))
+                                  new-val))))
+            (else (error "Unknown request -- PROCESS-REQUEST" m)))))
+  (iter requests random-init))
+\end{lstlisting}
+\end{document}

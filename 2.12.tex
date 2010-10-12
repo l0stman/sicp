@@ -1,0 +1,16 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (make-center-percent c p)
+  (let ((w (* c p)))
+    (make-interval (- c w) (+ c w))))
+(define (percent i)
+  (let ((c (center i)))
+    (if (zero? c)
+        (error "The center of the interval is zero" i)
+        (/ (width i) c))))
+\end{lstlisting}
+\end{document}

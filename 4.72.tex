@@ -1,0 +1,29 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+If the first stream is infinite, no element of the second stream would
+never appear if we just use \lstinline!stream-append!.  Whereas
+interleaving the two streams assures that given enough time, any
+element in the two streams would eventually appears in the resulting
+stream.
+
+Remember that with our implementation, the rules are implemented using
+a LIFO order.  Consider the following example:
+
+\begin{lstlisting}
+(assert! (rule (all ?color (?color . ?rest))
+               (all ?color ?rest)))
+(assert! (rule (all ?color ())))
+(assert! (rule (unicolor ?x)
+               (or (all white ?x)
+                   (all black ?x))))
+\end{lstlisting}
+
+If \lstinline!disjoin! didn't interleave the streams, no matter how
+long we're waiting, it seems only the lists whose elements are all
+equal to \lstinline!white! that are considered \lstinline!unicolor!.
+\end{document}

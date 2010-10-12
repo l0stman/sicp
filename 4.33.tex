@@ -1,0 +1,30 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+We just transform the pairs into lazy ones.  We redefine
+\lstinline!text-of-quotation! as follows
+\begin{lstlisting}
+(define (ncons x y)
+  (lambda (m) (m x y)))
+(define (ncar z)
+  (z (lambda (p q) p)))
+(define (ncdr z)
+  (z (lambda (p q) q)))
+
+(define (text-of-quotation exp)
+  (define (pair->lazy p)
+    (if (not (pair? p))
+        p
+        (ncons (pair->lazy (ncar p))
+              (pair->lazy (ncdr p)))))
+  (let ((txt (cadr exp)))
+    (if (pair? txt)
+        (pair->lazy txt)
+        txt)))
+\end{lstlisting}
+
+\end{document}

@@ -1,0 +1,13 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (invert-unit-series s)
+  (define 1/s (cons-stream 1
+                           (mul-series (stream-map - (stream-cdr s))
+                                       1/s)))
+  1/s)
+\end{lstlisting}
+\end{document}

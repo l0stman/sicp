@@ -1,0 +1,16 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (div-interval x y)
+  (let ((l (lower-bound y))
+        (u (upper-bound y)))
+    (if (and (<= l 0) (>= u 0))
+        (error "divisor interval contains zero")
+        (mul-interval x
+                      (make-interval (/ 1.0 u)
+                                     (/ 1.0 l))))))
+\end{lstlisting}
+\end{document}

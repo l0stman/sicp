@@ -1,0 +1,19 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+If we omit the requirement that Fletcher and Smith don't live on
+adjacent floors, we have five solutions:
+
+\begin{verbatim}
+  baker: 1 cooper: 4 fetcher: 2 miller: 5 smith: 3
+  baker: 3 cooper: 4 fetcher: 2 miller: 5 smith: 1
+  baker: 1 cooper: 2 fetcher: 4 miller: 3 smith: 5
+  baker: 1 cooper: 2 fetcher: 4 miller: 5 smith: 3
+  baker: 3 cooper: 2 fetcher: 4 miller: 5 smith: 1
+\end{verbatim}
+
+\end{document}

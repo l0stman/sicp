@@ -1,0 +1,47 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\subpar}[1] {\medskip \noindent #1.}
+\lstset{language=Lisp}
+
+\begin{document}
+\subpar{a}
+\begin{lstlisting}
+(define (order-terms t)
+  (if (empty-term-list? t)
+      -1
+      (order (first-term t))))
+(define (pseudoremainder-terms a b)
+  (let* ((exp (+ 1 (order-terms a) (order-terms b)))
+         (fac (expt (coeff (first-term b)) exp)))
+    (cadr (div-terms a
+                     (mul-terms (make-term 0 fac)
+                                b)))))
+(define (gcd-terms a b)
+  (if (empty-termlist? b)
+      a
+      (gcd-terms b (pseudoremainder-terms a b))))
+\end{lstlisting}
+\subpar{b}
+\begin{lstlisting}
+(define (gcd-coeff res term-list)
+  (if (empty-term-list? term-list)
+      res
+      (gcd-coeff (gcd res (coeff (first-term term-list)))
+                 (rest-terms term-list))))
+(define (simplify-coeff c term-list)
+    (if (empty-termlist? term-list)
+        (the-empty-termlist)
+        (let ((t (first-term term-list)))
+          (adjoin-term (make-term (order t)
+                                  (/ (coeff t) c))
+                       (simplify-coeff c (rest-terms term-list))))))
+(define (simplify term-list)
+  (simplify-coeff (gcd-coeff 1 term-list) term-list))
+(define  (gcd-terms a b)  
+  (define (iter a b)
+    (if (empty-termlist? b)
+        a
+        (iter b (pseudoremainder-terms a b))))
+  (simplify (iter a b)))
+\end{lstlisting}
+\end{document}

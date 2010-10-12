@@ -1,0 +1,11 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+If we note $T(n)$ the worst-case number of steps for searching a
+symbol in tree of size $n$ if we suppose the tree is like the one in
+exercise 2.58, we have the following relation
+\[ T(n) = T(n-1) + \Theta(n).\]
+We deduce immediately that we have $T(n) = \Theta(n^2)$.
+\end{document}

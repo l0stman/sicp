@@ -1,0 +1,12 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (repeated f n)
+  (if (= n 0)
+      (lambda (x) x)
+      (compose f (repeated f (- n 1)))))
+\end{lstlisting}
+\end{document}

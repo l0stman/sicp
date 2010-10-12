@@ -1,0 +1,48 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\subpar}[1] {\medskip \noindent #1.}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (add-terms L1 L2)
+  (cond ((empty-termlist? L1) L2)
+        ((empty-termlist? L2) L1)
+        (else
+         (let ((d1 (degree L1)) (d2 (degree L2)))
+           (cond ((> d1 d2)
+                  (adjoin-term
+                   (first-term L1)
+                   (add-terms (rest-terms L1) L2)))
+                 ((< d1 d2)
+                  (adjoin-term
+                   (first-term L2)
+                   (add-terms L1 (rest-terms L2))))
+                 (else
+                  (adjoin-term
+                   (add t1 t2)
+                   (add-terms (rest-terms L1)
+                              (rest-terms L2)))))))))
+
+(define (mul-terms L1 L2)
+  (if (empty-termlist? L1)
+      (the-empty-termlist)
+      (add-terms (mul-term-by-all-terms (first-term L1) L2)
+                 (mul-terms (rest-terms L1) L2))))
+(define (mul-term-by-all-terms t L)
+  (if (empty-termlist? L)
+      (the-empty-termlist)
+      (adjoin-term (mul t (first-term L))
+                   (mul-term-by-all-terms t (rest-terms L)))))
+
+(define (adjoin-term term term-list)
+  (if (=zero? term)
+      term-list
+      (cons term term-list)))
+(define (the-empty-termlist) '())
+(define (first-term term-list) (car term-list))
+(define (rest-terms term-list) (cdr term-list))
+(define (empty-termlist? term-list) (null? term-list))
+(define (degree term-list) (- (length term-list) 1))      
+\end{lstlisting}
+\end{document}

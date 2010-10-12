@@ -1,0 +1,29 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\subpar}[1] {\medskip \noindent #1.}
+\lstset{language=Lisp}
+
+\begin{document}
+We define in the scheme-number package:
+\begin{lstlisting}
+(define (raise n)
+  (if (integer? n)
+      (make-rational n d)
+      (make-complex-from-real-imag x y)))
+(put 'raise '(scheme-number) raise)
+\end{lstlisting}
+And in the rational package
+\begin{lstlisting}
+(define (raise r)
+  (make-scheme-number (* (/ (number r) (denom r))
+                         1.0)))
+(put 'raise '(rational) raise)
+\end{lstlisting}
+And finally we define
+\begin{lstlisting}
+(define (raise n)
+  (if (eq? (type-tag n) 'complex)
+      #f
+      (apply-generic 'raise n)))
+\end{lstlisting}
+\end{document}

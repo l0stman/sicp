@@ -1,0 +1,126 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\ra}{\rightarrow}
+\lstset{language=Lisp}
+
+\begin{document}
+\noindent
+Let's modify \lstinline!timed-prime-test! to print only the running time
+of \lstinline!prime?!.
+\begin{lstlisting}
+(define (timed-prime-test n)
+  ((lambda (start-time)
+     (prime? n)
+     (- (current-inexact-milliseconds) start-time))
+   (current-inexact-mill-seconds)))
+\end{lstlisting}
+The function \lstinline!times-for-prime! takes as paramaters a prime
+number and an integer $n$ and return a list of $n$ times by applying
+\lstinline!timed-prime-test! to the prime $n$ times.
+\begin{lstlisting}
+(define (times-for-prime p n)
+  (define (loop n result)
+    (if (= n 0)
+	result
+	(loop (- n 1)
+	      (cons (timed-prime-test p)
+		    result))))
+  (loop n null))
+\end{lstlisting}
+\lstinline!average-time! returns the average of the result returned by
+\lstinline!times-for-prime!.
+\begin{lstlisting}
+(define (average-time p n)
+  ((lambda (lst)
+     (/ (foldr + 0 lst)
+	n))
+   (times-for-prime p n)))
+\end{lstlisting}
+Then, we define the function \lstinline!get-prime! to return the
+smallest prime number greater or equal to the parameter.
+\begin{lstlisting}
+(define (get-prime init)
+  (define (iter n)
+    (if (prime? n)
+	n
+	(iter (+ n 2))))
+  (if (and (not (= init 2))
+	   (even? init))
+      (iter (+ init 1))
+      (iter init)))
+\end{lstlisting}
+The function \lstinline!prime-list! then generates a list of $n$
+primes number greater than the successive product by $10$ of $init$.
+\newpage
+\begin{lstlisting}
+(define (prime-list init count)
+  (define (iter init count result)
+    (if (= count 0)
+	(reverse result)
+	(iter (* 10 init)
+	      (- count 1)
+	      (cons (get-prime init)
+		    result))))
+  (iter init count null))
+\end{lstlisting}
+And finally the function \lstinline!times-list! returns a list of the
+result of \lstinline!average-time! applied to a list of prime numbers.
+\begin{lstlisting}
+(define (times-list lst avg-num)
+  (map (lambda (p)
+	 (average-time p avg-num))
+       lst))
+\end{lstlisting}
+And finally let's define the desired number of average we compute.
+\begin{lstlisting}
+(define AVG-NUM 10)
+\end{lstlisting}
+Let's generate the list of prime numbers.
+\begin{lstlisting}
+(define primes (prime-list 100 12))
+primes
+\end{lstlisting}
+$\rightarrow$ (1009
+ 10007
+ 100003
+ 1000003
+ 10000019
+ 100000007
+ 1000000007
+ 10000000019
+ 100000000003
+ 1000000000039
+ 10000000000037
+ 100000000000031)
+
+Let's compute the corresponding list of times of our prime list for
+the unmodified version of \lstinline!smallest-divisor!.
+\begin{lstlisting}
+(define before (times-list primes AVG-NUM))
+\end{lstlisting}
+And after we replace \lstinline!(+ test-divisor 1)! by
+\lstinline!(next test-divisor)!.
+\begin{lstlisting}
+(define after (times-list primes AVG-NUM))
+\end{lstlisting}
+Finally we then obtain the list of ratios between the two versions with:
+\begin{lstlisting}
+(map / before after)
+\end{lstlisting}
+$\rightarrow$ (0.6266490765171504
+ 1.4490022172949
+ 1.4926253687315636 \\
+ 1.5144344533838143
+ 1.3868037571025473
+ 1.236468962089798 \\
+ 1.3602381543577067
+ 1.892754865265741
+ 1.8647260043702198 \\
+ 1.9080137170274103
+ 1.9071364199453982
+ 1.909278952905198)
+
+We see that the ratio approach $2$ only for large values of $n$.  Wich
+makes sens since our speculation deals only with order of growth.  For
+small values of $n$,  the effect of the constants is not negligible.
+\end{document}

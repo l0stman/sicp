@@ -1,0 +1,21 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+Suppose there's a procedure \lstinline!account! that takes as the
+argument an account $id$ between $0$ and $n-1$ and returns the
+corresponding account.  Moreover, suppose that each account keeps
+another $id$ number $swap-id$.  And the procedure \lstinline!magic!
+does the following to the account passed as parameters:
+\begin{enumerate}
+\item
+  increments $swap-id$ modulo $n$
+\item exchange the balances of the account and the account
+  whose $id$ is $swap-id$.
+\end{enumerate}
+The fact that $swap-id$ is incremented means that the account needs to
+be locked when \lstinline!magic! has access to it.  Thus the
+strategy consisting of accessing the lowest $id$ number first with
+$serialized-exchange$ won't work.  We still have a deadlock.
+\end{document}

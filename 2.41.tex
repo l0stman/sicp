@@ -1,0 +1,20 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (unique-triple n)
+  (flatmap (lambda (i)
+             (flatmap (lambda (j)
+                    (map (lambda (k)
+                           (list i j k))
+                         (enumerate-interval 1 (- j 1))))
+                  (enumerate-interval 1 (- i 1))))
+           (enumerate-interval 1 n)))
+(define (triple-sum s n)
+  (filter (lambda (t)
+            (= s (foldr + 0 t)))
+          (unique-triple n)))
+\end{lstlisting}
+\end{document}

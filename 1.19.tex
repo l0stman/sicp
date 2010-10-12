@@ -1,0 +1,40 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\noindent
+Applying $T_{pq}$ twice, we obtain
+\begin{eqnarray*}
+a &\leftarrow& (bp+aq)q + (bp+aq+ap)q + (bq+aq+ap)p \\
+b &\leftarrow& (bp+aq)p + (bq+aq+ap)q
+\end{eqnarray*}
+Regrouping the terms we have,
+\begin{eqnarray*}
+a &\leftarrow& b(2pq+ q^2) + a(q^2 + 2pq) + a(p^2 + q^2) \\
+b &\leftarrow& b(p^2+q^2) + a(q^2+2pq)
+\end{eqnarray*}
+So we deduce the values of $p'$ and $q'$ as
+\begin{eqnarray*}
+p' &=& p^2 + q^2 \\
+q' &=& q^2 + 2pq
+\end{eqnarray*}
+We could then write the iterative algorithm
+\begin{lstlisting}
+(define (fib n)
+  (fib-iter 1 0 0 1 n))
+(define (fib-iter a b p q count)
+  (cond ((= count 0) b)
+	((even? count)
+	 (fib-iter a
+		   b
+		   (+ (square p) (square q))
+		   (+ (square q) (* 2 p q))
+		   (/ count 2)))
+	(else (fib-iter (+ (* b q) (* a q) (* a p))
+			(+ (* b p) (* a q))
+			p
+			q
+			(- count 1)))))
+\end{lstlisting}
+\end{document}

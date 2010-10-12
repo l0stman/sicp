@@ -1,0 +1,19 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+Consider the following piece of code and suppose we use
+\lstinline!eval! instead of \lstinline!actual-value! in \lstinline!apply!:
+
+\begin{lstlisting}
+(define (id x) x)
+
+((id id) 1)
+\end{lstlisting}
+
+In this case, evaluating \lstinline!(id id)! would return a thunk and
+will cause an evaluation error when we try to evaluate the whole expression.
+\end{document}

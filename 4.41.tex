@@ -1,0 +1,45 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\begin{lstlisting}
+(define (distinct? items)
+  (cond ((null? items) true)
+        ((null? (cdr items)) true)
+        ((member (car items) (cdr items)) false)
+        (else (distinct? (cdr items)))))
+
+(define (multiple-dwelling)
+  (define (cart-prod lst n)
+    (define (iter res n)
+      (if (= n 1)
+          res
+          (iter (foldl (lambda (x tmp)
+                         (append tmp
+                                 (map (lambda (y) (cons x y))
+                                      res)))
+                       '()
+                       lst)
+                (- n 1))))
+    (iter (map list lst) n))
+  (filter (lambda (floor)
+            (let ((baker (first floor))
+                  (cooper (second floor))
+                  (fletcher (third floor))
+                  (miller (fourth floor))
+                  (smith (fifth floor)))
+              (and (distinct? floor)
+                   (not (= baker 5))
+                   (not (= cooper 1))
+                   (not (= fletcher 5))
+                   (not (= fletcher 1))
+                   (> miller cooper)
+                   (not (= (abs (- smith fletcher)) 1))
+                   (not (= (abs (- fletcher cooper)) 1)))))
+          (cart-prod '(1 2 3 4 5) 5)))
+\end{lstlisting}
+
+\end{document}

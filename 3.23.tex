@@ -1,0 +1,98 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+First we introduce the data structure \emph{node} to keep track of the
+previous and next element in the deque --- so all the operations will
+be $\Theta(1)$.
+\begin{lstlisting}
+(define empty-node '())
+(define (make-node item)
+  (list item empty-node empty-node))
+(define (empty-node? n) (null? n))
+(define (prev-node n) (cadr n))
+(define (next-node n) (caddr n))
+(define (item-node n) (car n))
+
+(define (set-prev-node! n1 n2) (set-car! (cdr n1) n2))
+(define (set-next-node! n1 n2) (set-car! (cddr n1) n2))
+(define (append-node! n1 n2)
+  (set-next-node! n1 n2)
+  (set-prev-node! n2 n1))
+(define (node->list n)
+  (define (iter n l)
+    (if (empty-node? n)
+        (nreverse l)
+        (iter (next-node n) (cons (item-node n) l))))
+  (iter n '()))
+\end{lstlisting}
+We then define \lstinline!make-deque! as follows:
+\begin{lstlisting}
+(define (make-deque)
+  (let ((front-ptr empty-node)
+        (rear-ptr empty-node))
+    (define (deque->list)
+      (if (and (not (empty-deque?)) (eq? front-ptr rear-ptr))
+          (list (item-node front-ptr))
+          (node->list front-ptr)))
+    (define (empty-deque?) (empty-node? front-ptr))
+    (define (front-deque)
+      (if (empty-deque?)
+          (error "FRONT-DEQUE -- deque is empty")
+          (item-node front-ptr)))
+    (define (rear-deque)
+      (if (empty-deque?)
+          (error "REAR-DEQUE -- deque is empty")
+          (item-node rear-ptr)))
+    (define (insert! i front?)
+      (let ((n (make-node i)))
+        (cond ((empty-deque?)
+               (set-prev-node! n n)
+               (set! front-ptr n)
+               (set! rear-ptr n))
+              (front?
+               (append-node! n front-ptr)
+               (set! front-ptr n))
+              (else
+               (append-node! rear-ptr n)
+               (set! rear-ptr n)))
+        (deque->list)))
+    (define (front-insert-deque! i) (insert! i #t))
+    (define (rear-insert-deque! i) (insert! i #f))
+    (define (front-delete-deque!)
+      (cond ((empty-deque?)
+             (error "FRONT-DELETE-DEQUE! -- the deque is empty"))
+            (else
+             (set! front-ptr (next-node front-ptr)) 
+             (deque->list))))
+    (define (rear-delete-deque!)
+      (if (empty-deque?)
+          (error "REAR-DELETE-DEQUE! -- the deque is empty")
+          (let ((p (prev-node rear-ptr)))
+            (cond ((or (eq? p rear-ptr) (empty-node? p)) 
+                   (set! front-ptr empty-node))
+                  (else
+                   (set-next-node! p empty-node)
+                   (set! rear-ptr p)))
+            (deque->list))))
+    (define (dispatch m)
+      (cond ((eq? m 'empty-deque?) (empty-deque?))
+            ((eq? m 'front-deque) (front-deque))
+            ((eq? m 'rear-deque) (rear-deque))
+            ((eq? m 'front-insert-deque!) front-insert-deque!)
+            ((eq? m 'rear-insert-deque!) rear-insert-deque!)
+            ((eq? m 'front-delete-deque!) (front-delete-deque!))
+            ((eq? m 'rear-delete-deque!) (rear-delete-deque!))
+            (else
+             (error "DEQUE -- unknown message" m))))
+    dispatch))
+(define (empty-deque? d) (d 'empty-deque?))
+(define (front-deque d) (d 'front-deque))
+(define (rear-deque d) (d 'rear-deque))
+(define (front-insert-deque! d i) ((d 'front-insert-deque!) i))
+(define (rear-insert-deque! d i) ((d 'rear-insert-deque!) i))
+(define (front-delete-deque! d) (d 'front-delete-deque!))
+(define (rear-delete-deque! d) (d 'rear-delete-deque!))
+\end{lstlisting}
+\end{document}

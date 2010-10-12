@@ -1,0 +1,17 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\subpar}[1] {\medskip \noindent #1.} \lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (make-from-mag-ang r a)
+  (define (dispatch op)
+    (cond ((eq? op 'real-part) (* r (cos a)))
+          ((eq? op 'imag-part) (* r (sin a)))
+          ((eq? op 'magnitude) r)
+          ((eq? op 'angle) a)
+          (else
+           (error "Unknown op -- MAKE-FROM-MAG-ANG" op))))
+  dispatch)
+\end{lstlisting}
+\end{document}

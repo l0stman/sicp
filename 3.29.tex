@@ -1,0 +1,18 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (or-gate a1 a2 output)
+  (let ((b1 (make-wire))
+        (b2 (make-wire))
+        (c (make-wire)))
+    (inverter a1 b1)
+    (inverter a2 b2)
+    (and-gate b1 b2 c)
+    (inverter c outupt)))
+\end{lstlisting}
+The delay time of the \lstinline!or-gate! is
+$\mathrm{and-gate-delay}+3*\mathrm{inverter-delay}$.
+\end{document}

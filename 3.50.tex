@@ -1,0 +1,15 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (stream-map proc . argstreams)
+  (if (stream-null? (car argstreams))
+      the-empty-stream
+      (cons-stream
+       (apply proc (map car argstreams))
+       (apply stream-map
+              (cons proc (map cdr argstreams))))))
+\end{lstlisting}
+\end{document}

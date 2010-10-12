@@ -1,0 +1,14 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\begin{lstlisting}
+(rule (big-shot ?person ?division)
+      (and (job ?person (?division . ?rest-1))
+           (supervisor ?person ?supervisor)
+           (not (job ?supervisor (?division . ?rest-2)))))
+\end{lstlisting}
+\end{document}

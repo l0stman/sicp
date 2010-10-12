@@ -1,0 +1,41 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (make-table same-key?)
+  (let ((local-table (list '*table*)))
+    (define (search k table)
+      (cond ((null? table) #f)
+            ((same-key? k (caar table)) (car table))
+            (else (search k (cdr table)))))
+    (define (lookup key-1 key-2)
+      (let ((subtable (search key-1 (cdr local-table))))
+        (if subtable
+            (let ((record (search key-2 (cdr subtable))))
+              (if record
+                  (cdr record)
+                  #f))
+            #f)))
+    (define (insert! key-1 key-2 value)
+      (let ((subtable (search key-1 (cdr local-table))))
+        (if subtable
+            (let ((record (search key-2 (cdr subtable))))
+              (if record
+                  (set-cdr! record value)
+                  (set-cdr! subtable
+                            (cons (cons key-2 value)
+                                  (cdr subtable)))))
+            (set-cdr! local-table
+                      (cons (list key-1
+                                  (cons key-2 value))
+                            (cdr local-table))))
+        'ok))
+    (define (dispatch m)
+      (cond ((eq? m 'lookup-proc) lookup)
+            ((eq? m 'insert-proc!) insert!)
+            (else (error "Unknown operation -- TABLE" m))))
+    dispatch))
+\end{lstlisting}
+\end{document}

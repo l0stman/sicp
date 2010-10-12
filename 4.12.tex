@@ -1,0 +1,41 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+\begin{lstlisting}
+(define (lookup var env loop?)
+  (define (env-loop env)
+    (define (scan frame)
+      (cond ((null? frame)
+             (when loop?
+               (env-loop (enclosing-environment env))))
+            ((eq? var (caar frame))
+             (car frame))
+            (else (scan (cdr frame)))))
+    (unless (eq? env the-empty-environment)
+      (scan (first-frame env))))
+  (env-loop env))
+
+(define (lookup-variable-value var env)
+  (let ((bind (lookup var env #t)))
+    (if bind
+        (cdr bind)
+        (error "Unbound variable" var))))
+
+(define (set-variable-value! var val env)
+  (let ((bind (lookup var env #t)))
+    (if bind
+        (set-cdr! bind val)
+        (error "Unbound variable -- SET!" var))))
+
+(define (define-variable! var val env)
+  (let ((bind (lookup var env #f)))
+    (if bind
+        (set-cdr! bind val)
+        (add-binding-to-frame! var
+                               val
+                               (first-frame env)))))
+\end{lstlisting}
+\end{document}

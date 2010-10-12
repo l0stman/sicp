@@ -1,0 +1,14 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+Suppose that a process $P_1$ exchanges $a_1$ and $a_2$, while $P_2$
+exchanges $a_1$ and $a_3$.  The first serializer in the compound
+serializer of each process will impeach $P_1$ and $P_2$ to access
+$a_1$ at the same time.  On the other hand if $P_2$ tries to swap
+$a_2$ and $a_3$.  The second serializer in the compound serializer
+will do the same job.  The sum withdrawn from an account will be added
+to another one.  Since withdraws and deposits are serialized, when all
+the processes terminates, the sum of the balances will be preserved.
+\end{document}

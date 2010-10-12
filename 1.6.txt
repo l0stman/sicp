@@ -1,0 +1,3 @@
+The procedure won't terminates.  Given that new-if is procedure, all
+the operands are evaluated, including (sqrt-iter (improve guess x) x)
+and so on.

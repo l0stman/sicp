@@ -1,0 +1,194 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+This time, we could also append filters to the bindings in the frame.
+A second argument which represents a list of filters could be passed
+to \lstinline!make-frame!.
+
+\begin{lstlisting}
+(define (make-frame binds . rest)
+  (list binds (if (null? rest) rest (car rest))))
+(define (frame-binds frame) (car frame))
+(define (frame-filters frame) (cadr frame))
+(define (binding-in-frame var frame)
+  (assoc var (frame-binds frame)))
+\end{lstlisting}
+
+Since we want to delay the evaluation of a query untill all the
+variables are bound in a given frame, we define some helper procedures
+first.
+
+\begin{lstlisting}
+(define (free-var? var frame)
+  (let ((bind (binding-in-frame var frame)))
+    (or (not bind)
+        (and (var? (binding-value bind))
+             (free-var? (binding-value bind) frame)))))
+(define (free-vars pat frame)
+  (let loop ((pat pat) (result '()))
+    (cond ((and (var? pat) (free-var? pat frame))
+           (cons pat result))
+          ((pair? pat)
+           (loop (cdr pat)
+                 (loop (car pat) result)))
+          (else result))))
+
+(define (all-bound? vars frame)
+  (let loop ((vars vars))
+    (or (null? vars)
+        (and (binding-in-frame (car vars) frame)
+             (loop (cdr vars))))))
+
+\end{lstlisting}
+
+A filter is a data structure that contains two procedures that take a
+frame as argument.  The first one is a predicate that tests if we can
+apply the filter to a given frame and the second one tests if the
+frame passes the filter or not.  If it's not the case we return the
+symbol \lstinline!failed!.
+
+\begin{lstlisting}
+(define (make-filter query frame pred?)
+  (let ((vars (free-vars query frame)))
+    (cons (lambda (frame) (all-bound? vars frame))
+          pred?)))
+(define (filter-test filter) (car filter))
+(define (filter-pred filter) (cdr filter))
+
+(define (add-filter frame query pred?)
+  (let ((filter (make-filter query frame pred?)))
+   (cond (((filter-test filter) frame)
+          (if ((filter-pred filter) frame)
+              frame
+              'failed))
+         (else
+          (make-frame (frame-binds frame)
+                      (append (frame-filters frame)
+                              (list filter)))))))
+\end{lstlisting}
+
+The following procedure divides the filters of a given frame into two
+sets.  The first one represents those that could be applied to the
+frame and the second one those that should be delayed.
+\begin{lstlisting}
+(define (select-filters frame)
+  (let loop ((filters (frame-filters frame))
+             (valids '())
+             (invalids '()))
+    (if (null? filters)
+        (cons valids invalids)
+        (let ((valid? (filter-test (car filters))))
+          (if (valid? frame)
+              (loop (cdr filters)
+                    (cons (car filters) valids)
+                    invalids)
+              (loop (cdr filters)
+                    valids
+                    (cons (car filters) invalids)))))))
+\end{lstlisting}
+
+We define \lstinline!extend! as usual except that all the filters that
+could be applied to the resulting frame take effect immediately.
+
+\begin{lstlisting}
+(define (extend var val frame)
+  (let* ((frame1 (make-frame
+                  (cons (make-binding var val)
+                        (frame-binds frame))
+                  (frame-filters frame)))
+         (selected-filters (select-filters frame1)))
+    (let loop ((filters (car selected-filters))
+               (rest-filters (cdr selected-filters)))
+      (if (null? filters)
+          (make-frame (frame-binds frame1)
+                      rest-filters)
+          (let ((filter? (filter-pred (car filters))))
+            (if (filter? frame1)
+                (loop (cdr filters) rest-filters)
+                'failed))))))
+\end{lstlisting}
+
+We use a modified \lstinline!query-driver-loop! since before printing
+the results, we need to apply all the remaining filters to a given
+frame.
+
+\begin{lstlisting}
+(define (force-filters frame)
+  (let loop ((filters (frame-filters frame)))
+    (if (null? filters)
+        (make-frame (frame-binds frame))
+        (let ((filter? (filter-pred (car filters))))
+          (if (filter? frame)
+              (loop (cdr filters))
+              'failed)))))
+
+(define (query-driver-loop)
+  (prompt-for-input input-prompt)
+  (let ((q (query-syntax-process (read))))
+    (cond ((assertion-to-be-added? q)
+           (add-rule-or-assertion!
+            (add-assertion-body q))
+           (display "Assertion added to data base.")
+           (newline)
+           (query-driver-loop))
+          (else
+           (display output-prompt)
+           (newline)
+           (display-stream
+            (stream-flatmap
+             (lambda (frame)
+               (let ((frame (force-filters frame)))
+                 (if (eq? frame 'failed)
+                     the-empty-stream
+                     (singleton-stream
+                      (instantiate* q
+                                    frame
+                                    (lambda (v f)
+                                      (contract-question-mark v)))))))
+             (qeval q (singleton-stream (make-frame '())))))
+           (query-driver-loop)))))
+\end{lstlisting}
+
+The implementations of \lstinline!negate! and \lstinline!lisp-value!
+are now straightforward.
+
+\begin{lstlisting}
+(define (stream-map-and-filter proc stream)
+  (stream-filter (lambda (frame)
+                   (not (eq? 'failed frame)))
+                 (stream-map proc stream)))
+
+(define (negate operands frame-stream)
+  (stream-map-and-filter
+   (lambda (frame)
+     (let ((query (negated-query operands)))
+      (add-filter frame
+                  query
+                  (lambda (frame1)
+                    (stream-null?
+                     (qeval query
+                            (singleton-stream frame1)))))))
+   frame-stream))
+(put 'not 'qeval negate)
+
+(define (lisp-value call frame-stream)
+  (stream-map-and-filter
+   (lambda (frame)
+     (add-filter call
+                 frame
+                 (lambda (frame1)
+                   (execute
+                    (instantiate*
+                     call
+                     frame1
+                     (lambda (v f)
+                       (error "Unknown pat var -- LISP-VALUE" v)))))))
+   frame-stream))
+(put 'lisp-value 'qeval lisp-value)
+\end{lstlisting}
+
+\end{document}

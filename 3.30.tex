@@ -1,0 +1,22 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (ripple-carry-adder A B S C)
+  (if (null? A)
+      'ok
+      (let ((c-out (make-wire)))
+        (set-signal! c-out 0)
+        (full-adder (car A) (car B) C (car S) c-out)
+        (ripple-carry-adder
+         (cdr A) (cdr B) (cdr S) c-out))))
+\end{lstlisting}
+The delay of a half-adder is
+\[and-delay + \max(or-delay, inverter-delay + and-delay).\]
+Thus the delay of a full-adder is
+\[ or-delay + 2(and-delay + \max(or-delay, inverter-delay +
+and-delay)).\]
+So the delay of an $n$-bit ripple-carry adder is $n$ times this number.
+\end{document}

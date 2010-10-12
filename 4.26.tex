@@ -1,0 +1,46 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+We just add the following clause to the definition of \lstinline!eval!
+
+\begin{lstlisting}
+  ((unless? exp) (eval-unless exp env))
+\end{lstlisting}
+
+And then we define \lstinline!eval-unless! as follow
+
+\begin{lstlisting}
+(define (eval-unless exp env)
+  (if (true? (eval (if-predicate exp) env))
+      (eval (if-alternative exp) env)
+      (eval (if-consequent exp) env)))
+\end{lstlisting}
+
+Now suppose we have three lists of scheme expressions of the same
+length.  We want to return a list whose $n^{th}$ is the $n^{th}$
+element of the second list if the evaluation of the $n^{th}$ element
+of the first list is true, or the $n^{th}$ element of the third list
+otherwise.  If \lstinline!unless! is implemented as function, we could
+just use
+
+\begin{lstlisting}
+  (map unless list1 list2 list3)
+\end{lstlisting}
+
+instead of doing explicitly
+
+\begin{lstlisting}
+(define (loop lst1 lst2 lst3)
+  (if (null? list1)
+      '()
+      (cons (unless (car lst1) (car lst2) (car lst3))
+            (loop (cdr lst1) (cdr lst2) (cdr lst3)))))
+\end{lstlisting}
+
+since we see that there's already a high-order function which could do
+the job fine.
+\end{document}

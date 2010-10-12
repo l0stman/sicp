@@ -1,0 +1,12 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (double f)
+  (lambda (x) (f (f x))))
+(((double (double double)) inc) 5)
+\end{lstlisting}
+$\rightarrow 21$
+\end{document}

@@ -1,0 +1,21 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\subpar{a} \lstinline!(meeting ?division (Friday ?time))!
+
+\subpar{b}
+
+\begin{lstlisting}
+(rule (meeting-time ?person ?day-and-time)
+      (and (job ?person (?division . ?rest))
+           (or (meeting whole-company ?day-and-time)
+               (meeting ?division ?day-and-time))))
+\end{lstlisting}
+
+\subpar{c} \lstinline!(meeting-time (Hacker Alyssa P) (Wednesday ?time))!.
+
+\end{document}

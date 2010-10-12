@@ -1,0 +1,26 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define make-vect cons)
+(define xcor-vect car)
+(define ycor-vect cdr)
+
+(define (add-vect v w)
+  (make-vect
+   (+ (xcor-vect v) (xcor-vect w))
+   (+ (ycor-vect v) (ycor-vect w))))
+
+(define (sub-vect v w)
+  (make-vect
+   (- (xcor-vect v) (xcor-vect w))
+   (- (ycor-vect v) (ycor-vect w))))
+
+(define (scal-vect s v)
+  (make-vect
+   (* s (xcor-vect v))
+   (* s (ycor-vect v))))
+\end{lstlisting}
+\end{document}

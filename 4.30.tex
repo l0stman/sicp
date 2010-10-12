@@ -1,0 +1,25 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\subpar{a} Ben is right since \lstinline!newline! and
+\lstinline!display! are primitive procedures, thus lazy evaluation
+doesn't apply to them.
+
+\subpar{b} In the first case , we obtain $(p1\ 1) \rightarrow (1\ 2)$,
+$(p2\ 1) \rightarrow 1$ since the \lstinline!set!! expression is
+inside a thunk.  On the other hand, with the second version we obtain
+$(p1\ 1) \rightarrow (1\ 2)$, $(p2\ 1) \rightarrow (1\ 2)$.
+
+\subpar{c} For the same reason than the answer given in a.
+
+\subpar{d} We should just stick to the initial definition.  What these
+examples teach us is that it's not healthy to mix together lazy
+evaluation and side-effects.  Thus when programming with a language
+with lazy evaluation, we should always adopt a functional programming
+style, except maybe for I/O.
+
+\end{document}

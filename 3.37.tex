@@ -1,0 +1,20 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (c* x y)
+  (let ((z (make-connector)))
+    (multiplier x y z)
+    z))
+(define (c/ x y)
+  (let ((z (make-connector)))
+    (multiplier y z x)
+    z))
+(define (cv v)
+  (let ((x (make-connectr)))
+    (constant v x)
+    x))
+\end{lstlisting}
+\end{document}

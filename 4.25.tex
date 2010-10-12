@@ -1,0 +1,12 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+The procedure \lstinline!factorial! won't terminate since all the
+arguments will be evaluated before calling \lstlinline!unless!.  But
+the definition work in normal-order evaluation.
+
+\end{document}

@@ -1,0 +1,12 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+The expression \lstinline!''abracadabra! is transformed by the
+interpreter into
+\begin{lstlisting}
+  (car (quote (quote abracadabra)))
+\end{lstlisting}
+And evaluating this expression gives the symbol \lstinline!quote!.
+\end{document}

@@ -1,0 +1,19 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+There's an extra frame because of the bindings introduced by the
+\lstinline!let! form.  Note that when we evaluate the
+\lstinline!lambda! form, an new frame is created and no procedure in
+the body points directly to this frame.  So there's no difference for
+the correctness of the program.
+
+If we want to get rid of the extra frame, we could add to the
+variables of the procedure the local bindings.  And transform the
+codes that calls the procedures to add \lstinline!*unassigned*!
+symbols as extra arguments.
+
+\end{document}

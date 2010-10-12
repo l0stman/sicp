@@ -1,0 +1,47 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (queens board-size)
+  (define (queen-cols k)
+    (if (= k 0)
+        (list empty-board)
+        (filter
+         (lambda (positions) (safe? k positions))
+         (flatmap
+          (lambda (rest-of-queens)
+            (map (lambda (new-row)
+                   (adjoin-position new-row
+                                    k
+                                    rest-of-queens))
+                 (enumerate-interval 1 board-size)))
+          (queen-cols (- k 1))))))
+  (queen-cols board-size))
+
+(define empty-board null)
+(define (make-position row col) (cons row col))
+(define (row position) (car position))
+(define (column position) (cdr position))
+(define (adjoin-position row col rest-of-queens)
+  (cons (make-position row col) rest-of-queens))
+(define (top positions) (car positions))
+(define (rest positions) (cdr positions))
+(define (safe? k positions)
+  (let ((new-row (row (top positions)))
+        (new-col k))
+    (define (iter p)
+      (if (null? p)
+          #t
+          (let* ((pos (top p))
+                 (r (row pos))
+                 (c (column pos)))
+            (if (or (= r new-row)
+                    (= (abs (- r new-row))
+                       (abs (- c new-col))))
+                #f
+                (iter (rest p))))))
+    (iter (rest positions))))
+\end{lstlisting}
+\end{document}

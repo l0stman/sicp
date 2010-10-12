@@ -1,0 +1,26 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+We only modify \lstinline!adjoin-set! as follows.
+\begin{lstlisting}
+(define (adjoin-set x set)
+  (cons x set))
+\end{lstlisting}
+\lstinline!element-of-set?! becomes less efficient if we allow
+duplicates in the list because the two lists \lstinline!(1)! and
+\lstinline!(1 1 1 1 1)! represents the same set $\{1\}$.  But if we
+search for an element which is not in the list, it will take a linear
+time even if there's only one element in the set.  We have the same
+conclusion concerning \lstinline!intersection-set!.
+
+On the other hand, \lstinline!adjoin-set! becomes a constant-time
+operation and \lstinline!union-set! becomes linear time.
+
+\medskip
+This second implementation is more interesting for applications using
+mostly union operations and seldom use intersection and to test if an
+element is in the set.  But as long as the size of the entry isn't too
+large, these operations won't really matters.
+\end{document}

@@ -1,0 +1,46 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+We represent a rectangle with its width and length and construct
+it with two perpendicular segments having the
+same start point.
+\begin{lstlisting}
+(define (segment-length s)
+  (sqrt (+ (square (- (x-point (start-segment s))
+                      (x-point (end-segment s))))
+           (square (- (y-point (start-segment s))
+                      (y-point (end-segment s)))))))
+(define (make-rectangle s1 s2)
+  (let ((l (segment-length s1))
+        (w (segment-length s2)))
+    (cons (min w l) (max w l))))
+(define (rectangle-length r) (cdr r))
+(define (rectangle-width r) (car r))
+\end{lstlisting}
+We could then define the perimeter and area as follow
+\begin{lstlisting}
+(define (perimeter r)
+  (+ (rectangle-length r) (rectangle-width r)))
+(define (area r)
+  (* (rectangle-length r) (rectangle-width r)))
+\end{lstlisting}
+
+\medskip \noindent
+We could too represent the rectangle with two perpendicular segments
+having the same starting point.
+\begin{lstlisting}
+(define (make-rectangle s1 s1) (cons s1 s2))
+(define (rectangle-length r)
+  (let ((l (segment-length (car r)))
+        (w (segment-length (cdr r))))
+    (max l w)))
+(define (width-length r)
+  (let ((l (segment-length (car r)))
+        (w (segment-length (cdr r))))
+    (min l w)))
+\end{lstlisting}
+This new representation doesn't change our definitions of
+\lstinline!perimeter! and \lstinline!area!.
+\end{document}

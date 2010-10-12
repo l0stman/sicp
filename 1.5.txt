@@ -1,0 +1,11 @@
+With an interpreter that uses application-order evalution, the
+procedure won't terminate.  This is because the interpreter tries to
+evaluate the operands and especially (p).
+
+On the other hand, if the interpreter uses normal-order
+evaluation, it returns 0.  The order of the evalution is as follows:
+-> (test 0 (p))
+-> (if (= 0 0)
+	0
+	(p))
+-> 0

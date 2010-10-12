@@ -1,0 +1,21 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+  (define (count-pairs x)
+    (let ((visited '()))
+      (define (iter x)
+        (cond ((not (pair? x)) 0)
+              ((memq x visited)
+               (+ (iter (car x))
+                  (iter (cdr x))))
+              (else
+               (set! visited (cons x visited))
+               (+ (iter (car x))
+                  (iter (cdr x))
+                  1))))
+      (iter x)))
+\end{lstlisting}
+\end{document}

@@ -1,0 +1,15 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+If \lstinline!(try try)! halts, it means that \lstinline!(halts? try try)!
+is false. That means it runs forever which is absurd.
+
+On the other hand if \lstinline!(try try)! runs forever, it means
+\lstinline!(halts? try try)! is true.  Thus the program halts which is
+also absurd.
+
+\end{document}

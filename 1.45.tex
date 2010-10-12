@@ -1,0 +1,130 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+Since we don't know yet the number of times we need to apply \\
+\lstinline!average-damp!, let's try to guess it by adding a third
+parameter.
+\begin{lstlisting}
+(define (nth-root x n k)
+  (fixed-point ((repeated average-damp k)
+		(lambda (y) (/ x (expt y (- n 1)))))
+	       1.0))
+(define (test x n k)
+  (expt (nth-root x n k) n))
+\end{lstlisting}
+As a test case, we'll compute \lstinline!(test 2 n k)! for some
+values of $n$ and $k$, and increment $k$ if the procedure takes too
+much time to execute.  
+
+\lstinline!C-c C-cuser break! means that we
+stopped the program.  We obtain the following results
+\begin{lstlisting}
+(test 2 4 2)
+\end{lstlisting}
+$\rightarrow$ 1.9999999999999998
+\begin{lstlisting}
+(test 2 5 2)
+\end{lstlisting}
+$\rightarrow$ 1.9999858050463717
+\begin{lstlisting}
+(test 2 6 2)
+\end{lstlisting}
+$\rightarrow$ 2.0000298387260598
+\begin{lstlisting}
+(test 2 7 2)
+\end{lstlisting}
+$\rightarrow$ 1.9999522624207118
+\begin{lstlisting}
+(test 2 8 2)
+\end{lstlisting}
+$\rightarrow$   C-c C-cuser break
+\begin{lstlisting}
+(test 2 8 3)
+\end{lstlisting}
+$\rightarrow$ 2.0000000000000036
+\begin{lstlisting}
+(test 2 9 3)
+\end{lstlisting}
+$\rightarrow$ 2.000006753178216
+\begin{lstlisting}
+(test 2 10 3)
+\end{lstlisting}
+$\rightarrow$ 2.000014560609078
+\begin{lstlisting}
+(test 2 11 3)
+\end{lstlisting}
+$\rightarrow$ 1.999968957201428
+\begin{lstlisting}
+(test 2 12 3)
+\end{lstlisting}
+$\rightarrow$ 1.9999608941805735
+\begin{lstlisting}
+(test 2 13 3)
+\end{lstlisting}
+$\rightarrow$ 2.0000853129122884
+\begin{lstlisting}
+(test 2 14 3)
+\end{lstlisting}
+$\rightarrow$ 1.9998902567944317
+\begin{lstlisting}
+(test 2 15 3)
+\end{lstlisting}
+$\rightarrow$ 2.0001212122767673
+\begin{lstlisting}
+(test 2 16 3)
+\end{lstlisting}
+ $\rightarrow$ C-c C-cuser break
+\begin{lstlisting}
+(test 2 16 4)
+\end{lstlisting}
+$\rightarrow$ 2.0000000000000178
+\begin{lstlisting}
+(test 2 17 4)
+\end{lstlisting}
+$\rightarrow$ 1.9999886028289902
+\begin{lstlisting}
+(test 2 18 4)
+\end{lstlisting}
+$\rightarrow$ 2.0000109642328416
+\begin{lstlisting}
+(test 2 19 4)
+\end{lstlisting}
+$\rightarrow$ 2.0000396021495437
+\begin{lstlisting}
+(test 2 19 4)
+\end{lstlisting}
+$\rightarrow$ 2.0000396021495437
+\begin{lstlisting}
+(test 2 31 4)
+\end{lstlisting}
+$\rightarrow$ 1.9997159498952142
+\begin{lstlisting}
+(test 2 32 4)
+\end{lstlisting}
+$\rightarrow$   C-c C-cuser break
+\begin{lstlisting}
+(test 2 63 4)
+\end{lstlisting}
+$\rightarrow$ 1.9996518342602587
+\begin{lstlisting}
+(test 2 64 4)
+\end{lstlisting}
+$\rightarrow$   C-c C-cuser break
+
+We remark that the values of $n$ where the test fail are those which
+are power of $2$: $8$, $16$, $32$, $64$.  And we can see that:
+\[ k = \lfloor \lg n\rfloor.\]
+
+So let's redefine \lstinline!nth-root! accordingly and see what happens,
+\begin{lstlisting}
+(define (nth-root x n)
+  (fixed-point ((repeated average-damp
+			  (floor (/ (log n)
+				    (log 2))))
+		(lambda (y) (/ x (expt y (- n 1)))))
+	       1.0))
+\end{lstlisting}
+It happens that the procedure works.
+\end{document}

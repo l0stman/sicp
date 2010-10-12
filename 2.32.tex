@@ -1,0 +1,16 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (subsets s)
+  (if (null? s)
+      (list null)
+      (let ((rest (subsets (cdr s))))
+        (append rest
+                (map (lambda (x)
+                       (cons (car s) x))
+                     rest)))))
+\end{lstlisting}
+\end{document}

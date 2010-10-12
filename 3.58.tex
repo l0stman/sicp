@@ -1,0 +1,11 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\lstinline!(expand 1 7 10)! produces a stream containing the sequence
+$1$, $4$, $2$, $8$, $5$, $7$ repeated indefinitely.
+
+\lstinline!(expand 3 8 10)! produces the stream $3$, $7$, $5$, and
+then $0$ repeated indefinitely.
+\end{document}

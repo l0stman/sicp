@@ -1,0 +1,24 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+Suppose that all numbers are positive.  Note $c_1$ and $p_1$ the
+center and percentage tolerance of the interval $I_1$ and $c_2$ and
+$p_2$ for the interval $I_2$.
+
+We have,
+\[ I_1 = [c_1(1-p_1), c_1(1+p_1)]\ \mbox{and}\ 
+I_2 = [c_2(1-p_2), c_2(1+p_2)].\]
+We then deduce the product $P$ of the two intervals
+\[ P = [c_1c_2(1-p_1)(1-p_2), c_1c_2(1+p_1)(1+p_2)].\]
+And finally the percentage tolerance $p$of $P$,
+\begin{eqnarray*}
+p &=& \frac{(1+p_1)(1+p_2) - (1-p_1)(1-p_2)}
+{(1+p_1)(1+p_2) + (1-p_1)(1-p_2)} \\
+&=& \frac{p_1+p_2}{1+p_1p_2}
+\end{eqnarray*}
+Under the assumption of small percentage tolerances, we then deduce
+that
+\[ p \simeq p_1 + p_2.\]
+\end{document}

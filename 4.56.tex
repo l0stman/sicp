@@ -1,0 +1,28 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\subpar{a}
+\begin{lstlisting}
+(and (supervisor ?person (Bitdiddle Ben))
+     (address ?person ?address))
+\end{lstlisting}
+
+
+\subpar{b}
+\begin{lstlisting}
+(and (salary (Bitdiddle Ben) ?ben-salary)
+     (salary ?person ?salary)
+     (lisp-value < ?salary ?ben-salary))
+\end{lstlisting}
+
+\subpar{c}
+\begin{lstlisting}
+(and (supervisor ?person ?supervisor)
+     (not (job ?supervisor (computer . ?type)))
+     (job ?supervisor ?division))
+\end{lstlisting}
+\end{document}

@@ -1,0 +1,14 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (equal? a b)
+  (if (not (pair? a))
+      (eq? a b)
+      (and (pair? b)
+           (equal? (car a) (car b))
+           (equal? (cdr a) (cdr b)))))
+\end{lstlisting}
+\end{document}

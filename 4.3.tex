@@ -1,0 +1,22 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+\begin{lstlisting}
+(define (eval exp env)
+  (cond ((self-evaluating? exp) exp)
+        ((variable? exp)
+         (lookup-variable-value exp env))
+        ((get 'eval (operator exp)) =>
+         (lambda (eval-proc)
+           (eval-proc (operands exp) env)))
+        ((application? exp)
+         (apply (eval (operator exp) env)
+                (list-of-values (operands exp) env)))
+        (else
+         (error "Unknown expression type -- EVAL"
+                exp))))
+\end{lstlisting}
+\end{document}

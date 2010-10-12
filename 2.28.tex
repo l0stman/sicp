@@ -1,0 +1,15 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (fringe t)
+  (cond ((null? t) t)
+        ((pair? (car t))
+         (append (fringe (car t))
+                 (fringe (cdr t))))
+        (else (cons (car t)
+                    (fringe (cdr t))))))
+\end{lstlisting}
+\end{document}

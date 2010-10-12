@@ -1,0 +1,11 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+The key is the relation for $k$ integer
+\[ 1 + 2 + 2^2 + ... + 2^k = 2^{k+1} - 1.\]
+So the weight of tree resulting from the merging of the first $k$
+symbols is less that the $(k+1)^{th}$ symbol.  Thus the most frequent
+symbol has $1$ bit and the less frequent one $n-1$ bits for their encoding.
+\end{document}

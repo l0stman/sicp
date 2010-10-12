@@ -1,0 +1,11 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+To compute the $n^{th}$ Fibonacci number, $n-2$ additions are
+performed.  If we don't memoize \lstinline!delay!, the number of
+additions would be $\Theta(\phi^n)$ where $\phi$ is the golden ratio.
+That's because computing \lstinline!fibs! is now equivalent to
+computing the naive definition using recursion.
+\end{document}

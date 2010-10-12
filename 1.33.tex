@@ -1,0 +1,38 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\noindent
+\begin{lstlisting}
+(define (filtered-accumulate pred?
+			     combiner
+			     null-value
+			     term
+			     a
+			     next
+			     b)
+  (define (iter a result)
+    (cond ((> a b) result)
+	  ((pred? a) (iter (next a)
+			   (combiner (term a)
+				     result)))
+	  (else (iter (next a) result))))
+  (iter a null-value))
+\end{lstlisting}
+
+\medskip \noindent
+a. \lstinline!(filtered-accumulate prime? + square a inc b)!
+
+\medskip \noindent
+b.
+\begin{lstlisting}
+(filtered-accumulate (lambda (x)
+		       (= (gcd x n) 1))
+		     *
+		     (lambda (x) x)
+		     1
+		     inc
+		     (- n 1))
+\end{lstlisting}
+\end{document}

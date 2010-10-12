@@ -1,0 +1,25 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\subpar}[1] {\medskip \noindent #1.}
+\lstset{language=Lisp}
+
+\begin{document}
+Let's define a generic operation
+\begin{lstlisting}
+  (define (=zero? n) (apply-generic '=zero? n))
+\end{lstlisting}
+Adding in the scheme-number package
+\begin{lstlisting}
+  (put '=zero? '(scheme-number) zero?)
+\end{lstlisting}
+In the rational package
+\begin{lstlisting}
+(put '=zero? '(rational) (lambda (r)
+                           (zero? (numer r))))
+\end{lstlisting}
+And finally in the complex package
+\begin{lstlisting}
+(put '=zero? '(complex) (lambda (c)
+                          (zero? (magnitude r))))
+\end{lstlisting}
+\end{document}

@@ -1,0 +1,83 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+We add the following entry to \lstinline!analyze!
+
+\begin{lstlisting}
+  ...
+  ((ramb? exp) (analyze-ramb exp))
+  ...
+\end{lstlisting}
+
+Then we define \lstinline!analyze-ramb! as follows:
+
+\begin{lstlisting}
+(define (ramb? exp) (tagged-list? exp 'ramb))
+
+(define (analyze-ramb exp)
+  (let* ((cprocs (map analyze (amb-choices exp)))
+         (len (length cprocs)))
+    (define (choose! i head-ptr)
+      (if (zero? i)
+          (let ((choice (cadr head-ptr)))
+            (set-cdr! head-ptr (cddr head-ptr))
+            (set! len (- len 1))
+            choice)
+          (choose! (- i 1) (cdr head-ptr))))
+    (lambda (env succeed fail)
+      (define (try-next)
+        (if (zero? len)
+            (fail)
+            (let ((i (random len)))
+              (if (zero? i)
+                  (let ((c (car cprocs)))
+                    (set! cprocs (cdr cprocs))
+                    (set! len (- len 1))
+                    (c env succeed try-next))
+                  ((choose! (- i 1) cprocs)
+                   env
+                   succeed
+                   try-next)))))
+      (try-next))))
+\end{lstlisting}
+
+This would help Alyssa's problem in the following way.  Consider the
+definitions of \lstinline!parse-sentence! and \lstinline!parse-verb-phrase!
+
+\begin{lstlisting}
+(define (parse-sentence)
+  (let ((noun (parse-noun-phrase))
+        (verb (parse-verb-phrase)))
+    (amb
+     (list 'sentence noun verb)
+     (list 'sentence
+           (amb
+            (list 'predicative-adj-phrase
+                  noun
+                  verb
+                  (parse-word adjectives))
+            (list 'adverb-phrase
+                  noun
+                  verb
+                  (parse-word adverbs)))))))
+
+(define (parse-verb-phrase)
+  (define (maybe-extend verb-phrase)
+    (amb verb-phrase
+         (maybe-extend (list 'verb-phrase
+                             verb-phrase
+                             (parse-prepositional-phrase)))))
+  (maybe-extend (parse-word verbs)))
+\end{lstlisting}
+
+Since the semantics of a verb is circular, a verb or a verb followed
+by a preposition, and since \lstinline!amb! evaluates from left to
+right, the only kind of sentence we'll obtain is of the form
+\textbf{noun + verb}.  But by using \lstinline!ramb!, we could
+generate all the given types of sentences.
+
+\end{document}

@@ -1,0 +1,56 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+The \lstinline!do! loop could be implemented with a named \lstinline!let!.
+\begin{lstlisting}
+(define (do->let exp)
+  `(let do ,(map (lambda (bind)
+                     (list (car bind) (cadr bind)))
+                   (cadr exp))
+     (if ,(caaddr exp)
+         ,(sequence->exp (cdaddr exp))
+         (begin
+           ,@(cdddr exp)
+           (do ,@(map (lambda (bind)
+                        (if (null? (cddr bind))
+                            (car bind)
+                            (third bind)))
+                      (cadr exp)))))))
+\end{lstlisting}
+For example, we can generate the list of integers between $1$ and $n$
+with the following code:
+\begin{lstlisting}
+(do ((i 1 (+ i 1))
+     (res null))
+    ((> i n) (reverse res))
+  (set! res (cons i res)))
+\end{lstlisting}
+
+The \lstinline!for! loop iterates over the range of integers and an
+optional step to increment the counter at each iteration:
+
+\begin{lstlisting}
+(define (for->do exp)
+  (let* ((range (second exp))
+         (body (cddr exp))
+         (step (let ((x (cdddr range)))
+                 (if (null? x) 1 (car x)))))
+    `(do ((,(first range) ,(second range) (+ ,(first range) ,step)))
+         ((> ,(first range) ,(third range)))
+       ,@body)))
+\end{lstlisting}
+
+Here's an example:
+
+\begin{lstlisting}
+(for (i 1 10)
+  (print i)
+  (newline))
+\end{lstlisting}
+
+\lstinline!while! and \lstinline!until! could also be implemented with the
+\lstinline!do! loop.
+\end{document}

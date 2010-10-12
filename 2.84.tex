@@ -1,0 +1,66 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\subpar}[1] {\medskip \noindent #1.}
+\lstset{language=Lisp}
+
+\begin{document}
+First, we define a function to return the rank of a type in the
+hierarchy tower.
+\begin{lstlisting}
+(define tower '(integer rational real complex))
+
+(define (type n)
+  (let ((tp (type-tag n)))
+    (if (eq? 'scheme-number tp)
+        (if (integer? (contents n)) 'integer 'real)
+        tp)))
+
+(define (rank type)
+  (define (iter r tower)
+    (cond ((null? tower)
+           (error "Type is not in the hierarchy tower"
+                  type))
+          ((eq? type (car tower)) r)
+          (else (iter (+ r 1) (cdr tower)))))
+  (iter 0 tower))
+\end{lstlisting}
+We define the procedure \lstinline!raise-lst! which ``raises'' the
+order of the list of arguments \lstinline!args! using lexicographic
+order.  If we raise an element of the list whose rank is the maximum
+in the hierarchy tower, we replace this element by its initial value
+and we try to raise the order of the rest of the list.
+\begin{lstlisting}
+(define (raise-lst args init)
+  (define (iter  init head tail)
+    (if (null? tail)
+        #f
+        (let ((obj (raise (car tail))))
+          (if obj
+              (append (reverse head)
+                      (cons obj (cdr tail)))
+              (iter (cdr init)
+                    (cons (car init) head)
+                    (cdr tail))))))
+  (iter init '() args))
+\end{lstlisting}
+We then define the procedure \lstinline!apply-generic-raise! which is
+almost the \\
+\lstinline!apply-generic! procedure but we pass around the
+initial value of the list of arguments.
+\begin{lstlisting}
+(define (apply-generic-raise op args init)
+  (let* ((type-tags (map type-tag args))
+         (proc (get op type-tags)))
+    (if proc
+        (apply proc (map contents args))
+        (let ((objs (raise-lst args init)))
+          (if objs
+              (apply-generic-raise op objs init)
+              (error
+               "No method for these types"
+               (list op (map type-tag init))))))))
+
+(define (apply-generic op . args)
+  (apply-generic-raise op args args))
+\end{lstlisting}
+\end{document}

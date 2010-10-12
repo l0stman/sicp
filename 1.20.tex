@@ -1,0 +1,26 @@
+\documentclass[a4paper,12pt]{article}
+\newcommand{\ra}{\rightarrow}
+
+\begin{document} Note \textrm{rem} the remainder function.
+For a normal-order evaluation, we have
+\begin{eqnarray*}
+&&(\gcd 206\ 40)  \\ 
+&\ra& (\gcd 40\ (\mathrm{rem}\ 206\ 40)) \\
+&\ra& (\gcd\ (\mathrm{rem}\ 206\ 40)\ 
+(\mathrm{rem}\ 40\ (\mathrm{rem}\ 206\ 40))) \\
+&\ra& (\gcd\ (\mathrm{rem}\ 40\ (\mathrm{rem}\ 206\ 40))) \\
+&&(\mathrm{rem}\ (\mathrm{rem}\ 206\ 40)\ 
+(\mathrm{rem}\ 40\ (\mathrm{rem}\ 206\ 40))) \\
+&\ra&(\gcd\ (\mathrm{rem}\ (\mathrm{rem}\ 206\ 40)\ 
+(\mathrm{rem}\ 40\ (\mathrm{rem}\ 206\ 40)))\\
+&&(\mathrm{rem}\ (\mathrm{rem}\ 40\ (\mathrm{rem}\ 206\ 40))\\
+&&(\mathrm{rem}\ (\mathrm{rem}\ 206\ 40)\ 
+(\mathrm{rem}\ 40\ (\mathrm{rem}\ 206\ 40)))) \\
+&\ra& (\mathrm{rem}\ (\mathrm{rem}\ 206\ 40)\ 
+(\mathrm{rem}\ 40\ (\mathrm{rem}\ 206\ 40)) \\
+&\ra& (\mathrm{rem}\ 6\ 4)\\
+&\ra& 2
+\end{eqnarray*}
+We performed $17$ \emph{remainder} operations.  In the
+applicative-order evaluation, we only performed $4$ ones.
+\end{document}

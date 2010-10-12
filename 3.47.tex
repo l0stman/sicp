@@ -1,0 +1,62 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+a.  Implementation of semaphore in terms of mutex.
+\begin{lstlisting}
+(define (make-semaphore n)
+  (let ((count 0)
+        (mutex1 (make-mutex))
+        (mutex2 (make-mutex)))
+    (define (acquire!)
+      (let (more?)
+        (mutex1 'acquire)
+        (set! more? (>= count n))
+        (set! count (+ count 1))
+        (mutex1 'release)
+        (when more?
+          (mutex2 'acquire))))
+    (define (release!)
+      (mutex1 'acquire)
+      (mutex2 'release)
+      (set! count (- count 1))
+      (mutex1 'release))
+    (define (the-semaphore m)
+      (cond ((eq? m 'acquire) (acquire!))
+            ((eq? m 'release) (release!))
+            (else (error "SEMAPHORE -- unknown message" m))))
+    the-semaphore))
+\end{lstlisting}
+
+b.  Implementation in terms of atomic \lstinline!test-and-set!
+operations.
+\begin{lstlisting}
+(define (make-semaphore n)
+  (let ((count 0)
+        (cell1 (list #f))
+        (cell2 (list #f)))
+    (define (until-free! cell)
+      (when (test-and-set! cell)
+        (until-free! cell)))
+    (define (acquire!)
+      (if (test-and-set! cell1)
+          (acquire!)                    ; retry
+          (let ((more? (>= count n)))
+            (set! count (+ count 1))
+            (clear! cell1)
+            (when more?
+              (until-free! cell2)))))
+    (define (release!)
+      (if (test-and-set! cell1)
+          (release!)                    ; retry
+          (begin
+            (set! count (- count 1))
+            (clear! cell2)
+            (clear! cell1))))
+    (define (the-semaphore m)
+      (cond ((eq? m 'acquire) (acquire!))
+            ((eq? m 'release) (release!))
+            (else (error "SEMAPHORE -- unknown message" m))))))
+\end{lstlisting}
+\end{document}

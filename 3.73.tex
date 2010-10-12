@@ -1,0 +1,13 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (rc r c dt)
+  (lambda (i v0)
+    (add-streams (scale-stream i r)
+                 (scale-stream (integral i v0 dt)
+                               (/ 1 c)))))
+\end{lstlisting}
+\end{document}

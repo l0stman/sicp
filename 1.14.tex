@@ -1,0 +1,27 @@
+\documentclass[a4paper,12pt]{article}
+\begin{document}
+Let's note $S(n, k)$ the space used by the process $cc$ on an amount
+$n$ with $k$ kind of coins.  For large value of $n$ and $1 \le k\le
+5$, we have
+\[ S(n, k) = S(n - d_k, k) + S(n, k-1).\mbox{ (*)}\]
+where $d_k$ is the value of the $k^{th}$ coin.  We have,
+\[ S(n, 1) = S(n - 1, 1) + S(n, 0) = S(n-1, 1).\]
+So we deduce easily that,
+\[ S(n, 1) = \Theta(n).\]
+Now suppose that: $S(n, k) = \Theta(n^k)$.
+We then have from (*),
+\begin{eqnarray*}
+S(n, k+1) &=& S(n-d_{k+1}, k+1) + S(n, k) \\ 
+	&=& S(n-d_{k+1}, k+1) + \Theta(n^k).
+\end{eqnarray*}
+We then deduce that,
+\[ S(n, k+1) = \Theta(1) + \sum_{1 \le i \le n/d_{k+1}}
+\Theta(i^k).\]
+Thus,
+\[ S(n, k+1) = \Theta(n^{k+1}).\]
+Finally we then have,
+\[ S(n, 5) = \Theta(n^5).\]
+So the space used by the process is $\Theta(n^5)$.  And that number of
+steps $T(n)$ being executed is proportionnal to the size of the tree being
+generated, we have too $T(n) = \Theta(n^5)$.
+\end{document}

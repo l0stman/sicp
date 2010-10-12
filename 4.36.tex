@@ -1,0 +1,22 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+Just replacing \lstinline!an-integer-between! with
+\lstinline!an-integer-starting-from! won't work.  Since when
+backtracking, only the possible values of $k$ would be explored since
+it's infinite.  Here's a possible implementation.
+
+\begin{lstlisting}
+(define (a-pythagorean-triple)
+  (let iter ((k 1))
+    (let* ((i (an-integer-between 1 k))
+           (j (an-integer-between 1 k)))
+      (require (= (+ (* i i) (* j j)) (* k k)))
+      (amb (list i j k) (iter (+ k 1))))))
+\end{lstlisting}
+
+\end{document}

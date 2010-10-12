@@ -1,0 +1,15 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (split f g)
+  (define (iter painter n)
+    (if (= n 0)
+        painter
+        (let ((smaller (iter painter (- n 1))))
+          (f painter (g smaller smaller)))))
+  iter)
+\end{lstlisting}
+\end{document}

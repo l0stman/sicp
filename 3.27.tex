@@ -1,0 +1,22 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+Note $T(n)$ the number of steps to compute the $n^{th}$ Fibonacci number.
+If $n > 1$, we have
+\[ \mathrm{fib}(n) = \mathrm{fib}(n-1) + \mathrm{fib}(n-2).\]
+Thus, to compute $\mathrm{fib}(n)$, we need to compute
+$\mathrm{fib}(n-2)$.  But once we have computed $\mathrm{fib}(n-2)$,
+we have in the table the values of $\mathrm{fib}(k)$ for $0 \le k\le
+n-2$.  We then have,
+\[ T(n) = T(n-2) + \Theta(1)\]
+So finally $T(n) = \Theta(n)$.
+
+\medskip
+If we have defined \lstinline!memo-fib! as \lstinline!(memoize fib)!,
+the number of steps is again exponential because no value in the
+computation tree is cached.  Moreover given that the table is local,
+no subsequent call to \lstinline!memo-fib! could references the
+already computed values.
+\end{document}

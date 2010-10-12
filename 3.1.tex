@@ -1,0 +1,12 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+  (define (make-accumulator acc)
+    (lambda (n)
+      (set! acc (+ acc n))
+      acc))
+\end{lstlisting}
+\end{document}

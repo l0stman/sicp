@@ -1,0 +1,16 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+Here's what happens: the \lstinline!or! and \lstinline!and! query
+impose that each time we try to evaluate
+\lstinline!(outranked-by (Bitdiddle Ben) ?boss)!  in a given frame,
+we must evaluate \lstinline!(outranked-by ?middle-manager ?boss)!
+in the same frame and there's no constraint imposed on
+\lstinline!?middle-manager!.  This of course cause an infinite loop
+since at some point, we'll evaluate again the original query.
+
+\end{document}

@@ -1,0 +1,15 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+The problem with Louis's implementation is that the first argument to
+\lstinline!map! is a procedure in the metacircular evaluator but not
+in the underlying scheme implementation.  Thus, if \lstinline!map! is
+implemented as a primitive, the interpreter would try to apply an
+object which is not a procedure to the first element of the list
+argument.  Whereas Eva's implementation don't have this problem.
+
+\end{document}

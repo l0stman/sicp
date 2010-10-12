@@ -1,0 +1,55 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\begin{lstlisting}
+(define (distinct? items)
+  (cond ((null? items) true)
+        ((null? (cdr items)) true)
+        ((member (car items) (cdr items)) false)
+        (else (distinct? (cdr items)))))
+
+(define (cart-prod lst n)
+  (let iter ((res (map list lst)) (n n))
+    (if (= n 1)
+        res
+        (iter (foldl (lambda (x tmp)
+                       (append tmp
+                               (map (lambda (y) (cons x y))
+                                    res)))
+                     '()
+                     lst)
+              (- n 1)))))
+
+(define (liars-rank)
+  (define (one-of person1 rank1 person2 rank2)
+    (or (and (= person1 rank1) (not (= person2 rank2)))
+        (and (= person2 rank2) (not (= person1 rank1)))))
+  (map (lambda (rank)
+         (list 'betty (first rank)
+               'ethel (second rank)
+               'joan (third rank)
+               'kitty (fourth rank)
+               'mary (fifth rank)))
+       (filter (lambda (rank)
+                 (let ((betty (first rank))
+                       (ethel (second rank))
+                       (joan (third rank))
+                       (kitty (fourth rank))
+                       (mary (fifth rank)))
+                   (and (distinct? rank)
+                        (one-of kitty 2 betty 3)
+                        (one-of ethel 1 joan 2)
+                        (one-of joan 3 ethel 5)
+                        (one-of kitty 2 mary 4)
+                        (one-of mary 4 betty 1))))
+               (cart-prod '(1 2 3 4 5) 5))))
+\end{lstlisting}
+
+We then obtain the following ranking of the five girls:  Betty 3,
+Ethel 5, Joan 2, Kitty 1, Mary 4.
+
+\end{document}

@@ -1,0 +1,14 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (partial-sums S)
+  (define (iter s1 s2)
+    (cons-stream (stream-ref s1 0)
+                 (iter (add-streams s1 s2)
+                       (stream-cdr s2))))
+  (iter S (stream-cdr S)))
+\end{lstlisting}
+\end{document}

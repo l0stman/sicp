@@ -1,0 +1,41 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\subpar}[1] {\medskip \noindent #1.} \lstset{language=Lisp}
+
+\begin{document}
+\subpar{a}  Basically, \lstinline!partial-tree! built a balanced tree
+with the first $\lfloor (n-1)/2 \rfloor$ elements of \lstinline!elts!,
+this will be the left branch of the newly built balanced tree.  Choose
+the $\lfloor (n-1)/2\rfloor + 1$ element as the entry, and built a
+balanced tree with the next $\lceil (n-1)/2\rceil$ elements and make it the
+right branch.  This build a balanced tree with the first $n$ elements
+of \lstinline!elts!.  It then returns a pair containing this tree as
+first element and the remainder of \lstinline!els! as second element.
+
+\subpar{b}  Note $T$ the running time of \lstinline!partial-tree!.  We
+have the recurrence,
+\[ T(n) = T\left(\left\lfloor\frac{n-1}{2}\right\rfloor\right) +
+T\left(\left\lceil\frac{n-1}{2}\right\rceil\right) + \Theta(1).\]
+If we're being sloppy, this recurrence could be rewritten as
+\[ T(n) = 2T\left(\frac{n}{2}\right) + \Theta(1).\]
+Thus, we have $T(n) = \Theta(n)$.  Let's show that this is really the
+case without being sloppy.
+
+Let's show that $T(n) \le c\,n$ for an appropriate choice of the
+constant $c>0$.  Suppose we have the inequality for
+$\left\lfloor\frac{n-1}{2}\right\rfloor$ and
+$\left\lceil\frac{n-1}{2}\right\rceil$, we have
+\begin{eqnarray*}
+  T(n) &=& T\left(\left\lfloor\frac{n-1}{2}\right\rfloor\right) +
+  T\left(\left\lceil\frac{n-1}{2}\right\rceil\right) + \Theta(1) \\
+  &\le& c\left\lfloor\frac{n-1}{2}\right\rfloor +
+  c\left\lceil\frac{n-1}{2}\right\rceil + \Theta(1) \\
+  &=& c(n-1) + \Theta(1) \\
+  &=& c\,n - (c - \Theta(1)) \\
+  &\le& c\,n
+\end{eqnarray*}
+if we have $c \ge \Theta(1)$.  Plus $c$ should be large enough
+such that $T(1) \le c$.  We then deduce that $T(n) = O(n)$.  Using
+the same reasoning, we could show that $T(n) = \Omega(n)$ such that
+$T(n) = \Theta(n)$.
+\end{document}

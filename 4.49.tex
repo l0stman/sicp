@@ -1,0 +1,112 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+We just redefine \lstinline!parse-word! as follows in the grammar
+defined in \textbf{4.48}.y
+
+\begin{lstlisting}
+(define (parse-word word-list)
+  (list (car word-list)
+        (an-element-of (cdr word-list))))
+\end{lstlisting}
+
+Thus, when we run \lstinline!parse-sentence!, we obtain successively:
+
+\begin{lstlisting}
+(sentence
+ (simple-noun-phrase
+  (article the) (noun student)) (verb studies))
+
+;;; Amb-Eval input:
+try-again
+
+;;; Amb-Eval value:
+(sentence
+ (predicative-adj-phrase
+  (simple-noun-phrase (article the) (noun student))
+  (verb studies) (adj good)))
+
+;;; Amb-Eval input:
+try-again
+
+;;; Amb-Eval value:
+(sentence
+ (predicative-adj-phrase
+  (simple-noun-phrase (article the) (noun student))
+  (verb studies) (adj bad)))
+
+;;; Amb-Eval input:
+try-again
+
+;;; Amb-Eval value:
+(sentence
+ (predicative-adj-phrase
+  (simple-noun-phrase (article the) (noun student))
+  (verb studies) (adj ugly)))
+
+;;; Amb-Eval input:
+try-again
+
+;;; Amb-Eval value:
+(sentence
+ (predicative-adj-phrase
+  (simple-noun-phrase (article the) (noun student))
+  (verb studies)
+  (adj interesting)))
+
+;;; Amb-Eval input:
+try-again
+
+;;; Amb-Eval value:
+(sentence
+ (predicative-adj-phrase
+  (simple-noun-phrase (article the) (noun student))
+  (verb studies)
+  (adj smart)))
+
+;;; Amb-Eval input:
+try-again
+
+;;; Amb-Eval value:
+(sentence
+ (predicative-adj-phrase
+  (simple-noun-phrase (article the) (noun student))
+  (verb studies)
+  (adj dumb)))
+
+;;; Amb-Eval input:
+try-again
+
+;;; Amb-Eval value:
+(sentence
+ (adverb-phrase
+  (simple-noun-phrase (article the) (noun student))
+  (verb studies)
+  (adv quickly)))
+
+;;; Amb-Eval input:
+try-again
+
+;;; Amb-Eval value:
+(sentence
+ (adverb-phrase
+  (simple-noun-phrase (article the) (noun student))
+  (verb studies)
+  (adv greatly)))
+
+;;; Amb-Eval input:
+try-again
+
+;;; Amb-Eval value:
+(sentence
+ (adverb-phrase
+  (simple-noun-phrase (article the) (noun student))
+  (verb studies)
+  (adv lovely)))
+
+\end{lstlisting}
+\end{document}

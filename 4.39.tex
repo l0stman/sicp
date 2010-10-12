@@ -1,0 +1,37 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+The requirement that Fletcher and Cooper don't leave on the same floor
+actually imposes more constraint than the requirement that
+Miller lives on a higher floor than Cooper --- given that the first
+four requirements are met.  Thus, the procedure would run faster if we
+swap these two requirements.
+
+\begin{lstlisting}
+(define (multiple-dwelling)
+  (let ((baker (amb 1 2 3 4 5))
+        (cooper (amb 1 2 3 4 5))
+        (fletcher (amb 1 2 3 4 5))
+        (miller (amb 1 2 3 4 5))
+        (smith (amb 1 2 3 4 5)))
+    (require
+     (distinct? (list baker cooper fletcher miller smith)))
+    (require (not (= baker 5)))
+    (require (not (= cooper 1)))
+    (require (not (= fletcher 5)))
+    (require (not (= fletcher 1)))
+    (require (not (= (abs (- cooper fletcher)) 1)))
+    (require (> miller cooper))
+    (require (not (= (abs (- fletcher smith)) 1)))
+    (list (list 'baker baker)
+          (list 'cooper cooper)
+          (list 'fletcher fletcher)
+          (list 'miller miller)
+          (list 'smith smith))))
+\end{lstlisting}
+
+\end{document}

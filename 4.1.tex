@@ -1,0 +1,25 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+This version evaluates the arguments of \lstinline!list-of-values!
+from left to right:
+\begin{lstlisting}
+(define (list-of-values exps env)
+  (if (no-operands? exp)
+      '()
+      (let ((val (eval (first-operand exps) env)))
+        (cons val
+              (list-of-values (rest-operands exps) env)))))
+\end{lstlisting}
+This one evaluates the arguments from right to left:
+\begin{lstlisting}
+(define (list-of-values exps env)
+  (if (no-operands? exp)
+      '()
+      (let ((rest (list-of-values (rest-operands exps) env)))
+        (cons (eval (first-operand exps) env)
+              rest))))
+\end{lstlisting}
+\end{document}

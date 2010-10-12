@@ -1,0 +1,24 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+\begin{lstlisting}
+(define make-define (name defn) (list define name defn))
+
+(define (let->combination exp)
+  (let (name)
+    (when (symbol? (second exp))
+      (set! name (second exp))
+      (set-cdr! exp (cddr exp)))
+    (let* ((binds (second exp))
+           (fn (make-lambda (map car binds) (cddr exp)))
+           (vals (map cadr binds)))
+      (if name
+          (make-begin
+           (list (make-define name fn)
+                 (cons name vals)))
+          (cons fn vals)))))
+\end{lstlisting}
+\end{document}

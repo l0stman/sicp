@@ -1,0 +1,12 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (div-series s1 s2)
+  (mul-series s1 (invert-unit-series s2)))
+
+(define tan-series (div-series sine-series cosine-series))
+\end{lstlisting}
+\end{document}

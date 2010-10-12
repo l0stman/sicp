@@ -1,0 +1,25 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+In the former definition notice that \lstinline!verb-phrase! is used in
+the two choices of \lstinline!amb!:
+
+\begin{lstlisting}
+(define (parse-verb-phrase)
+  (define (maybe-extend verb-phrase)
+    (amb verb-phrase
+         (maybe-extend (list 'verb-phrase
+                             verb-phrase
+                             (parse-prepositional-phrase)))))
+  (maybe-extend (parse-word verbs)))
+\end{lstlisting}
+
+Whereas in the new definition of Louis, the two parsed verbs are
+different.  Thus this isn't a correct definition.  And the program's
+behavior change if we interchange the order of expressions in
+\lstinline!amb!.
+\end{document}

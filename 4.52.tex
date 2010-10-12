@@ -1,0 +1,32 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+We add the following entry in \lstinline!analyze!
+
+\begin{lstlisting}
+  ...
+  ((if-fail? exp) (analyze-if-fail exp))
+  ...
+\end{lstlisting}
+
+And then we define \lstinline!analyze-if-fail! as follows
+
+\begin{lstlisting}
+(define (if-fail? exp) (tagged-list? exp 'if-fail))
+(define if-fail-action cadr)
+(define if-fail-alternative caddr)
+
+(define (analyze-if-fail exp)
+  (let ((act-proc (analyze (if-fail-action exp)))
+        (alt-proc (analyze (if-fail-alternative exp))))
+    (lambda (env succeed fail)
+      (act-proc env
+                succeed
+                (lambda ()
+                  (alt-proc env succeed fail))))))
+\end{lstlisting}
+\end{document}

@@ -1,0 +1,19 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\subpar}[1] {\medskip \noindent #1.} \lstset{language=Lisp}
+
+\begin{document}
+\subpar{a}  Yes the two procedure produce the same result for every
+tree.  The two procedures produce the list
+\lstinline!(1 2 3 5 7 9 11)!.
+
+\subpar{b} No they don't have the same order of growth.
+\lstinline!tree->list-2!  grows slowly than \lstinline!tree->list-1!.
+Note $T_2$ and $T_1$ the worst-case running time respective of the two
+procedures. We have the following recurrences for a balanced tree with
+$n$ elements,
+\[ T_1(n) = 2 T_1\left(\frac{n}{2}\right) + \Theta(n).\]
+and
+\[ T_2(n) = 2T_2\left(\frac{n}{2}\right) + \Theta(1).\]
+We could verify that $T_1(n) = \Theta(n\lg n)$ and $T_2(n) = \Theta(n)$.
+\end{document}

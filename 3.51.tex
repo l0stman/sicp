@@ -1,0 +1,40 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+The interpreter prints the following output:
+\begin{verbatim}
+> (define x (stream-map show (stream-enumerate-interval 0 10)))
+0
+> (stream-ref x 5)
+1
+2
+3
+4
+5
+5
+> (stream-ref x 7)
+6
+7
+7
+\end{verbatim}
+Keeping in mind that \lstinline!cons-stream! is a special form that
+doesn't evaluate its arguments and that previously forced expressions
+are not computed anymore.  We have the following evaluation:
+\begin{lstlisting}
+(stream-map show (stream-enumerate-interval 0 10))
+(stream-map show
+            (cons-stream 0 (stream-enumerate-interval 1 10)))
+(stream-map show
+            (cons 0 (delay (stream-enumerate-interval 1 10))))
+(cons-stream (show 0)
+             (stream-map show
+                         (delay (stream-enumerate-interval 1 10))))
+(cons (show 0)
+      (delay (stream-map show
+                         (delay (stream-enumerate-interval 1 10)))))
+(0 . (delay (stream-map show
+                        (delay (stream-enumerate-interval 1 10)))))
+\end{lstlisting}
+\end{document}

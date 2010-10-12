@@ -1,0 +1,51 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+\begin{lstlisting}
+(define (make-frame variables values)
+  (map cons variables values))
+(define (frame-variables frame) (map car frame))
+(define (frame-values frame) (map cdr frame))
+(define (add-binding-to-frame! var val frame)
+  (set! frame (cons (cons var val) frame)))
+
+(define (lookup-variable-value var env)
+  (define (env-loop env)
+    (define (scan frame)
+      (cond ((null? frame)
+             (env-loop (enclosing-environment env)))
+            ((eq? var (caar frame))
+             (cdar frame))
+            (else (scan (cdr frame)))))
+    (if (eq? env the-empty-environment)
+        (error "Unbound variable" var)
+        (scan (first-frame env))))
+  (env-loop env))
+
+(define (set-variable-value! var val env)
+  (define (env-loop env)
+    (define (scan frame)
+      (cond ((null? frame)
+             (env-loop (enclosing-environment env)))
+            ((eq? var (caar frame))
+             (set-cdr! (car frame) val))
+            (else (scan (cdr frame)))))
+    (if (eq? env the-empty-environment)
+        (error "Unbound variable" var)
+        (scan (first-frame env))))
+  (env-loop env))
+
+(define (define-variable! var val env)
+  (let ((frame (first-frame env)))
+    (define (scan f)
+      (cond ((null? f)
+             (add-binding-to-frame! var val frame))
+            ((eq? var (caar f))
+             (set-cdr! (car f) val))
+            (else (scan (cdr f)))))
+    (scan frame)))
+\end{lstlisting}
+\end{document}

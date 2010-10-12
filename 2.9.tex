@@ -1,0 +1,29 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+Let's consider two intervals $I_1 = [l_1, u_1]$ and $ I_2 = [l_2,
+  u_2]$.  The sum of the interval is,
+\[ S = [l_1+l_2, u_1+u_2].\]
+Thus,
+\begin{eqnarray*}
+\mathrm{width}(S) &=& \frac{(u_1+u_2) - (l_1+l_2)}{2} \\
+&=& \frac{u_1-l_1}{2} + \frac{u_2-l_2}{2} \\
+&=& \mathrm{width}(I_1) + \mathrm{width}(I_2)
+\end{eqnarray*}
+The difference $D$ between the two intervals $I_1$ and $I_2$ is the
+sum of the interval $I_1$ and $-I_2$.  Thus we have,
+\begin{eqnarray*}
+\mathrm{width}(D) &=& \mathrm{width}(I_1) + \mathrm{width}(-I_2) \\
+&=& \mathrm{width}(I_1) + \mathrm{width}(I_2)
+\end{eqnarray*}
+Let's show that for multiplication, this property doesn't hold.
+\begin{eqnarray*}
+I_1 &=& [0, 1],\ I_2 = [2, 3],\ P = [0, 3],\ \mathrm{width}(P) = 3 \\
+I_1 &=& [1/2, 3/2],\ I_2 = [2, 3],\ P = [1, 9/2],\ \mathrm{width}(P) =
+7/2
+\end{eqnarray*}
+We see that even if the width of the interval $I_1$ is always 1, the
+product's width varies.  We could do the same reasonning for division.
+\end{document}

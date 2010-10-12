@@ -1,0 +1,15 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (averager a b c)
+  (let ((u (make-connector))
+        (v (make-connector)))
+    (adder a b u)
+    (constant 1/2 v)
+    (multiplier u v c)
+    'ok))
+\end{lstlisting}
+\end{document}

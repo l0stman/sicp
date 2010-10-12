@@ -1,0 +1,16 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (make-rat n d)
+  (define (sign x)
+    (if (< x 0) -1 1))
+  (let ((g (gcd n d)))
+    (cons (* (sign n)
+             (sign d)
+             (/ (abs n) g))
+          (/ (abs d) g))))
+\end{lstlisting}
+\end{document}

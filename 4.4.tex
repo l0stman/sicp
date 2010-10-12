@@ -1,0 +1,51 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+Here's a direct implementation.
+\begin{lstlisting}
+(define (install-and-package)
+  (define (eval-and exp env)
+    (define (iter exps)
+      (cond ((null? exps) true)
+            ((eval (car exps) env) (iter (cdr exps)))
+            (else false))))
+  (put 'eval '(and) eval-and))
+
+(define (install-or-package)
+  (define (eval-or exp env)
+    (define (iter exps)
+      (cond ((null? exps) false)
+            ((eval (car exps) env) true)
+            (else (iter (cdr exps))))))
+  (put 'eval '(or) eval-or))
+\end{lstlisting}
+
+And alternatively as derived expressions:
+
+\begin{lstlisting}
+(define (install-and-package)
+  (define (eval-and exp env)
+    (define (and->ifs exp)
+      (if (null? exp)
+          true
+          (make-if (car exp)
+                   (and->ifs (cdr exp))
+                   false)))
+    (eval (and->ifs exp) env))
+  (put 'eval '(and) eval-and))
+
+(define (install-or-package)
+  (define (eval-or exp env)
+    (define (or->ifs exp)
+      (if (null? exp)
+          false
+          (make-if (car exp)
+                   true
+                   (or->ifs (cdr exp)))))
+    (eval (or->ifs exp) env))
+  (put 'eval '(or) eval-or))
+\end{lstlisting}
+\end{document}

@@ -1,0 +1,37 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+It happens since the rule is symmetric: if the first person lives near
+the second one, the reverse is equally true.  To obtain a list of
+people where each pair appears only once, we need to add one more
+constraint.  For example, we could impose that the name of
+\lstinline!?person-1! comes before \lstinline!?person-2!'s using
+lexicographic order.
+
+\begin{lstlisting}
+(rule (lives-near ?person-1 ?person-2)
+      (and (address ?person-1 (?town . ?rest-1))
+           (address ?person-2 (?town . ?rest-2))
+           (not (same ?person-1 ?person-2))
+           (lisp-value
+            (lambda (name1 name2)
+              (define (name->string name)
+                (if (null? name)
+                    ""
+                    (string-append
+                     (symbol->string (car name))
+                     (if (not (null? (cdr name)))
+                         " "
+                         "")
+                     (name->string (cdr name)))))
+              (string<? (name->string name1)
+                        (name->string name2)))
+            ?person-1
+            ?person-2)))
+\end{lstlisting}
+
+\end{document}

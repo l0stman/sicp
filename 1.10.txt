@@ -1,0 +1,14 @@
+We have
+(A 1 10) -> 1024
+(A 2 4) -> 65536
+(A 3 3) -> 65536
+
+* (f n) computse 2*n
+* We have (g 0) = 0 and (g 1) = 2.  If n > 1
+	(g n) = (* 2 (g (- n 1)))
+ So by induction, we have (g n) = 2^n
+* We (h 0) = 0 and (h 1) = 2.  If n > 1
+(A 2 n) = (A 1 (A 2 (- n 1)))
+	= 2^(A 2 (- n 1))
+
+Thus, (h n) = 2^(h (- n 1)) if n > 1

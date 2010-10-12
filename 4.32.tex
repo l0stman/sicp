@@ -1,0 +1,42 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+In the streams of chapter 3, only the \lstinline!cdr! part use lazy
+evaluation.  But with the new one, the \lstinline!car! part use also
+lazy evaluation for example we can define a  binary tree of ones.
+
+\begin{lstlisting}
+  (define ones (cons 1 (cons ones ones)))
+\end{lstlisting}
+
+Or a tree which is infinitely deep in the left branch
+
+\begin{lstlisting}
+  (define tree (cons tree 0))
+\end{lstlisting}
+
+It also means we could perform addition on trees instead of lists
+
+\begin{lstlisting}
+(define (make-tree val left right)
+  (list val left right))
+(define (tval n) (car n))
+(define (tleft n) (cadr n))
+(define (tright n) (caddr n))
+(define (empty-tree? t) (null? t))
+
+(define (add-tree t1 t2)
+  (cond ((empty-tree? t1) t2)
+        ((empty-tree? t2) t1)
+        (else
+         (make-tree (+ (tval t1) (tval t2))
+                    (add-tree (tleft t1)
+                              (tleft t2))
+                    (add-tree (tright t1)
+                              (tright t2))))))
+\end{lstlisting}
+\end{document}

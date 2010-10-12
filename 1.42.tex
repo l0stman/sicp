@@ -1,0 +1,10 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (compose f g)
+  (lambda (x) (f (g x))))
+\end{lstlisting}
+\end{document}

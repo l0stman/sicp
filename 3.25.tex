@@ -1,0 +1,40 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (make-table)
+  (let ((local-table (list '*table*)))
+    (define (lookup keys table)
+      (cond ((null? keys) (cdr table))
+            ((list? (cdr table))
+             (let ((subtable (assoc (car keys) (cdr table))))
+               (if subtable
+                   (lookup (cdr keys) subtable)
+                   #f)))
+            (else #f)))
+    (define (insert! keys val table)
+      (let ((subtable (assoc (car keys) (cdr table))))
+        (if subtable
+            (if (null? (cdr keys))
+                (set-cdr! subtable val)
+                (insert! (cdr keys) val subtable))
+            (let ((lst (nreverse keys)))
+             (set-cdr! table
+                       (cons (foldl list
+                                    (cons (car lst) val)
+                                    (cdr lst))
+                             (cdr table))))))
+      'ok)
+    (define (dispatch m)
+      (cond ((eq? m 'lookup-proc)
+             (lambda (keys)
+               (lookup keys local-table)))
+            ((eq? m 'insert-proc!)
+             (lambda (keys val)
+               (insert! keys val local-table)))
+            (else (error "Unknown operation -- TABLE" m))))
+    dispatch))
+\end{lstlisting}
+\end{document}

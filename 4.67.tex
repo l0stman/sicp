@@ -1,0 +1,116 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+To detect this kind of loop, we keep track of an already processed
+simple query in a history.  This entry is composed of the query
+itself and the free variables of the query in the frame it's been
+evaluated.  A free variable here means that the variable is unbound in
+the frame or the value of the variable is a free variable itself.
+
+We then modify \lstinline!apply-a-rule! to check if a simple query has
+already been processed with the procedure
+\lstinline!already-processed?!.  This is done by trying to unify in
+the current frame the query with a query already processed.  If the
+free variables of the processed query are still unbound in the
+resulting frame, it means that we're processing the same query again.
+Thus we have detected a loop.  See the file \textbf{4.67.query.scm}
+for the complete implementation.
+
+\begin{lstlisting}
+(define (qeval query frame-stream history)
+  (let ((qproc (get (type query) 'qeval)))
+    (if qproc
+        (qproc (contents query) frame-stream history)
+        (simple-query query frame-stream history))))
+
+(define (simple-query query-pattern
+                      frame-stream
+                      history)
+  (stream-flatmap
+   (lambda (frame)
+     (stream-append-delayed
+      (find-assertions query-pattern frame)
+      (delay (apply-rules query-pattern
+                          frame
+                          history))))
+   frame-stream))
+
+(define (apply-rules pattern frame history)
+  (stream-flatmap (lambda (rule)
+                    (apply-a-rule rule
+                                  pattern
+                                  frame
+                                  history))
+                  (fetch-rules pattern frame)))
+
+(define (apply-a-rule rule
+                      query-pattern
+                      query-frame
+                      history)
+  (let* ((clean-rule (rename-variables-in rule))
+         (unify-match
+          (unify-match query-pattern
+                       (conclusion clean-rule)
+                       query-frame)))
+    (if (or (eq? unify-match 'failed)
+            (processed-query? query-pattern
+                              unify-match
+                              history))
+        the-empty-stream
+        (qeval (rule-body clean-rule)
+               (singleton-stream unify-match)
+               (extend-history query-pattern
+                               unify-match
+                               history)))))
+
+(define (processed-query? query frame hist)
+  (if (empty-history? hist)
+      #f
+      (let* ((h (first-history hist))
+             (unify-match
+              (unify-match query
+                           (history-query h)
+                           frame)))
+        (or (and (not (eq? unify-match 'failed))
+                 (still-unbound? (history-freevars h)
+                                 unify-match))
+            (processed-query? query
+                              frame
+                              (rest-history hist))))))
+
+(define (still-unbound? vars frame)
+  (or (null? vars)
+      (and (free-var? (car vars) frame)
+           (still-unbound? (cdr vars) frame))))
+
+(define (free-var? var frame)
+  (let ((bind (binding-in-frame var frame)))
+    (or (not bind)
+        (and (var? (binding-value bind))
+             (free-var? (binding-value bind) frame)))))
+
+(define empty-history '())
+(define (empty-history? h) (eq? h empty-history))
+(define (freevars pat result frame)
+    (cond ((and (var? pat) (free-var? pat frame))
+           (cons pat result))
+          ((pair? pat)
+           (freevars (cdr pat)
+                     (freevars (car pat) result)))
+          (else result)))
+(define (make-history query-pattern frame)
+  (cons query-pattern (freevars query-pattern '() frame)))
+
+(define (history-query h) (car h))
+(define (history-freevars h) (cdr h))
+(define (extend-history query-pattern frame history)
+  (cons (make-history query-pattern frame) history))
+(define (first-history h) (car h))
+(define (rest-history h) (cdr h))
+\end{lstlisting}
+
+\end{document}

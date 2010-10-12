@@ -1,0 +1,49 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\subpar}[1] {\medskip \noindent #1.}
+\lstset{language=Lisp}
+
+\begin{document}
+\subpar{a} If $x$ and $y$ are of type \lstinline!scheme-number!,
+there's no coercion going on.  \lstinline!expt! is applied to the
+\lstinline!contents! of $x$ and $y$.
+
+On the other hand if we call \lstinline!exp! with two complex numbers,
+there's no \lstinline!exp! operation for the type
+\lstinline!(complex complex)!.  Thus, $x$ is coerced into a complex
+type, which is $x$ itself and the expression
+\lstinline!(apply-generic exp x y)! is evaluated.  So we get an
+infinite loop.
+
+\subpar{b}  There's no need to do coercion with arguments of the same
+type.  If we're doing coercion, the operation doesn't exists for the
+type of arguments.  But a coercion with same type would just leave the
+arguments unchanged.  So the current algorithm handles just fine the
+case.
+
+\subpar{c}
+\begin{lstlisting}
+(define (apply-generic op . args)
+  (let ((type-tags (map type-tag args)))
+    (let ((proc (get op type-tags)))
+      (if proc
+          (apply proc (map contents args))
+          (if (and (= (length args) 2)
+                   (eq? (car type-tags) (cadr type-tags)))
+              (let ((type1 (car type-tags))
+                    (type2 (cadr type-tags))
+                    (a1 (car args))
+                    (a2 (cadr args)))
+                (let ((t1->t2 (get-coercion type1 type2))
+                      (t2->t1 (get-coercion type2 type1)))
+                  (cond (t1->t2
+                         (apply-generic op (t1->t2 a1) a2))
+                        (t2->t1
+                         (apply-generic op a1 (t2->t1 a2)))
+                        (else
+                         (error "No method for these types"
+                                (list op type-tags))))))
+              (error "No method for these types"
+                     (list op type-tags)))))))
+\end{lstlisting}
+\end{document}

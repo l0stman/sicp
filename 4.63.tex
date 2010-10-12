@@ -1,0 +1,18 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\begin{lstlisting}
+(rule (grandson ?g ?s)
+      (and (son ?f ?s)
+           (son ?g ?f)))
+
+(rule (son ?m ?s)
+      (and (wife ?m ?w)
+           (son ?w ?s)))
+\end{lstlisting}
+
+\end{document}

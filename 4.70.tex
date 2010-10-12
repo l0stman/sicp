@@ -1,0 +1,13 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+Since the second argument of \lstinline!cons-stream! is delayed, we
+need to bind the old value to a variable otherwise it will be forever
+lost.  The new definition just define \lstinline!THE-ASSERTIONS! as
+circular stream.
+
+\end{document}

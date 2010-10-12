@@ -1,0 +1,33 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+The problem with this new version of \lstinline!sqrt-stream! is that
+each call to \lstinline!stream-map! creates a fresh stream.  Thus in
+order to compute the $n^{th}$ element, we have to call the
+\emph{improve} procedure $n-1$ times on the initial guess.  Thus the
+running time of the later procedure is $\Theta(n^2)$ instead of
+$\Theta(n)$.
+
+For example to compute the third element we have to evaluate:
+\begin{lstlisting}
+(cons-stream
+ 1.0
+ (cons-stream
+  (improve 1.0)
+  (cons-stream
+   (improve (improve 1.0))
+   (stream-map improve
+               (stream-map improve
+                           (stream-map improve
+                                       (sqrt-stream x)))))))
+\end{lstlisting}
+If we don't memoize the implementation of delay, then there would be
+no difference between the two implementations.
+\end{document}
+
+
+
+
+

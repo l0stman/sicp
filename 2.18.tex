@@ -1,0 +1,15 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (reverse l)
+  (define (iter res l)
+    (if (null? l)
+        res
+        (iter (cons (car l) res)
+              (cdr l))))
+  (iter '() l))
+\end{lstlisting}
+\end{document}

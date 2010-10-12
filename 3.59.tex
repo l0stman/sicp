@@ -1,0 +1,25 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+\subpar{a}
+\begin{lstlisting}
+(define (integrate-series s)
+  (define (iter s n)
+    (cons-stream (/ (stream-car s) n)
+                 (iter (stream-cdr s) (+ 1 n))))
+  (if (stream-null? s) s (iter s 1)))
+\end{lstlisting}
+
+\subpar{b} Given that $(\cos x)' = -\sin x$ and $(\sin x)' = \cos x$,
+we have
+\begin{lstlisting}
+(define cosine-series
+  (cons-stream 1 (scale-stream (integrate-series sine-series) -1)))
+
+(define sine-series
+  (cons-stream 0 (integrate-series cosine-series)))
+\end{lstlisting}
+\end{document}

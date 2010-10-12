@@ -1,0 +1,14 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+Since interleave is a procedure, all its arguments will be evaluated.
+Particularly, to evaluate \lstinline!(pairs integers integers)!, we
+have to evaluate
+
+\begin{lstlisting}
+(pairs (stream-cdr integers) (stream-cdr integers))
+\end{lstlisting}
+and so on.  Thus the evaluation won't terminate.
+\end{document}

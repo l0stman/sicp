@@ -1,0 +1,30 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (cube x) (* x x x))
+(define (weight p)
+  (+ (cube (car p)) (cube (cadr p))))
+
+(define (generate w s weight)
+  (let ((w1 (weight (stream-car s)))
+        (rest (stream-cdr s)))
+    (if (= w w1)
+        (cons-stream
+         w
+         (generate (weight (stream-car rest))
+                   (stream-cdr rest)
+                   weight))
+        (generate w1 rest weight))))
+
+(define ramanujan
+  (let ((s (weighted-pairs integers integers weight)))
+    (generate (weight (stream-car s))
+              (stream-cdr s)
+              weight)))
+\end{lstlisting}
+
+The next five Ramanujan numbers are : $4104, 13832, 20683, 32832, 39312$.
+\end{document}

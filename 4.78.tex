@@ -1,0 +1,107 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+We're embedding the query evaluator inside the amb evaluator.  This
+time, we don't explicitly define a driver loop.  Instead, we define
+the procedures \lstinline!assert!! and \lstinline!query! in order to
+interact with the query database.  The result of a query is displayed
+one at a time and we need to type \lstinline!try-again! in order to
+see the next solution if any.
+
+Since the amb evaluator is searching for solutions in deep-first
+order, we need to ``interleave'' the search results in the case of an
+\lstinline!or! query.  Here we use, the \lstinline!ramb! operator
+defined in \textbf{Exercise 4.50} instead of \lstinline!amb!.
+
+The \lstinline!negate! operator's implementation also needs to be
+pointed to.  Since we need to test if a query has no solution in order
+to keep the frame otherwise we search for the next solution, we
+introduce a new syntax
+\begin{quote}
+  \lstinline!if-fail-only <test> <result>!
+\end{quote}
+
+to the amb evaluator.  If the evaluation of \lstinline!<test>! fails, then we
+return the evaluation of \lstinline!<result>!, otherwise we backtrack.
+Here's the implementation
+
+\begin{lstlisting}
+(define (if-fail-only? exp)
+  (tagged-list? exp 'if-fail-only))
+(define if-fail-only-test cadr)
+(define if-fail-only-result caddr)
+
+(define (analyze-if-fail-only exp)
+  (let ((test-proc (analyze (if-fail-only-test exp)))
+        (res-proc (analyze (if-fail-only-result exp))))
+    (lambda (env succeed fail)
+      (test-proc env
+                 (lambda (test fail2)
+                   (fail))
+                 (lambda ()
+                   (res-proc env
+                             (lambda (res fail2)
+                               (succeed res fail2))
+                             fail))))))
+\end{lstlisting}
+
+For the complete implementation of the query evaluator, see the file
+\textbf{amb-query.scm}.
+
+With our new implementation, if we enter an infinite loop, the
+evaluator won't be stuck as in the implementation using a stream.
+Instead, we will print the same result over and over again.  Consider
+the following example:
+
+\begin{lstlisting}
+;;; Amb-Eval input:
+(assert! '(married sarah michael))
+
+;;; Starting a new problem 
+Assertion added to data base
+;;; Amb-Eval value:
+ok
+
+;;; Amb-Eval input:
+(assert! '(rule (married ?x ?y)
+                (married ?y ?x)))
+
+;;; Starting a new problem 
+Assertion added to data base
+;;; Amb-Eval value:
+ok
+
+;;; Amb-Eval input:
+(query '(married ?x ?y))
+
+;;; Starting a new problem 
+(married sarah michael)
+;;; Amb-Eval value:
+ok
+
+;;; Amb-Eval input:
+try-again
+(married michael sarah)
+;;; Amb-Eval value:
+ok
+
+;;; Amb-Eval input:
+try-again
+(married sarah michael)
+;;; Amb-Eval value:
+ok
+
+;;; Amb-Eval input:
+try-again
+(married michael sarah)
+;;; Amb-Eval value:
+ok
+
+;;; Amb-Eval input:
+\end{lstlisting}
+
+\end{document}

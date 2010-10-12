@@ -1,0 +1,80 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\subpar}[1] {\medskip \noindent #1.} \lstset{language=Lisp}
+
+\begin{document}
+\subpar{a} They're special cases because none of them have an operator
+or an operands.
+
+\subpar{b}
+\begin{lstlisting}
+(define (=number? exp num)
+  (and (number? exp) (= exp num)))
+
+(define (install-sum-package)
+  (define (make a1 a2)
+    (cond ((=number? a1 0) a2)
+          ((=number? a2 0) a1)
+          ((and (number? a1) (number? a2)) (+ a1 a2))
+          (else (list + a1 a2))))
+  (define (addend exp) (cadr exp))
+  (define (augend exp) (caddr exp))
+  (define (deriv-sum operands var)
+    (make-sum (deriv (car operands) var)
+              (deriv (cadr operands) var)))
+  (put 'addend '(+) addend)
+  (put 'augend '(+) augend)
+  (put 'make '(+) make)
+  (put 'deriv '(+) deriv-sum))
+
+(define (install-prod-package)
+  (define (make a1 a2)
+    (cond ((or (=number? a1 0) (=number? a2 0)) 0)
+          ((=number? a1 1) a2)
+          ((=number? a2 1) a1)
+          ((and (number? a1) (number? a2)) (* a1 a2))
+          (else (list * a1 a2))))
+  (define (multiplier exp) (cadr exp))
+  (define (multiplicand exp) (caddr exp))
+  (define (deriv-prod operands var)
+    ((get 'make '+)
+     (make (car operands)
+       (deriv (cadr operands) var))
+     (make (deriv (car operands) var)
+       (cadr operands))))
+  (put 'multiplier '(+) multiplier)
+  (put 'multiplicand '(+) multiplicand)
+  (put 'make '(*) make)
+  (put 'deriv '(*) deriv-prod))
+\end{lstlisting}
+
+\subpar{c}
+\begin{lstlisting}
+(define (install-exponentiation-package)
+  (define (make a1 a2)
+    (cond ((or (=number? a2 0) (=number? a1 1)) 1)
+          ((=number? a1 0) 0)
+          ((=number? a2 1) a1)
+          ((and (number? a1) (number? a2))
+           (expt a1 a2))
+          (else (list ** a1 a2))))
+  (define (base exp) (cadr exp))
+  (define (exponent exp) (caddr exp))
+  (define (deriv-exp operands var)
+    (let ((base (car operands))
+          (exp (cadr operands)))
+      ((get 'make '*)
+       exp
+       ((get 'make '*)
+        (make base ((get 'make '+) exp -1))
+        (deriv base var)))))
+  (put 'base '(**) base)
+  (put 'exponent '(**) exponent)
+  (put 'make '(**) make)
+  (put 'deriv '(**) deriv-exp))
+\end{lstlisting}
+
+\subpar{d} We just need to install the operator \emph{data-type} with
+the type \emph{deriv} for the generic function
+\lstinline!deriv! in each package.
+\end{document}

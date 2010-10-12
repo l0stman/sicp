@@ -1,0 +1,8 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\begin{document}
+If we try to evaluate the combination \lstinline!(f f)!, we get an
+error.  This is because it evaluates to \lstinline!(f 2)! wich in turn
+evaluates to \lstinline!(2 2)!.  And the number $2$ is not a number.
+\end{document}

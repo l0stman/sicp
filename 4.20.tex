@@ -1,0 +1,26 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\subpar{a}
+
+\begin{lstlisting}
+(define (letrec->let exp)
+  (define (loop bindings vars vals)
+    (if (null? bindings)
+        (list (reverse vars) (reverse vals))
+        (loop (cdr bindings)
+              (cons `(,(caar bindings) '*unassigned*)
+                    vars)
+              (cons (cons 'set! (car bindings))
+                    vals))))
+  (let ((res (loop (second exp) '() '())))
+    `(let ,(first res)
+       ,@(second res)
+       ,@(cddr exp))))
+\end{lstlisting}
+
+\end{document}

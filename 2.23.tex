@@ -1,0 +1,12 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (for-each f l)
+  (when (not (null? l))
+    (f (car l))
+    (for-each f (cdr l))))
+\end{lstlisting}
+\end{lstlisting}

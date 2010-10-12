@@ -1,0 +1,18 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\subpar}[1] {\medskip \noindent #1.}
+\lstset{language=Lisp}
+
+\begin{document}
+If we add the following piece of code in the polynomial package:
+\begin{lstlisting}
+(define (=zero? poly)
+  (define (iter t)
+    (cond ((empty-termlist? t) true)
+          ((zero? (coeff (first-term t)))
+           (iter (rest-terms t)))
+          (else false)))
+  (iter (term-list poly)))
+(put '=zero? '(polynomial) =zero?)
+\end{lstlisting}
+\end{document}

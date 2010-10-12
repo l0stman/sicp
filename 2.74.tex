@@ -1,0 +1,39 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\subpar}[1] {\medskip \noindent #1.} \lstset{language=Lisp}
+
+\begin{document}
+\subpar{a}
+\begin{lstlisting}
+(define (get-record name file)
+  ((get 'record (type-tag file)) name))
+\end{lstlisting}
+Each personnel file should be tagged with the division name.  Each
+division file should implements a record operator, keyed under the
+division name, that returns the record of an employee in that
+division.
+
+\subpar{b}
+\begin{lstlisting}
+(define (get-salary record)
+  ((get 'salary (type-tag record)) record))
+\end{lstlisting}
+A record should be tagged with the division name to differentiate
+them.  And an operator salary should be keyed under the division name.
+
+\subpar{c}
+\begin{lstlisting}
+(define (find-employee-record name file-list)
+  (if (null? file-list)
+      (error "Can't find record for employee -- " name)
+      (let ((record (get-record name (car file-list))))
+        (if record
+            record
+            (find-employee-record name
+                                  (cdr file-list))))))
+\end{lstlisting}
+
+\subpar{d}  There's no change to be made to the existing records.  The
+new personnel information just needs to implement the previous
+operators under the new company's name.
+\end{document}

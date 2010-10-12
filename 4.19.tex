@@ -1,0 +1,38 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+Ben's reasoning is incorrect as Alyssa points out since the outer
+value of $a$ should be shadowed by the inner one in the body of $f$.
+
+Here's a possible algorithm implementing the behavior wished by Eva.
+
+\begin{enumerate}
+
+\item Scan the body of the procedure and bind $bindings$ to the list
+  of a list of variable and value of an internal definition and
+  $body$ to the list of the other expressions in a sequential order.
+
+\item Create an empty stack $S$.
+
+\item If $bindings$ is null, goto $6$.
+
+\item Scan bindings and produce a list $vars$ of the
+  variables being defined.
+
+\item Scan $bindings$ and bind $lb$ to the list of bindings whose
+  value doesn't contain free variables which is in $vars$ and bind
+  $bindings$ to the list of the rest.  If $lb$ is null signal an
+  error.  Otherwise push $lb$ onto $S$ and goto $3$.
+
+\item Until the stack is empty, set $body$ to a let expression whose
+  bindings is the top of the stack and whose body is $body$.
+
+\item return $body$.
+
+\end{enumerate}
+
+\end{document}

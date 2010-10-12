@@ -1,0 +1,17 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\begin{lstlisting}
+(rule (last-pair (?x) (?x)))
+(rule (last-pair (?car . ?rest) ?y)
+      (last-pair ?rest ?y))
+\end{lstlisting}
+
+Since there's an infinite number of bindings to \lstinline!?x! that
+verifies \lstinline!(last-pair ?x (3))!, the system just prints the
+first result before looping indefinitely.
+\end{document}

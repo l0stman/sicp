@@ -1,0 +1,44 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (make-mobile left right)
+  (list left right))
+(define (make-branch length structure)
+  (list length structure))
+(define (left-branch m) (car m))
+(define (right-branch m) (cadr m))
+(define (branch-length b) (car b))
+(define (branch-structure b) (cadr b))
+
+(define (branch-weight b)
+  (let ((s (branch-structure b)))
+    (if (number? s)
+        s
+        (total-weight s))))
+
+(define (total-weight m)
+  (+ (branch-weight (left-branch m))
+     (branch-weight (right-branch m))))
+
+(define (balanced? m)
+  (define (torque b)
+    (* (branch-length b) (branch-weight b)))
+  (= (torque (left-branch m))
+     (torque (right-branch m))))
+\end{lstlisting}
+If we change the representation of mobiles, we only need to redefine
+the selectors as follows,
+\begin{lstlisting}
+(define (make-mobile left right)
+  (cons left right))
+(define (make-branch length structure)
+  (cons length structure))
+(define (left-branch m) (car m))
+(define (right-branch m) (cdr m))
+(define (branch-length b) (car b))
+(define (branch-structure b) (cdr b))
+\end{lstlisting}
+\end{document}

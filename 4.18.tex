@@ -1,0 +1,28 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+This procedure won't work because when we try to evaluate the binding
+of $b$ to \lstinline!(stream-map f y)!, $y$ is still unassigned and
+this will cause an error.
+
+\begin{lstlisting}
+(define solve
+  (lambda (f y0 dt)
+    (let ((y '*unassigned*)
+          (dy '*unassigned*))
+      (let ((a (integral (delay dy)  y0 dt))
+            (b (stream-map f y)))
+        (set! y a)
+        (set! dy b)
+        y))))
+\end{lstlisting}
+
+On the other hand, the method used in the text works because by the
+time we try to set the value of $dy$,  $y$ is already bound to a
+value.
+
+\end{document}

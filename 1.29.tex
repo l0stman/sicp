@@ -1,0 +1,39 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+Here's the function's definition
+\begin{lstlisting}
+(define (simpson-integral f a b n)
+  (define (iter k h sum)
+    (cond ((= k n)
+	   (/ (* h (+ sum (f b)))
+	      3))
+	  ((odd? k)
+	   (iter (+ k 1)
+		 h
+		 (+ sum
+		    (* (f (+ a (* k h)))
+		       4.0))))
+	  (else
+	   (iter (+ k 1)
+		 h
+		 (+ sum
+		    (* (f (+ a (* k h)))
+		       2.0))))))
+  (iter 1 (/ (- b a) n) (f a)))
+\end{lstlisting}
+The following evaluations give us
+\begin{lstlisting}
+(simpson-integral cube 0 1 100)
+\end{lstlisting}
+$\rightarrow$ 0.25
+\begin{lstlisting}
+(simpson-integral cube 0 1 1000)
+\end{lstlisting}
+$\rightarrow$ 0.25000000000000006
+
+So the results are more accurate than those of the procedure
+\lstinline!integral!.
+\end{document}

@@ -1,0 +1,31 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\noindent
+a.
+\begin{lstlisting}
+(define (accumulate combiner null-value term a next b)
+  (if (> a b)
+      null-value
+      (combiner (term a)
+		(accumulate combiner
+			    null-value
+			    term
+			    (next a)
+			    next
+			    b))))
+\end{lstlisting}
+
+\medskip \noindent
+b.
+\begin{lstlisting}
+(define (accumulate combiner null-value term a next b)
+  (define (iter a result)
+    (if (> a b)
+	result
+	(iter (next a) (combiner (term a) result))))
+  (iter a null-value))
+\end{lstlisting}
+\end{document}

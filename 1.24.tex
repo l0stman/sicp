@@ -1,0 +1,65 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\ra}{\rightarrow}
+\lstset{language=Lisp}
+
+\begin{document}
+\noindent
+Let's replace \lstinline!timed-prime-test! by this less verbose
+version:
+\begin{lstlisting}
+(define (timed-prime-test n)
+  ((lambda (start-time)
+     (when (fast-prime? n 10)
+	   (- (current-inexact-milliseconds)
+	      start-time)))
+   (current-inexact-milliseconds)))
+(define primes '((1009 1013 1019)
+		 (10007 10009 10037)
+		 (100003 100019 100043)
+		 (1000003 1000033 1000037)))
+\end{lstlisting}
+We could then obain the list of the running time of each prime
+\begin{lstlisting}
+(define times
+  (map (lambda (x)
+	 (map timed-prime-test x))
+       primes))
+times
+\end{lstlisting}
+$\rightarrow$ 
+((0.12890625
+ 0.116943359375
+ 0.1220703125) \\
+ (0.156005859375
+ 0.156982421875
+ 0.15087890625) \\
+ (0.64794921875
+ 0.64990234375 
+ 0.614990234375) \\
+ (0.970947265625 
+ 1.01806640625
+ 1.113037109375)).
+
+So taking the ratio of time of the first three primes with the last three
+ones, we have:
+\begin{lstlisting}
+(map / (fourth times) (first times))
+\end{lstlisting}
+$\rightarrow$ (7.53219696969697 8.705636743215031 9.118).
+
+Since the Fermat test has $\Theta(\log n)$ growth, this list of ration
+should approach
+\[ \frac{\log 10^6}{\log 10^3} = 2.\]
+The discrepancy is due to the fact that the value $1000$ is too small
+and the result is likely to be true only for large numbers.  For
+example we have
+\begin{lstlisting}
+(map / (fourth times) (third times))
+\end{lstlisting}
+$\rightarrow$ (1.5688575899843507 1.4727731698521458
+1.4708347886831994).
+
+We see that the ratios is nearer to
+\[ \frac{\log 10^6}{\log 10^5} = \frac{6}{5} = 1.2.\]
+\end{document}

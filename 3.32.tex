@@ -1,0 +1,18 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+The order must me used because the last action executed from all the
+actions in a wire should be the one where all the inputs have their
+final values.
+
+Consider an and-gate whose inputs change from $0,1$ to $1,0$ in the
+same segment in this order.  The segment' s  procedures in an ordinary
+list would be
+\begin{lstlisting}
+((lambda () (set-signal! output 0))
+ (lambda () (set-signal! output 1)))
+\end{lstlisting}
+which will give an incorrect result.
+\end{document}

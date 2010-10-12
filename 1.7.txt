@@ -1,0 +1,27 @@
+Suppose x is a very small number, negligible compared to 0.001.
+Given that guess tends to the square root of x wich is negligible
+compared to 0.001 too, there will be a time where guess^2 will be
+less than 0.001.  But then we have
+     | guess^2 - x| < 0.001
+So the procedure terminates giving a bad approximation of the square
+root of x. As an example we have
+(sqrt .0000000000000001)
+-> 0.03125000000000106
+(square 0.03125000000000106)
+-> 0.0009765625000000664
+
+Suppose now that x is very large number, so the square root of x
+is also a very large number.  Consequently, guess will take very
+large values.  But a real computer have a limited precision, so guess
+will be approximated with an error e.  But then we have,
+(guess+e)^2 - x = (guess^2 - x) + 2e guess + e^2
+
+Given that the term 2e guess is not negligible if guess is a very
+large number, and guess^2 - x tends to 0, we will always have
+(guess+e)^2 - x > 0.001.  So the process won't terminate.
+
+(define (good-enough? guess x)
+  (< (abs (- (/ (improve guess x)
+		guess)
+	     1))
+     0.001))

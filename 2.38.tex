@@ -1,0 +1,25 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+  (fold-right / 1 (list 1 2 3))
+\end{lstlisting}
+$\rightarrow$ 3/2
+\begin{lstlisting}
+  (fold-left / 1 (list 1 2 3))
+\end{lstlisting}
+$\rightarrow$ 3/2
+\begin{lstlisting}
+  (fold-right list null (list 1 2 3))
+\end{lstlisting}
+$\rightarrow$ (1 (2 (3 ())))
+\begin{lstlisting}
+  (fold-left list null (list 1 2 3))
+\end{lstlisting}
+$\rightarrow$ (3 (2 (1 ())))
+
+If \lstinline!op! is commutative, then \lstinline!fold-right! and
+\lstinline!fold-left! will produce the same result.
+\end{document}

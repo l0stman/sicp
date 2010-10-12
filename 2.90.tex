@@ -1,0 +1,127 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\subpar}[1] {\medskip \noindent #1.}
+\lstset{language=Lisp}
+
+\begin{document}
+The sparse polynomial package is the one defined in the textbook:
+\begin{lstlisting}
+(define (install-sparse-polynomial-package)
+  ;; representation of sparse poly
+  (define (make-sparse-poly variable . sparse-terms)
+    (cons variable sparse-terms))
+  (define (variable p) (car p))
+  (define (term-list p) (cdr p))
+  ;; representation of sparse terms
+  <procedures adjoin-term ... coeff>
+  ;; interface to the rest of the system
+  (define (tag p) (attach-tag 'sparse-polynomial p))
+  (put 'variable '(sparse-polynomial) variable)
+  (put 'term-list '(sparse-polynomial) termlist)
+  (put 'make 'sparse-polynomial
+       (lambda (var terms) (tag (make-sparse-poly var terms))))
+  (put 'add-terms '(sparse-polynomial sparse-polynomial)
+       (lambda (t1 t2) (tag (add-terms t1 t2))))
+  (put 'mul-terms '(sparse-polynomial sparse-polynomial)
+       (lambda (t1 t2) (tag (mul-terms t1 t2))))
+  (put 'first-term '(sparse-polynomial) first-term)
+  (put 'rest-terms '(sparse-polynomial) rest-terms)
+  (put 'make-term 'sparse-polynomial make-term)
+  (put 'empty-termlist? 'sparse-polynomial))
+\end{lstlisting}
+And the dense polynomial package is the one we defined in
+\emph{exercise 2.89}:
+\begin{lstlisting}
+(define (install-dense-polynomial-package)
+  ;; representation of dense poly
+  (define (make-dense-poly variable . dense-terms)
+    (cons variable dense-terms))
+  (define (variable p) (car p))
+  (define (term-list p) (cdr p))
+  ;; representation of dense terms
+  <procedures adjoin-term ...degree>
+  ;; interface to the rest of the system
+  (define (tag p) (attach-tag 'dense-polynomial p))
+  (put 'variable '(dense-polynomial) variable)
+  (put 'term-list '(dense-polynomial) termlist)
+  (put 'make 'dense-polynomial
+       (lambda (var terms) (tag (make-dense-poly var terms))))
+  (put 'add-terms '(dense-polynomial dense-polynomial)
+       (lambda (t1 t2) (tag (add-terms t1 t2))))
+  (put 'mul-terms '(dense-polynomial dense-polynomial)
+       (lambda (t1 t2) (tag (mul-terms t1 t2))))
+  (put 'first-term '(dense-polynomial) first-term)
+  (put 'rest-terms '(dense-polynomial) rest-terms)
+  (put 'empty-termlist? 'dense-polynomial))
+\end{lstlisting}
+We then define some generic operations
+\begin{lstlisting}
+(define (variable t) (apply-generic 'variable t))
+(define (term-list t) (apply-generic 'term-list t))
+(define (add-terms t1 t2) (apply-generic 'add-term t1 t2))
+(define (mul-terms t1 t2) (apply-generic 'mul-term t1 t2))
+(define (first-term t) (apply-generic 'first-term t))
+(define (rest-terms t) (apply-generic 'rest-terms t))
+\end{lstlisting}
+And finally we define the polynomial package:
+\begin{lstlisting}
+(define (install-polynomial-package)
+  ;; import some procedures
+  (define (order p)
+    ((get 'order 'sparse-polynomial) p))
+  (define (coeff p)
+    ((get 'coeff 'sparse-polynomial) p))
+  (define (empty-termlist? t)
+    ((get 'empty-termlist? 'sparse-polynomial) p))
+  ;; internal procedures
+  <procedures same-variable? and variable? from section 2.3.2>
+  ;; transform a sparse polynomial to a dense one
+  (define (sparse->dense p)
+    (define (zeroes n)
+      (if (zero? n)
+          '()
+          (cons 0 (zeroes (- n 1)))))
+    (define (iter term-list n)
+      (if (empty-termlist? term-list)
+          (zeroes (+ n 1))
+          (let ((t (first-term term-list)))
+            (if (= n (order t))
+                (cons (coeff t)
+                      (iter (rest-terms term-list) (- n 1)))
+                (cons 0
+                      (iter (rest-terms term-list) (- n 1)))))))
+    (if (eq? 'dense-polynomial (type p))
+        p
+        (let ((tl (term-list p)))
+                     (apply
+                      (get 'make 'dense-polynomial)
+                      (iter tl (order (first-term tl)))))))
+
+  (define (apply-poly op p1 p2)
+    (cond ((not (same-variable? (variable p1) (variable p2)))
+           (error "Polys not in the same var"
+                  (list p1 p2)))
+          ((and (eq? (type p1) (type p2))
+                (eq? (type p1) 'sparse-polynomial))
+           ((get 'make 'sparse-polynomial)
+            (variable p1)
+            (op (term-list p1) (term-list p2))))
+          (else
+           ((get 'make 'dense-polynomial)
+            (variable p1)
+            (op (term-list (sparse->dense p1))
+                (term-list (sparse->dense p2)))))))
+  (define (add-poly) (apply-poly add-terms p1 p2))
+  (define (mul-poly) (apply-poly mul-terms p1 p2))
+  ;; interface to rest of the system
+  (define (tag p) (attach-tag 'polynomial p))
+  (put 'add '(polynomial polynomial)
+       (lambda (p1 p2) (tag (add-poly p1 p2))))
+  (put 'mul '(polynomial polynomial)
+       (lambda (p1 p2) (tag (mul-poly p1 p2))))
+  (put 'make 'polynomial
+       (lambda (var type . terms)
+         (tag (apply (get 'make type) var terms))))
+  'done)
+\end{lstlisting}
+\end{document}

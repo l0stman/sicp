@@ -1,0 +1,30 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+The parser assumes that the words in the variable
+\lstinline!*unparsed*! will be parsed sequentially.  For example, in
+the following definition:
+
+\begin{lstlisting}
+(define (parse-sentence)
+  (list 'sentence
+        (parse-noun-phrase)
+        (parse-verb-phrase)))
+\end{lstlisting}
+
+It's assumed that we parse the noun before the verb.  Thus this
+wouldn't work if the order of the evaluation is from right to left.
+We need to redefine it as follows:
+
+\begin{lstlisting}
+(define (parse-sentence)
+  (let ((noun (parse-noun-phrase)))
+    (list 'sentence
+          noun
+          (parse-verb-phrase))))
+\end{lstlisting}
+\end{document}

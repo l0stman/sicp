@@ -1,0 +1,35 @@
+\documentclass[a4paper,12pt]{article}
+\begin{document}
+Note $\psi = (1 - \sqrt{5})/2$.
+Let's show by induction that,
+\[ Fib(n) = (\phi^n - \psi^n)/\sqrt{5}.\]
+If $n = 0$, we have
+\[ Fib(0) = 0 = (\phi^0 - \psi^0)/\sqrt{5}.\]
+and if $n = 1$,
+\[ Fib(1) = 1 = (\phi - \psi)/\sqrt{5}.\]
+Suppose the property is verified the interges $n$ and $n+1$ where $n
+\ge 0$.  By induction we have,
+\begin{eqnarray*}
+Fib(n+2) &=& Fib(n+1) + Fib(n) \\ &=&
+(\phi^{n+1} - \psi^{n+1})/\sqrt{5} +
+(\phi^n - \psi^n)/\sqrt{5} \\ &=&
+(\phi^n(1 + \phi) - \psi^n(1 + \psi))/\sqrt{5}
+\end{eqnarray*}
+Given that $\psi$ and $\phi$ and the solutions of the equations $x^2 =
+x + 1$, we have the desired result.
+
+\medskip
+So we have the equality
+\[ Fib(n) = (\phi^n - \psi^n)/\sqrt{5}.\]
+Given that we have
+\[ 2 < \sqrt{5} < 3.\]
+We then deduce that
+\[ -1 < \psi < 0.\]
+Thus,
+\[ \left|\frac{\psi^n}{\sqrt{5}}\right| < \frac{1}{\sqrt5} <
+\frac{1}{2}.\]
+And finally,
+\[ Fib(n) - \frac{1}{2} < \frac{\phi^n}{\sqrt{5}} <
+Fib(n) + \frac{1}{2}.\]
+So we have the desired result.
+\end{document}

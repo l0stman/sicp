@@ -1,0 +1,12 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define zero-crossings
+  (stream-map sign-change-detector
+              sense-data
+              (stream-cdr sense-data)))
+\end{lstlisting}
+\end{document}

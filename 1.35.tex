@@ -1,0 +1,16 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=lisp}
+
+\begin{document}
+We have,
+\[1 + \frac{1}{\phi} = \frac{\phi + 1}{\phi} =
+ \frac{\phi^2}{\phi} =
+ \phi\]
+We could then define the golden ratio as
+\begin{lstlisting}
+(define phi
+  (fixed-point (lambda (x) (+ 1 (/ 1 x)))
+	       1.0))
+\end{lstlisting}
+\end{document}

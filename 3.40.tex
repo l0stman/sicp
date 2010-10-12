@@ -1,0 +1,20 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\noindent
+1000000: $P_1$ sets $x$ to $100$ then $P_2$ sets $x$ to $1000000$ and
+vice versa.\\
+100: $P_1$ accesses $x$ twice, $P_2$ sets $x$ to $1000$, $P_1$ sets
+$x$ to $100$.\\
+1000 : $P_2$ accesses $x$ thrice, $P_1$ sets $x$ to $100$, $P_2$ sets $x$
+to $1000$.\\
+10000: $P_2$ sets $x$ to $1000$ between the two times $P_1$ accesses
+$x$ or $P_1$ sets $x$ to $100$ between the second and third time $P_2$
+accesses $x$. \\
+100000: $P_1$ sets $x$ to $100$ between the first and second time  $P_2$
+accesses $x$.
+
+With the serialized version the only result is $1000000$.
+\end{document}

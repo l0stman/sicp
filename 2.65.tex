@@ -1,0 +1,34 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (union-set set1 set2)
+  (define (merge lst1 lst2)
+    (cond ((null? lst1) lst2)
+          ((null? lst2) lst1)
+          (else
+           (let ((x1 (car lst1)) (x2 (car lst2)))
+             (cond ((< x1 x2)
+                    (cons x1 (merge (cdr lst1) lst2)))
+                   ((> x1 x2)
+                    (cons x2 (merge lst1 (cdr lst2))))
+                   (else
+                    (cons x1 (merge (cdr lst1) (cdr lst2)))))))))
+  (list->tree (merge (tree->list-2 set1) (tree->list-2 set2))))
+
+(define (intersection-set set1 set2)
+  (define (inter lst1 lst2)
+    (if (or (null? lst1) (null? lst2))
+        '()
+        (let ((x1 (car lst1)) (x2 (car lst2)))
+          (cond ((= x1 x2)
+                 (cons x1
+                       (inter (cdr lst1) (cdr lst2))))
+                ((< x1 x2) (inter (cdr lst1) lst2))
+                (else (inter lst1 (cdr lst2)))))))
+  (list->tree
+   (inter (tree->list-2 set1) (tree->list-2 set2))))
+\end{lstlisting}
+\end{document}

@@ -1,0 +1,19 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+What Ben sees on the repl is the internal representation of the queue.
+So it only makes sense if he uses the predefined accessors.  In this
+case, if there's only one element left in the queue, both the front
+and rear pointers point to the same element.  But deleting this
+element will only set the front pointer to an empty list, the rear
+pointer still points to the element.  But this is fine since
+\lstinline!empty-queue?! only tests if the front pointer is empty.
+\begin{lstlisting}
+(define (print-queue q)
+  (if (empty-queue? q)
+      '()
+      (front-ptr q)))
+\end{lstlisting}
+\end{document}

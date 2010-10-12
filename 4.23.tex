@@ -1,0 +1,24 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+If there's $n$ expressions in the sequence and note $p_1, p_2, \ldots,
+p_n$ the analyzers of those expressions, the version in the text would
+return a procedure roughly equivalent to:
+
+\begin{lstlisting}
+(lambda (env)
+  (p1 env)
+  (p2 env)
+  ...
+  (pn env))
+\end{lstlisting}
+
+On the other hand, Alyssa's version returns a procedure that will loop
+explicitly through the list of procedures and apply them
+individually.  This is less efficient since the first version use the
+native implementation of evaluating a sequence.
+\end{document}

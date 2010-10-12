@@ -1,0 +1,22 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+For the first representation
+\begin{lstlisting}
+(define (make-frame origin edge1 edge2)
+  (list origin edge1 edge2))
+(define origin-frame car)
+(define edge1-frame cadr)
+(define edge2-frame caddr)
+\end{lstlisting}
+For the second one,
+\begin{lstlisting}
+(define (make-frame origin edge1 edge2)
+  (cons origin (cons edge1 edge2)))
+(define origin-frame car)
+(define edge1-frame cadr)
+(define edge2-frame cddr)
+\end{lstlisting}
+\end{document}

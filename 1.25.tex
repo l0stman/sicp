@@ -1,0 +1,15 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+
+\begin{document}
+Given that \lstinline!fast-expt! is $\Theta(\log n)$, this new
+version of \lstinline!expmod! is linear to the value of $exp$ in space
+an number of steps.
+
+Whereas in the former version of \lstinline!expmod!, we could see by
+induction that the first argument of \lstinline!remainder! is less than
+$m^2$.  So for a fixed value of $m$, this algorithm is constant in
+space and $\Theta(\log exp)$ in number of steps.
+\end{document}

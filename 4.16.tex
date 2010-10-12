@@ -1,0 +1,73 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\subpar{a}
+\begin{lstlisting}
+(define (lookup-variable-value var env)
+  (define (env-loop env)
+    (define (scan vars vals)
+      (cond ((null? vars)
+             (env-loop (enclosing-environment env)))
+            ((eq? var (car vars))
+             (if (eq? (car vals) '*unassigned*)
+                 (error "Unassigned variable" var)
+                 (car vals)))
+            (else (scan (cdr vars) (cdr vals)))))
+    (if (eq? env the-empty-environment)
+        (error "Unbound variable" var)
+        (let ((frame (first-frame env)))
+          (scan (frame-variables frame)
+                (frame-values frame)))))
+  (env-loop env))
+\end{lstlisting}
+
+\subpar{b}
+\begin{lstlisting}
+(define (scan-out-defines body)
+  (define (loop body vars vals new-body)
+    (cond ((null? body) (list vars vals new-body))
+          ((definition? (car body))
+           (loop (cdr body)
+                 (cons (definition-variable (car body))
+                       vars)
+                 (cons (definition-value (car body))
+                       vals)
+                 new-body))
+          (else
+           (loop (cdr body)
+                 vars
+                 vals
+                 (cons (car body) new-body)))))
+  (let* ((res (loop body '() '() '()))
+         (vars (reverse (car res)))
+         (vals (reverse (cadr res)))
+         (body (reverse (caddr res))))
+    (cons 'let
+          (cons (map (lambda (var)
+                       (list var '*unassigned*))
+                     vars)
+                (append (map (lambda (var val)
+                               (list 'set! var val))
+                             vars
+                             vals)
+                        body)))))
+\end{lstlisting}
+
+\subpar{c}
+
+\begin{lstlisting}
+(define (make-procedures parameters body env)
+  (list 'procedure
+        parameters
+        (scan-out-defines body)
+        env))
+\end{lstlisting}
+
+It's better to use \lstinline!scan-out-defines! in
+\lstinline!make-procedures! so it will only be executed once when
+evaluating the procedure, not each time the procedure is applied.
+\end{document}

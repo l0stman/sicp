@@ -1,0 +1,46 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+We modify \lstinline!make-account! slightly to accept the message
+\emph{verify} to test if the password we give match the password of
+the account.
+\begin{lstlisting}
+(define (make-account balance secret-password)
+  (define (pass-error amount)
+    "Incorrect password")
+  (define (withdraw amount)
+    (if (>= balance amount)
+        (begin (set! balance (- balance amount))
+               balance)
+        "Insufficient funds"))
+  (define (deposit amount)
+    (set! balance (+ balance amount))
+    balance)
+  (define (dispatch p m)
+    (cond ((eq? m 'verify)
+           (eq? p secret-password))
+          ((not (eq? secret-password p))
+           pass-error)
+          ((eq? m 'withdraw) withdraw)
+          ((eq? m 'deposit) deposit)
+          (else (error "Unknown request -- MAKE-ACCOUNT"
+                       m))))
+  dispatch)
+(define (make-joint account password secret-password)
+  (if (not (account password 'verify))
+      (begin 
+       (display "Incorrect password")
+       (newline))
+      (lambda (p m)
+        (cond ((not (eq? secret-password p))
+               (lambda (amount) "Incorrect password"))
+              ((eq? m 'withdraw)
+               (account password 'withdraw))
+              ((eq? m 'deposit)
+               (account password 'deposit))
+              (else (error "Unknown request -- MAKE-JOINT"
+                           m))))))
+\end{lstlisting}
+\end{document}

@@ -1,0 +1,12 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+Each term \lstinline!(expmod base (/ exp 2))! is computed separately.
+So if we note $T(exp)$ the time to execute \lstinline!expmod! we have,
+\[ T(exp) = 2 T(exp/2) + \Theta(1).\]
+And we can deduce easily that
+\[ T(exp) = \Theta(exp).\]
+The reasonning holds for the space's order of growth.
+\end{document}

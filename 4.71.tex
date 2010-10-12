@@ -1,0 +1,42 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+Given that the order of evaluation of the arguments to a Scheme
+procedure are undefined, we should enforce to have some desired
+behaviors.
+
+For example, suppose that a particular Scheme implementation evaluates
+the arguments from right to left.  And \lstinline!simple-query! is
+defined as Louis Reasoner's implementation.  Thus the rules are
+evaluated before the assertions.  Moreover, we define the following
+assertion and rule
+
+\begin{lstlisting}
+(assert! (married Minnie Mickey))
+(assert! (rule (married ?x ?y)
+               (married ?y ?x)))
+\end{lstlisting}
+
+With the former definition, the query
+\lstinline!(married Mickey ?who)!  would print the result
+\begin{lstlisting}
+  (married Mickey Minnie)
+\end{lstlisting}
+and then goes into an infinite loop.  Whereas with the new definition
+of \lstinline!simple-query!, no result at all would be printed and the
+system will loop indefinitely.  Thus evaluating the assertions before
+the rules would at least ensure us that if the query verifies some
+assertions in the database, they would be printed even if the system
+would go into an infinite loop.
+
+\medskip
+The same reasoning could be applied to \lstinline!disjoin!.  Ensuring
+an order of evaluation in the queries would at least guarantees that
+if the first queries produce some result, they would be printed even
+if the latter queries cause the system to not terminate.
+
+\end{document}

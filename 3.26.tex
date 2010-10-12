@@ -1,0 +1,84 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+Let's introduce the data structure representing a node:
+\begin{lstlisting}
+(define empty-node '())
+(define (empty-node? n) (eq? n empty-node))
+(define (make-node key val)
+  (list 'node key val empty-node empty-node))
+(define (node? n)
+  (and (pair? n) (eq? (car n) 'node)))
+(define node-key cadr)
+(define node-val caddr)
+(define node-left cadddr)
+(define node-right (compose cadddr cdr))
+(define (set-val! node val) (set-car! (cddr node) val))
+(define (set-left-node! node n) (set-car! (cdddr node) n))
+(define (set-right-node! node n) (set-car! (cddddr node) n))
+\end{lstlisting}
+The constructor \lstinline!make-table! takes as argument a comparison
+procedure for keys returning respectively 0, a negative number and a
+positive number if the first key is equal, less, or greater than the
+second one.
+\begin{lstlisting}
+(define (make-table cmp)
+  (let ((local-table empty-node))
+    (define (find key table)
+      (if (empty-node? table)
+          #f
+          (let ((n (cmp key (node-key table))))
+            (cond ((= n 0) table)
+                  ((< n 0) (find key (node-left table)))
+                  (else (find key (node-right table)))))))
+    (define (lookup keys table)
+      (cond ((empty-node? table) #f)
+            ((null? keys) table)
+            (else
+             (let ((subtable (find (car keys) table)))
+               (cond ((not subtable) #f)
+                     ((null? (cdr keys)) (node-val subtable))
+                     (else
+                      (lookup (cdr keys) (node-val subtable))))))))
+    (define (insert1! key val table)
+      (let ((new-node (make-node key val)))
+       (if (empty-node? local-table)
+           (set! local-table new-node)
+           (let ((n (cmp key (node-key table))))
+             (cond ((= n 0) (set-val! table val))
+                   ((< n 0)
+                    (if (empty-node? (node-left table))
+                        (set-left-node! table new-node)
+                        (insert1! key val (node-left table))))
+                   (else
+                    (if (empty-node? (node-right table))
+                        (set-right-node! table new-node)
+                        (insert1! key val (node-right table)))))))))
+    (define (insert! keys val table)
+      (if (null? (cdr keys))
+          (insert1! (car keys) val table)
+          (let ((subtable (find (car keys) table)))
+            (if (and subtable (node? (node-val subtable)))
+                (insert! (cdr keys) val (node-val subtable)) 
+                (insert1! (car keys)
+                          (foldl make-node val (nreverse (cdr keys)))
+                          table))))
+      'ok)
+    (define (dispatch m)
+      (cond ((eq? m 'lookup-proc)
+             (lambda (keys) (lookup keys local-table)))
+            ((eq? m 'insert-proc!)
+             (lambda (keys val) (insert! keys val local-table)))
+            (else
+             (error "Unknown operation -- TABLE" m))))
+      dispatch))
+\end{lstlisting}
+For example, if the keys are numbers, we can built a table as follows:
+\begin{lstlisting}
+(define *table* (make-table (lambda (x y) (- x y))))
+(define put (*table* 'insert-proc!))
+(define get (*table* 'lookup-proc))
+\end{lstlisting}
+\end{document}

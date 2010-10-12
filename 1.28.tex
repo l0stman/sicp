@@ -1,0 +1,31 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+Let's make \lstinline!expmod! returns $0$ if we find a non-trivial
+square root of $1$.
+\begin{lstlisting}
+(define (expmod base exp m)
+  (define (squaremod x)
+    (test-square-root x (remainder (square x) m)))
+  (define (test-square-root x y)
+    (if (and (\= x 1))
+	     (\= x (- m 1)))
+	     (= y 1))
+	0
+	y))
+  (cond ((= exp 0) 1)
+	((even? exp)
+	 (squaremod (expmod base (/ exp 2) m)))
+	(else
+	 (remainder (* base (expmod base (- exp 1) m))
+		    m))))
+(define (miller-rabin-test n)
+  (define (try-it a)
+    (= (expmod a (- n 1) n) 1))
+  (try-it (+ 1 (random (- n 1)))))
+\end{lstlisting}
+We can verify that most of the time, \lstinline!expmod! returns \#f
+for the Carmichael numbers in the previous exercise.
+\end{document}

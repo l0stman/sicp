@@ -1,0 +1,34 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\subpar}[1] {\medskip \noindent #1.}
+\lstset{language=Lisp}
+
+\begin{document}
+It works because the first time \lstinline!apply-generic! is called,
+it looks for the operator for complex numbers which is the same as the
+generic operation on rectangular or polar numbers.
+
+\begin{lstlisting}
+  (magnitude z)
+\end{lstlisting}
+
+$\rightarrow$ \lstinline!(magnitude (complex rectangular 3 . 4))!
+
+$\rightarrow$
+\lstinline!(apply-generic magnitude (complex rectangular 3 . 4))!
+
+$\rightarrow$
+\lstinline!(apply (get magnitude (complex)) ((rectangular 3 . 4)))!
+
+$\rightarrow$
+\lstinline!(apply-generic magnitude (rectangular 3 . 4))!
+
+$\rightarrow$
+\lstinline!(apply (get magnitude (rectangular)) ((3 . 4)))!
+
+$\rightarrow$ \lstinline!5!
+
+\lstinline!apply-generic! is invoked two times and dispatched to the
+procedure \lstinline!magnitude! for the current type of the number
+each time.
+\end{document}

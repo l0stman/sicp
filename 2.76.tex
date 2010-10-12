@@ -1,0 +1,25 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\subpar}[1] {\medskip \noindent #1.}
+\lstset{language=Lisp}
+
+\begin{document}
+For generic operations with explicit dispatch, each time a new data
+type, we need to update all the dispatches.  The problem for explicit
+dispatch too is that each implementation of an operation for each data
+should know the other implementations to avoid name conflicts and to
+know which operator does what with a particular kind of data.
+
+In data-directed style, adding a new generic operation doesn't touch
+the data.  But adding a new data type needs to update all the generic
+operations.  Each operation implementation in for a data type doesn't
+care about the implementations by the other data types.
+
+In a message passing style, each new operation needs to be implemented
+by each data type.  A new data type needs only to implement all the
+operations without touching the generic operations.
+
+If new types must often be added,  message-passing is the most
+appropriate.  On the other hand, if new operations must often be added
+we should choose a data-directed style.
+\end{document}

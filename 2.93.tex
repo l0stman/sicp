@@ -1,0 +1,42 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\subpar}[1] {\medskip \noindent #1.}
+\lstset{language=Lisp}
+
+\begin{document}
+We just need to replace $+$ and $*$ with \lstinline!add! and
+\lstinline!prod!: 
+\begin{lstlisting}
+(define (install-rational-package)
+  ;; internal procedures
+  (define (numer x) (car x))
+  (define (denom x) (cdr x))
+  (define (make-rat n d) (cons n d))
+  (define (add-rat x y)
+    (make-rat (add (prod (numer x) (denom y))
+                   (prod (numer y) (denom x)))
+              (prod (denom x) (denom y))))
+  (define (mul-rat x y)
+    (make-rat (prod (numer x) (numer y))
+              (prod (denom x) (denom y))))
+  (define (div-rat x y)
+    (make-rat (prod (numer x) (denom y))
+              (prod (denom x) (numer y))))
+  ;; interface to rest of the system
+  (define (tag x) (attach-tag 'rational x))
+  (put 'add '(rational rational)
+       (lambda (x y) (tag (attach-tag 'rational x))))
+  (put 'sub '(rational rational)
+       (lambda (x y) (tag (sub-rat x y))))
+  (put 'mul '(rational rational)
+       (lambda (x y) (tag (mul-rat x y))))
+  (put 'div '(rational rational)
+       (lambda (x y) (tag (div-rat x y))))
+
+  (put 'make 'ratioanl
+       (lambda (n d) (tag (make-rat n d))))
+  'done)
+(define (make-rational n d)
+  ((get 'make 'rational) n d))
+\end{lstlisting}
+\end{document}

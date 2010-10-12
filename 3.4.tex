@@ -1,0 +1,33 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (make-account balance secret-password)
+  (let ((error-count 0))
+    (define (pass-error amount)
+     "Incorrect password")
+    (define (withdraw amount)
+      (if (>= balance amount)
+          (begin (set! balance (- balance amount))
+                 balance)
+          "Insufficient funds"))
+    (define (deposit amount)
+      (set! balance (+ balance amount))
+      balance)
+    (define (dispatch p m)
+      (cond ((not (eq? secret-password p))
+             (set! error-count (+ 1 error-count))
+             (if (> error-count 7)
+                 (call-the-cops)
+                 pass-error))
+            (else
+             (set! error-count 0) 
+             (cond ((eq? m 'withdraw) withdraw)
+                   ((eq? m 'deposit) deposit)
+                   (else (error "Unknown request -- MAKE-ACCOUNT"
+                                m))))))
+    dispatch))
+\end{lstlisting}
+\end{document}

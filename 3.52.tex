@@ -1,0 +1,35 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+Using the same reasoning as in \textbf{3.51}, the value of sum is
+successively:
+
+\begin{lstlisting}
+  (define seq (stream-map accum (stream-enumerate-interval 1 20)))
+\end{lstlisting}
+$\rightarrow$ 1
+
+\begin{lstlisting}
+  (define y (stream-filter even? seq))
+\end{lstlisting}
+$\rightarrow$ 6
+
+\begin{lstlisting}
+(define z (stream-filter (lambda (x)
+                           (= (remainder x 5) 0))
+                         seq))
+\end{lstlisting}
+$\rightarrow$ 10
+
+\begin{lstlisting}
+  (stream-ref y 7)
+\end{lstlisting}
+$\rightarrow$ 136
+
+\begin{lstlisting}
+  (display-stream z)
+\end{lstlisting}
+$\rightarrow$ 210
+\end{document}

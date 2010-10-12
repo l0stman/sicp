@@ -1,0 +1,23 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\subpar{a}
+\begin{lstlisting}
+(define (simple-stream-flatmap proc s)
+  (simple-flatten (stream-map proc s)))
+
+(define (simple-flatten stream)
+  (stream-map stream-car
+              (stream-filter (lambda (x)
+                               (not (stream-null? x)))
+                             stream)))
+\end{lstlisting}
+
+\subpar{b} This change should be opaque to the query system's behavior
+since we just changed an implementation, the result remains the same.
+
+\end{document}

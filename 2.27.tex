@@ -1,0 +1,18 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (deep-reverse l)
+  (define (iter res l)
+    (cond ((null? l) res)
+          ((pair? (car l))
+           (iter (cons (iter '() (car l))
+                       res)
+                 (cdr l)))
+          (else (iter (cons (car l) res)
+                      (cdr l)))))
+  (iter '() l))
+\end{lstlisting}
+\end{document}

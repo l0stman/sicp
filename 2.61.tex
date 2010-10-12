@@ -1,0 +1,31 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (adjoin-set x set)
+  (define (insert-iter head tail)
+    (cond ((null? tail)
+           (reverse (cons x head)))
+          ((= x (car tail)) set)
+          ((< x (car tail))
+           (foldl cons (cons x tail) head))
+          (else
+           (insert-iter (cons (car tail) head)
+                        (cdr tail)))))
+  (insert-iter '() set))
+
+(define (adjoin-set x set)
+  (cond ((null? set) (list x))
+        ((= x (car set)) set)
+        ((< x (car set)) (cons x set))
+        (else (cons (car set)
+                    (adjoin-set x (cdr set))))))
+\end{lstlisting}
+For the element isn't in the set, it will be added at the end of the
+list, so it'll take roughly 2n steps if the set is ordered or not.
+But on the average, we should expect to have to examine about half of
+the items in the set.   And adding the element will cost on average
+$n/2$, thus on average the running time is $n$.
+\end{document}

@@ -1,0 +1,33 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (square-lst items)
+  (define (iter things answer)
+    (if (null? things)
+        answer
+        (iter (cdr things)
+              (cons (square (car things))
+                    answer))))
+  (iter items null))
+\end{lstlisting}
+The newly computed square at the head of things is added to the
+beginning of answer.  Thus when \lstinline!iter! terminated, the
+answer is inverted.
+
+\begin{lstlisting}
+(define (square-list items)
+  (define (iter things answer)
+    (if (null? things)
+        answer
+        (iter (cdr things)
+              (cons answer
+                    (square (car things))))))
+  (iter items null))
+\end{lstlisting}
+This doesn't work because it doesn't return a list.  After each
+iteration the value of \lstinline!answer! is a dotted-pair whose
+second element is the newly computed square from the list.
+\end{document}

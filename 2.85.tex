@@ -1,0 +1,52 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\subpar}[1] {\medskip \noindent #1.}
+\lstset{language=Lisp}
+
+\begin{document}
+We add the following definition in the complex numbers package:
+\begin{lstlisting}
+(define (project c)
+  (make-scheme-number (real-part c)))
+(put 'project '(complex) project)
+\end{lstlisting}
+And add the following pieces of code in the rational number package:
+\begin{lstlisting}
+(define (project r)
+  (make-scheme-number (numer r)))
+(put 'project '(rational project))
+\end{lstlisting}
+And finally in the scheme-number package:
+\begin{lstlisting}
+(define (project n)
+  (make-scheme-number (round n)))
+(put 'project 'scheme-number project)
+\end{lstlisting}
+We then define the generic operation \lstinline!project! and the
+procedure \lstinline!drop!.
+\begin{lstlisting}
+(define (project n)
+  (apply-generic 'project n))
+
+(define (drop n)
+  (let ((p (project n)))
+    (if (equ? (raise p) n)
+        (drop p)
+        n)))
+\end{lstlisting}
+And we redefine \lstinline!apply-generic-raise! to simplify its
+results.
+\begin{lstlisting}
+  (define (apply-generic-raise op args init)
+  (let* ((type-tags (map type-tag args))
+         (proc (get op type-tags)))
+    (if proc
+        (drop (apply proc (map contents args)))
+        (let ((objs (raise-lst args init)))
+          (if objs
+              (apply-generic-raise op objs init)
+              (error
+               "No method for these types"
+               (list op (map type-tag init))))))))
+\end{lstlisting}
+\end{document}

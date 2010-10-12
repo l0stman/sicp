@@ -1,0 +1,19 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (lookup given-key set-of-records)
+  (if (null? set-of-records)
+      #f
+      (let ((k (key (entry set-of-records))))
+        (cond ((= k given-key) (entry set-of-records))
+              ((< k given-key)
+               (lookup given-key
+                       (right-branch set-of-records)))
+              (else
+               (lookup given-key
+                       (left-branch set-of-records)))))))
+\end{lstlisting}
+\end{document}

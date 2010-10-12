@@ -1,0 +1,40 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\subpar}[1] {\medskip \noindent #1.}
+\lstset{language=Lisp}
+
+\begin{document}
+We just define a generic operation \lstinline!equ?! and each type of
+number should implement it:
+\begin{lstlisting}
+(define (equ? n m)
+  (and (eq? (type-tag n) (type-tag m))
+       (apply-generic 'equ? n m)))
+\end{lstlisting}
+
+We add the following definition in the scheme-number package
+\begin{lstlisting}
+  (define (equ? n m) (= n m))
+  (put 'equ? '(scheme-number scheme-number) equ?)
+\end{lstlisting}
+In the rational package, let's modify slightly \lstinline!make-rat! to
+facilitate \lstinline!equ?!'s implementation
+\begin{lstlisting}
+(define (make-rat n d)
+  (let ((g (gcd n d)))
+    (cons (/ (* n (if (< d 0) -1 1))
+             g)
+          (/ (abs d) g))))
+(define (equ? n m)
+  (and (= (number n) (number m))
+       (= (denom n) (denom m))))
+(put 'equ? '(rational rational) equ?)
+\end{lstlisting}
+And finally in the complex package with the definitions in \emph{exercise 2.77}
+\begin{lstlisting}
+(define (equ? n m)
+  (and (= (real-part n) (real-part m))
+       (= (imag-part n) (imag-part m))))
+(put 'equ? '(complex complex) equ?)
+\end{lstlisting}
+\end{document}

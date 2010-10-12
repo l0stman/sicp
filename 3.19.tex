@@ -1,0 +1,22 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+We launch two mobiles $m_1$ and $m_2$ in the list seen as a circuit.
+The first mobile has a speed equal to $1$ and the second one equal to
+$2$.  If the second mobile catches the first one,  then the list
+contains a cycle.
+\begin{lstlisting}
+(define (cycle? x)
+  (define (last? m)
+    (not (and (pair? m) (pair? (cdr m)))))
+  (define (iter m1 m2)
+    (cond ((eq? m1 m2) #t)
+          ((last? m2) #f)
+          (else (iter (cdr m1) (cddr m2)))))
+  (if (not (pair? x))
+      #f
+      (iter x (cdr x))))
+\end{lstlisting}
+\end{document}

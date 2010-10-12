@@ -1,0 +1,19 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (smooth s)
+  (define (iter s last)
+    (cons-stream (/ (+ (stream-car s) last) 2)
+                 (iter (stream-cdr s) (stream-car s))))
+  (iter (stream-cdr s) (stream-car s)))
+
+(define (make-zero-crossings input-stream)
+  (let ((smooth-stream (smooth input-stream)))
+    (stream-map sign-change-detector
+                smooth-stream
+                (stream-cdr smooth-stream))))
+\end{lstlisting}
+\end{document}

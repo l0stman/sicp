@@ -1,0 +1,20 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (estimate-integral P x1 x2 y1 y2)
+  (define (iter trials-passed trials)
+    (let ((trials-passed
+           (if (P (random-in-range x1 x2)
+                  (random-in-range y1 y2))
+               (+ 1 trials-passed)
+               trials-passed)))
+      (cons-stream (/ trials-passed trials)
+                   (iter trials-passed (+ 1 trials)))))
+  (stream-map (lambda (p)
+                (* 1.0 p (- x2 x1) (- y2 y1)))
+              (iter 0 1)))
+\end{lstlisting}
+\end{document}

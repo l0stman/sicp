@@ -1,0 +1,21 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define (map p sequence)
+  (accumulate (lambda (x y)
+                (cons (p x) y))
+              null
+              sequence))
+
+(define (append seq1 seq2)
+  (accumulate cons seq2 seq1))
+
+(define (length sequence)
+  (accumulate (lambda (x y) (+ y 1))
+              0
+              sequence))
+\end{lstlisting}
+\end{document}

@@ -1,0 +1,73 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define o (make-vect 0 0))
+(define j (make-vect 0 1))
+(define i (make-vect 1 0))
+(define k (make-vect 1 1))
+
+(define outline
+  (segments->painter
+   (list (make-segment o j)
+         (make-segment j k)
+         (make-segment k i)
+         (make-segment i o)))))
+
+(define x-painter
+  (segments->painter
+   (list (make-segment o k)
+         (make-segment j i))))
+
+(define diamond
+  (let ((m1 (make-vect 0 1/2))
+        (m2 (make-vect 1/2 1))
+        (m3 (make-vect 1 1/2))
+        (m4 (make-vect 1/2 0))))
+  (segments->painter
+   (list (make-segment m1 m2)
+         (make-segment m2 m3)
+         (make-segment m3 m4)
+         (make-segment m4 m1))))
+
+(define wave
+  (segments->painter
+   (list
+    (make-segment (make-vector 5/12 2/3)
+                  (make-vector 1/3 5/6))
+    (make-segment (make-vector 1/3 5/6)
+                  (make-vector 5/12 1))
+    (make-segment (make-vector 7/12 1)
+                  (make-vector 2/3 5/6))
+    (make-segment (make-vector 2/3 5/6)
+                  (make-vector 7/12 3/3))
+    (make-segment (make-vector 7/12 2/3)
+                  (make-vector 2/3 2/3))
+    (make-segment (make-vector 2/3 2/3)
+                  (make-vector 1 1/2))
+    (make-segment (make-vector 1 1/3)
+                  (make-vector 7/12 1/2))
+    (make-segment (make-vector 7/12 1/2)
+                  (make-vector 0 2/3))
+    (make-segment (make-vector 0 5/9)
+                  (make-vector 1/2 1/3))
+    (make-segment (make-vector 1/2 1/3)
+                  (make-vector 0 4/9))
+    (make-segment (make-vector 0 1/3)
+                  (make-vector 5/12 1/2))
+    (make-segment (make-vector 5/12 1/2)
+                  (make-vector 1/3 7/12))
+    (make-segment (make-vector 1/3 7/12)
+                  (make-vector 1/6 1/2))
+    (make-segment (make-vector 1/6 1/2)
+                  (make-vector 0 2/3))
+    (make-segment (make-vector 0 5/6)
+                  (make-vector 1/6 7/12))
+    (make-segment (make-vector 1/6 7/12)
+                  (make-vector 1/3 2/3))
+    (make-segment (make-vector 1/3 2/3)
+                  (make-vector 5/12 2/3)))))
+\end{lstlisting}
+\end{document}

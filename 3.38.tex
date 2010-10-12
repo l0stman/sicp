@@ -1,0 +1,19 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+a.  List of all the possible values:
+
+\noindent
+Peter, Paul $\rightarrow$ Mary: 45\$\\
+Mary $\rightarrow$ Peter, Paul: 40\$\\
+Peter $\rightarrow$ Mary $\rightarrow$ Paul: 35\$\\
+Paul $\rightarrow$ Mary $\rightarrow$ Peter: 60\$
+
+b.  Two kind of problems could occur.  The first one is that if for
+example Paul access the balance's value before Peter updates its
+withdrawal, Paul's withdrawal is ignored.  The second kind of problems
+occurs with Mary,  the two access to balance at different times could
+yield different values.
+\end{document}

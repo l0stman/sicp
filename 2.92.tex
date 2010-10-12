@@ -1,0 +1,82 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\subpar}[1] {\medskip \noindent #1.}
+\lstset{language=Lisp}
+
+\begin{document}
+Suppose that we have a function \lstinline!greater(x,y)! which returns
+true if and only if the rank of the variable $y$ is greater than
+$x$'s.  Let's define a function that returns the degree of a
+polynomial:
+\begin{lstlisting}
+(define (degree p)
+  (let ((t (first-term p)))
+    (if (=zero? (coeff t)) -1 (order t))))
+\end{lstlisting}
+The procedure \lstinline!norm-poly! transforms a polynomial into an
+equivalent one whose variable is greater than the rank of the
+variables appearing in its coefficients.  We then define
+\lstinline!add-poly!  and \lstinline!mul-poly! as follow:
+\begin{lstlisting}
+(define (add-poly poly1 poly2)
+  (cond ((< (degree p1) 0) p2)
+        ((< (degree p2) 0) p1)
+        (else
+         (let* ((p1 (norm-poly poly1))
+                (p2 (norm-poly poly2))
+                (v1 (variable p1))
+                (v2 (variable p2)))
+           (cond ((same-variable? v1 v2)
+                  (make-poly v1
+                             (add-terms (term-list p1)
+                                        (term-list p2))))
+                 ((greater v1 v2)
+                  (add-poly p2 (make-poly v2 (make-term 0 p1))))
+                 (else
+                  (add-poly p1 (make-poly v1 (make-term 0 p2)))))))))
+
+(define (mul-poly poly1 poly2)
+  (let* ((p1 (norm-poly poly1)) (p2 (norm-poly poly2))
+         (v1 (variable p1)) (v2 (variable p2)))
+    (cond ((same-variable? v1 v2)
+           (make-poly v1
+                      (mul-terms (term-list p1)
+                                 (term-list p2))))
+          ((greater v1 v2)
+           (mul-poly p2 (make-poly v2 (make-term 0 p1))))
+          (else
+           (mul-poly p1 (make-poly v1 (make-term 0 p2)))))))
+\end{lstlisting}
+Let's define now the procedure \lstinline!norm-poly!.
+\begin{lstlisting}
+
+(define (term->poly term var)
+  (make-poly var
+             (adjoin-term (make-term (order term) 1)
+                          (the-empty-termlist))))
+
+(define (norm-term term var)
+  (let ((type (type-tag (coeff term))))
+    (if (not (eq? 'polynomial type))
+        (make-poly var term)
+        (let ((p (norm-poly (coeff term))))
+          (if (greater (variable p) var)
+              (make-poly var (make-term 0 p))
+              (make-poly (variable p)
+                         (mul-term-by-all-terms
+                          (make-term 0 (term->poly term var))
+                          (term-list p))))))))
+(define (norm-poly p)
+  (define (iter term-list var acc)
+    (if (empty-term-list? term-list)
+        acc
+        (iter (rest-terms term-list)
+              var
+              (add-poly (norm-term (first-term term-list) var)
+                        acc))))
+  (let ((var (variable p)))
+    (iter (term-list p)
+          var
+          (term->poly (make-term 0 0) var))))
+\end{lstlisting}
+\end{document}

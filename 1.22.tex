@@ -1,0 +1,48 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+With mzscheme, we define \textbf{runtime} as
+\textbf{current-inexact-milliseconds}.  Here's
+the code for \textbf{search-for-primes}.
+\begin{lstlisting}
+(define (search-for-primes init range)
+  (define (loop n range)
+    (when (<= (- n init) range)
+	  (timed-prime-test n)
+	  (iter (+ n 2) range)))
+  (if (even? init)
+      (loop (+ init 1) (- range 1))
+      (loop init range)))
+\end{lstlisting}
+Here are the first three lines in the results we obtain:
+\begin{eqnarray*}
+\lstinline!(search-for-primes 1000 100)!
+&\rightarrow&
+1009 \mbox{ *** }0.012939453125 \\ &&
+1013 \mbox{ *** }0.012939453125 \\ &&
+1019 \mbox{ *** }0.012939453125 \\
+\lstinline!(search-for-primes 10000 100)!
+&\rightarrow&
+10007 \mbox{ *** } 0.0380859375 \\ &&
+10009 \mbox{ *** } 0.036865234375 \\ &&
+10037 \mbox{ *** } 0.036865234375 \\
+\lstinline!(search-for-primes 100000 100)!
+&\rightarrow&
+100003 \mbox{ *** } 0.125 \\ &&
+100019 \mbox{ *** } 0.11181640625 \\ &&
+100043 \mbox{ *** } 0.113037109375 \\
+\lstinline!(search-for-primes 1000000 100)!
+&\rightarrow&
+1000003\mbox{ *** } 0.39697265625 \\ &&
+1000033\mbox{ *** } 0.342041015025 \\ &&
+1000037\mbox{ *** } 0.35498046875
+\end{eqnarray*}
+Taking the average of the time elapsed for the three prime numbers
+found and computing the successive ratio, we
+obtion the sequel: $2.88$, $3.13$, $3.13$.  So given that $\sqrt{10}
+\simeq 3.16$, our result supports the $\sqrt{n}$ growth prediction.
+So the programs on the machine run in time proportional to the number
+of steps required for the computation.
+\end{document}

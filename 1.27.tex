@@ -1,0 +1,18 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+Let's define the following function
+\begin{lstlisting}
+(define (carmichael? n)
+  (define (iter a)
+    (cond ((= a n) #t)
+	  ((= (expmod a n n) a)
+	   (iter (+ a 1)))
+	  (else #f)))
+  (iter 0))
+\end{lstlisting}
+We could verify that this function returns true on $561$, $1105$,
+$1729$, $2465$, $2821$ and $6601$.
+\end{document}

@@ -1,0 +1,27 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\begin{lstlisting}
+(rule (can-replace ?person-2 ?person-1)
+      (and (or (and (job ?person-1 ?job1)
+                    (job ?person-2 ?job1))
+               (and (job ?person-1 ?job1)
+                    (job ?person-2 ?job2)
+                    (can-do-job ?job1 ?job2)))
+           (not (same ?person-1 ?person-2))))
+\end{lstlisting}
+
+\subpar{a} \lstinline!(can-replace (Fect Cy D) ?person)!.
+
+\subpar{b}
+\begin{lstlisting}
+(and (can-replace ?person-2 ?person-1)
+     (salary ?person-2 ?amount-2)
+     (salary ?person-1 ?amount-1)
+     (lisp-value < ?amount-1 ?amount-2))
+\end{lstlisting}
+\end{document}

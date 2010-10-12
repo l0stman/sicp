@@ -1,0 +1,66 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\subpar}[1] {\medskip \noindent #1.}
+\lstset{language=Lisp}
+
+\begin{document}
+\subpar{a}
+\begin{lstlisting}
+(define (reduce-terms n d)
+  (define (order-terms t)
+    (order (first-term t)))
+  (define (factor n d g)
+    (let ((o1 (max (order-terms n) (order-terms d)))
+          (o2 (order-terms g)))
+      (make-term 0 (expt (coeff (first-term g))
+                         (+ 1 (- o1 o2))))))
+  (define (simplify-term term-list g f)
+    (div-terms (mul-terms f term-list)
+               g))
+  (define (gcd-coeff n d)
+    (define (iter g term-list)
+      (if (empty-termlist? term-list)
+          g
+          (iter (gcd g (first-term term-list))
+                (rest-terms term-list))))
+    (iter (iter 1 n) d))
+  (define (simplify-coeff c term-list)
+    (if (empty-termlist? term-list)
+        (the-empty-termlist)
+        (let ((t (first-term term-list)))
+          (adjoin-term (make-term (order t)
+                                  (/ (coeff t) c))
+                       (simplify-coeff c (rest-terms term-list))))))
+  (let* ((g (gcd-terms n d))
+         (f (factor n d g))
+         (nn (simplify-term n g f))
+         (dd (simplify-term d g f))
+         (c (gcd-coeff nn dd)))
+    (list (simplify-coeff c nn)
+          (simplify-coeff c dd))))
+\end{lstlisting}
+
+\subpar{b}  We add the following definition the \emph{polynomial
+  package}: 
+\begin{lstlisting}
+(define (reduce-poly p1 p2)
+  (if (same-variable? (variable p1) (variable p2))
+      (map (lambda (t)
+             (make-poly (variable p1) t))
+           (reduce-terms (term-list p1) (term-list p2)))
+      (error "Polys not in the same var -- REDUCE-POLY"
+             (list p1 p2))))
+(put 'reduce '(polynomial polynomial) reduce-poly)
+\end{lstlisting}
+and we add in the \emph{scheme number} package:
+\begin{lstlisting}
+(define (reduce-integers n d)
+  (let ((g (gcd n d)))
+    (list (/ n g) (/ d g))))
+(put 'reduce '(scheme-number scheme-number) reduce-integers)
+\end{lstlisting}
+We define the generic operation \lstinline!reduce!:
+\begin{lstlisting}
+(define (reduce n d) (apply-generic 'reduce n d))
+\end{lstlisting}
+\end{document}

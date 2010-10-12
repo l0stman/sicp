@@ -1,0 +1,18 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\newcommand{\subpar}[1] {\medskip \noindent #1.}
+\lstset{language=Lisp}
+
+\begin{document}
+We add the following definitions in the polynomial package
+\begin{lstlisting}
+(define (sub-poly p1 p2)
+  (add-poly p1
+            (make-poly
+             (variable p2)
+             (mul-terms (term-list p2)
+                        (adjoin-term (make-term 0 -1)
+                                     (the-empty-termlist))))))
+(put 'sub '(polynomial) sub-poly)
+\end{lstlisting}
+\end{document}

@@ -1,0 +1,16 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\begin{lstlisting}
+(define f
+  (let ((x 1))
+    (lambda (y)
+      (cond ((= x 0) 0)
+            ((= y 0)
+             (set! x 0)
+             0)
+            (else y)))))
+\end{lstlisting}
+\end{document}

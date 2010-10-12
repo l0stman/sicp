@@ -1,0 +1,40 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+As usual, we add the following entry in \lstinline!analyze!
+
+\begin{lstlisting}
+  ...
+  ((permanent-assignment? exp) (analyze-perm-assign exp))
+  ...
+\end{lstlisting}
+
+And the we define \lstinline!analyze-perm-assign! as follows:
+
+\begin{lstlisting}
+
+(define (permanent-assignment? exp)
+  (tagged-list? exp 'permanent-set!))
+
+(define (analyze-perm-assign exp)
+  (let ((var (assignment-variable exp))
+        (vproc (analyze (assignment-value exp))))
+    (lambda (env succeed fail)
+      (vproc env
+             (lambda (val fail2)
+               (set-variable-value! var val env)
+               (succeed 'ok fail2))
+             fail))))
+\end{lstlisting}
+
+When we use \lstinline!permanent-set!!, the \lstinline!count! variable
+contains the number of selected pairs $(x, y)$ up until now.
+Whereas if we use \lstinline!set!!, each time we backtrack, the value
+of \lstinline!count! will be reset to $0$.  Thus the third value in
+the list being displayed is always equal to $1$.
+
+\end{document}

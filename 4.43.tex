@@ -1,0 +1,86 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\begin{lstlisting}
+(define names  '(mary-ann gabrielle lorna rosalind melissa))
+
+(define (make-entry daughter yacht)
+  (if (null? daughter) (set! daughter (an-element-of names)))
+  (if (null? yacht) (set! yacht (an-element-of names)))
+  (require (not (eq? daughter yacht)))
+  (list daughter yacht))
+(define daughter car)
+(define yacht cadr)
+
+(define (good-entries? e entries)
+  (if (null? entries)
+      true
+      (and (not (or (eq? (daughter e) (daughter (car entries)))
+                    (eq? (yacht e) (yacht (car entries)))))
+           (good-entries? e (cdr entries)))))
+
+(define (yacht-daughters)
+  (define (find-father daughter-name entries)
+    (cond ((null? entries) (amb))
+          ((eq? (daughter (car entries))
+                daughter-name)
+           (car entries))
+          (else (find-father daughter-name (cdr entries)))))
+  (let ((mr.moore (make-entry 'mary-ann 'lorna))
+        (sir.barnacle (make-entry 'melissa 'gabrielle)))
+    (let ((mr.hall (make-entry null 'rosalind)))
+      (require (good-entries? mr.hall (list mr.moore sir.barnacle)))
+      (let ((col.downing (make-entry null 'melissa)))
+        (require (good-entries?
+                  col.downing (list mr.moore sir.barnacle mr.hall)))
+        (let ((dr.parker (make-entry null null)))
+          (require (good-entries?
+                    dr.parker
+                    (list mr.moore sir.barnacle mr.hall col.downing)))
+          (let ((father (find-father 'gabrielle
+                                     (list mr.moore
+                                           sir.barnacle
+                                           mr.hall
+                                           col.downing
+                                           dr.parker))))
+            (require (eq? (yacht father) (daughter dr.parker)))
+            (list 'mr.moore  mr.moore
+                  'sir.barnacle sir.barnacle
+                  'mr.hall mr.hall
+                  'col.downing col.downing
+                  'dr.parker dr.parker)))))))
+\end{lstlisting}
+
+We then obtain the following result
+
+\begin{quote}
+  \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+    father&Mr. Moore& Sir Barnacle Hood& Mr. Hall& Colonel Downing&
+    Dr. Parker \\ \hline
+    daughter& Mary Ann& Melissa& Gabrielle & Lorna& Rosalind \\ \hline
+    yacht& Lorna& Gabrielle& Rosalind & Melissa & Mary Ann \\ \hline
+  \end{tabular}
+\end{quote}
+
+And deduce that Lorna's father is Colonel Downing.
+
+If we are not told that Mary Ann's last name is Moore, there's one
+more solution.
+
+\begin{quote}
+  \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+    father&Mr. Moore& Sir Barnacle Hood& Mr. Hall& Colonel Downing&
+    Dr. Parker \\ \hline
+    daughter& Gabrielle& Melissa& Mary Ann& Rosalind& Lorna \\ \hline
+    yacht& Lorna& Gabrielle& Rosalind & Melissa & Mary Ann \\ \hline
+  \end{tabular}
+\end{quote}
+
+\end{document}
+

@@ -1,0 +1,17 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+\subpar{a}  The problem is that an application is a pair who's not a
+special form.  Thus \lstinline!(define x 3)! would be considered an
+application in Louis' case, which will cause an error.
+
+\subpar{b}  We just have to redefine some primitives.
+\begin{lstlisting}
+(define (application? exp) (tagge-list? exp 'call))
+(define (operator exp) (cadr exp))
+(define (operands exp) (cddr exp))
+\end{lstlisting}
+\end{document}

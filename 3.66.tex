@@ -1,0 +1,49 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+Note $(f(i))_{i \in N^*}$ the sequence representing the stream of
+pairs.  Let's show that for two positive integers $i$ and $j$ such
+that $i <j$, we have
+
+\begin{eqnarray*}
+  \left\{
+  \begin{array}{l}
+    f(2^i-1) = (i, i) \\
+    f((2(j-i)+1)2^{i-1}-1) = (i, j)
+  \end{array}
+  \right. \mbox{(*)}
+\end{eqnarray*}
+
+Note $r(i)$ the positive integer such that $f(r(i)) = (i, i)$.  We
+have the following property
+
+\begin{eqnarray*}
+  f(r(i) + 2^{i-1}) &=& (i, i+1) \\
+  f(r(i) + 2^{i-1} + 2^i) &=& (i, i+2) \\
+  f(r(i) + 2^{i-1} + 2\,2^i) &=& (i, i+3) \\
+  \ldots
+\end{eqnarray*}
+
+In other words we have for $j \ge 0$
+\[ f(r(i) + 2^{i-1} + j\,2^i) = (i, i+j+1).\]
+That is for $j > i$
+\[ f(r(i) + (2(j-i)-1)2^{i-1}) = (i, j).\]
+
+We have the property
+\[ f(r(i) + 2^{i-1} + 2^{i-1}) = f(r(i+1)).\]
+
+Or rewritten another way,
+\[ r(i+1) = r(i) + 2^i.\]
+
+An finally,
+\[ r(i) = 2^i - 1.\]
+
+We then deduce easily (*).
+
+We have $(1, 100) = f(198)$.  Thus there are $198$ pairs before $(1,
+100)$.
+
+$(99, 100) = f(3\,2^{98} - 1)$ and $(100, 100) = f(2^{100}-1)$.
+\end{document}

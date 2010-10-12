@@ -1,0 +1,24 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+
+\begin{document}
+\noindent
+a. Using the following function to count the number of times $p$ is
+applied:
+\begin{lstlisting}
+(define (p-count angle)
+  (if (not (> (abs angle) 0.1))
+      0
+      (+ 1 (p-count (/ angle 3.0)))))
+\end{lstlisting}
+we find that $p$ is applied $5$ times.
+
+\medskip \noindent
+b.  Let's note $S(a)$ the space occupied by
+the process for an input $a$.  We have,
+\[S(a) = S(a/3) + \Theta(1).\]
+We then deduce that $S(a) = \Theta(\log a)$. If we suppose that
+arithmetic operations are done in constant time, the order of growth
+of the number of steps executed is the same as $S(a)$.
+\end{document}

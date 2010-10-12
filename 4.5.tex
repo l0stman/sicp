@@ -1,0 +1,34 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+\begin{lstlisting}
+(define (make-let binds body)
+  (cons let (cons binds body)))
+
+(define (expand-clauses clauses)
+  (define (arrow? cl) (eq? (second cl) '=>))
+  (if (null? clauses)
+      'false                            ; no else clause
+      (let ((first (car clauses))
+            (rest (cdr clauses)))
+        (cond ((not (cond-else-clause? first))
+               (cond ((not (arrow? first))
+                      (make-if (cond-predicate first)
+                               (sequence->exp (cond->actions first))
+                               (expand-clauses rest)))
+                     ((not (null? (cdddr first)))
+                      (error "Bad use of arrow -- COND->IF" first))
+                     (else
+                      (let ((g (gensym)))
+                        (make-let (list (list g (cond-predicate first)))
+                                  (make-if g
+                                           ((third first) g)
+                                           (expand-clauses rest)))))))
+              ((null? rest) (error "ELSE clause isn't last -- COND->IF"))
+              ((arrow? first) (error "Bad clause form -- COND->IF" first))
+              (else (sequence->exp (cond-actions first)))))))
+\end{lstlisting}
+\end{document}
