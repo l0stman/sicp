@@ -1,0 +1,221 @@
+\documentclass[a4paper,12pt]{article}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+\newcommand{\la}{\leftarrow}
+\usepackage{listings}
+\usepackage{pgf}
+\usepgfmodule{plot,shapes,matrix}
+\usepackage{tikz}
+\usetikzlibrary{matrix,positioning,shapes,arrows,calc}
+
+\makeatletter
+\pgfdeclareshape{forbidden parking}
+{
+  \inheritsavedanchors[from=circle] % this is nearly a circle
+  \inheritanchorborder[from=circle]
+  \inheritanchor[from=circle]{north}
+  \inheritanchor[from=circle]{north west}
+  \inheritanchor[from=circle]{north east}
+  \inheritanchor[from=circle]{center}
+  \inheritanchor[from=circle]{west}
+  \inheritanchor[from=circle]{east}
+  \inheritanchor[from=circle]{mid}
+  \inheritanchor[from=circle]{mid west}
+  \inheritanchor[from=circle]{mid east}
+  \inheritanchor[from=circle]{base}
+  \inheritanchor[from=circle]{base west}
+  \inheritanchor[from=circle]{base east}
+  \inheritanchor[from=circle]{south}
+  \inheritanchor[from=circle]{south west}
+  \inheritanchor[from=circle]{south east}
+  \inheritbackgroundpath[from=circle]
+  \foregroundpath{
+    \centerpoint%
+    \pgf@xc=\pgf@x%
+    \pgf@yc=\pgf@y%
+    \pgfutil@tempdima=\radius%
+    \pgfmathsetlength{\pgf@xb}{\pgfkeysvalueof{/pgf/outer xsep}}%
+    \pgfmathsetlength{\pgf@yb}{\pgfkeysvalueof{/pgf/outer ysep}}%
+    \ifdim\pgf@xb<\pgf@yb%
+      \advance\pgfutil@tempdima by-\pgf@yb%
+    \else%
+      \advance\pgfutil@tempdima by-\pgf@xb%
+    \fi%
+    \pgfpathmoveto{\pgfpointadd{\pgfqpoint{\pgf@xc}{\pgf@yc}}{\pgfqpoint{-0.707107\pgfutil@tempdima}{-0.707107\pgfutil@tempdima}}}
+    \pgfpathlineto{\pgfpointadd{\pgfqpoint{\pgf@xc}{\pgf@yc}}{\pgfqpoint{0.707107\pgfutil@tempdima}{0.707107\pgfutil@tempdima}}}
+    \pgfpathmoveto{\pgfpointadd{\pgfqpoint{\pgf@xc}{\pgf@yc}}{\pgfpoint{-0.707107\pgfutil@tempdima}{0.707107\pgfutil@tempdima}}}
+    \pgfpathlineto{\pgfpointadd{\pgfqpoint{\pgf@xc}{\pgf@yc}}{\pgfqpoint{0.707107\pgfutil@tempdima}{-0.707107\pgfutil@tempdima}}}
+  }
+}
+\makeatother
+
+\newenvironment{datapath}
+               {
+                 \begin{tikzpicture}
+                   [
+                     >=stealth',
+                     constant/.style={
+                       isosceles triangle,
+                       isosceles triangle apex angle=60,
+                       draw,
+                       font=\tiny
+                     },
+                     register/.style={
+                       rectangle,
+                       minimum width=15mm,
+                       draw,
+                       text height=1.1ex,
+                       text depth=.20ex,
+                     },
+                     button/.style={
+                       forbidden parking,
+                       inner sep=3pt,
+                       draw
+                     },
+                     operation/.style={
+                       trapezium,
+                       draw,
+                       text height=1.1ex,
+                       text depth=.20ex,
+                     },
+                     test/.style={
+                       circle,
+                       draw
+                     },
+                     point/.style={
+                       circle,
+                       fill,
+                       draw,
+                       inner sep=1.5pt
+                     },
+                     every label/.style={font=\scriptsize}
+                   ]
+               }
+               {\end{tikzpicture}}
+
+\newenvironment{controller}
+               {
+                 \begin{tikzpicture}
+                   [
+                     font=\scriptsize,
+                     button/.style={rectangle,draw},
+                     test/.style={diamond,draw},
+                   ]
+               }
+               {\end{tikzpicture}}
+
+\begin{document}
+
+By assuming that \lstinline!good?! and \lstinline!improve! operations
+are available as primitives, here's a version of the \lstinline!sqrt!
+machine.
+
+\begin{datapath}
+  \node[constant,shape border rotate=-90] (one) {$1$};
+  \node[button] (guess init) [below=of one, label=right:guess$\la1$] {};
+  \node[register] (guess) [below=of guess init] {guess};
+  \node[operation] (improve) [below=of guess,shape border rotate=180]
+       {improve};
+  \node[button] (guess improve) [left=of improve,
+    label=left:guess$\la$improve] {};
+  \node[test] (good enough) [right=of guess,font=\scriptsize] {good?};
+
+  \path
+  (one) edge (guess init)
+  (guess init) edge[->] (guess)
+  (guess) edge[->] (improve)
+  (guess) edge[->] (good enough);
+
+  \draw (improve.south) -- ++(0,-.5) -| (guess improve) [->] |- (guess);
+\end{datapath}
+
+\begin{lstlisting}
+(controller
+   (assign guess (const 1))
+ test-guess
+   (test (op good?) (reg guess))
+   (branch (label sqrt-done))
+   (assign guess (op improve) (reg guess))
+   (goto (label test-guess))
+ sqrt-done)
+\end{lstlisting}
+
+Here's the expanded version in terms of arithmetic operations.
+
+\begin{datapath}
+  \matrix[row sep=5mm,column sep=3mm] {
+    &\node[constant,shape border rotate=-90] (one) {$1$}; &&&&&
+    \node[constant,shape border rotate=-90,inner sep=1pt] (error) {$0.001$}; \\
+    &\node[button] (guess init) [label=left:g$\la1$] {}; &
+    \node[operation] (plus) {$+$}; & &
+    \node[operation] (abs) {abs}; &
+    \node[button] (abs y) [label=right:$y\la\mathrm{abs}$] {}; &
+    \node[test] (compare) {$<$}; \\
+    &\node[register] (guess) {guess}; &
+    \node[operation,shape border rotate=270] (mul) {$*$}; &
+    \node[button] (square guess) [label=above:$y\la g^2$] {}; &
+    \node[register] (y) {y}; \\
+    \node[button] (guess improve) [label=left:$g\la\mathrm{improve}$] {}; &
+    \node[constant] (two) {$2$}; &&&
+    \node[register] (x) {x}; \\
+    && \node[operation,shape border rotate=180] (div) {$/$}; \\
+  };
+
+  \node[point] (guess inter east) at ($(guess.east)!.5!(mul.west)$) {};
+  \node[point] (y inter north) at ($(y)!.5!(abs)$) {};
+  \node[point] (y inter east) at (abs y |- y) {};
+  \node[point] (y inter west) at ($(y.west)!.6!(square guess.east)$) {};
+  \node[button] (add guess to y) at (plus -| y inter west) {};
+  \node[operation,shape border rotate=270] (minus) at
+       ($(y)!.5!(x)+(y inter east)-(y)$) {$-$};
+  \node[button] (divide x by guess) [label=right:$y\la x/g$] at (y
+  inter west |- div) {};
+  \node[point] (y inter south) at (y |- minus.north west) {};
+  \node[point] (x inter west) at (x -| div.north east) {};
+  \node[point] (two inter east) at (two -| div.north west) {};
+  \node[point] (div inter south) at ($(div.south) + (0,-.4)$) {};
+  \node[button] (decrement y) [label=right:$y\la y-x$] at
+  ($(minus.east) + (.3,0)$) {};
+
+  \path
+  (one) edge (guess init)
+  (guess init) edge[->] (guess)
+  (mul) edge (square guess)
+  (square guess) edge[->] (y)
+  (y) edge[->] (abs)
+  (error) edge[->] (compare)
+  (add guess to y) edge (y inter west);
+
+  \draw (guess.east) -- (guess inter east) [->] |- (mul.north west);
+  \draw (guess inter east) [->] |- (mul.south west);
+  \draw (abs.north) -- ++(0,.25) -| (abs y) -- (y inter east);
+  \draw (y inter north) [->] -| (compare);
+  \draw (x) [->] |- (minus.south west);
+  \draw (y) [->] |- (minus.north west);
+  \draw (minus) -- (decrement y) [->] |- (y);
+  \draw (y inter north) [->] -| (plus.south east);
+  \draw (guess inter east) -- (guess inter east |- y inter north)
+        [->] -| (plus.south west);
+  \draw (plus.north) -- ++(0,.25) -| (add guess to y);
+  \draw (x) [->] -| (div.north east);
+  \draw (two) [->] -| (div.north west);
+  \draw (div) -- (div inter south) -| (divide x by guess) -- (y inter west);
+  \draw (y inter south) -| (x inter west);
+  \draw (guess) -- ($(guess)!.5!(two)$) -| (two inter east);
+  \draw (div inter south) -| (guess improve) [->] |- (guess);
+\end{datapath}
+
+\begin{lstlisting}
+  (controller
+     (assign guess (const 1))
+   test-guess
+     (assign y (op *) (reg guess) (reg guess))
+     (assign y (op -) (reg y) (reg x))
+     (test (op <) (reg y) (const 0.001))
+     (branch (label sqrt-done))
+     (assign y (op /) (reg x) (reg guess))
+     (assign y (op +) (reg y) (reg guess))
+     (assign guess (op /) (reg y) (const 2))
+     (goto (label test-guess))
+   sqrt-done)
+\end{lstlisting}
+\end{document}
