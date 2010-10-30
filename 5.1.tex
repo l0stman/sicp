@@ -1,0 +1,167 @@
+\documentclass[a4paper,12pt]{article}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+\newcommand{\la}{\leftarrow}
+\usepackage{listings}
+\usepackage{pgf}
+\usepgfmodule{plot,shapes,matrix}
+\usepackage{tikz}
+\usetikzlibrary{matrix,positioning,shapes,arrows,calc}
+
+\makeatletter
+\pgfdeclareshape{forbidden parking}
+{
+  \inheritsavedanchors[from=circle] % this is nearly a circle
+  \inheritanchorborder[from=circle]
+  \inheritanchor[from=circle]{north}
+  \inheritanchor[from=circle]{north west}
+  \inheritanchor[from=circle]{north east}
+  \inheritanchor[from=circle]{center}
+  \inheritanchor[from=circle]{west}
+  \inheritanchor[from=circle]{east}
+  \inheritanchor[from=circle]{mid}
+  \inheritanchor[from=circle]{mid west}
+  \inheritanchor[from=circle]{mid east}
+  \inheritanchor[from=circle]{base}
+  \inheritanchor[from=circle]{base west}
+  \inheritanchor[from=circle]{base east}
+  \inheritanchor[from=circle]{south}
+  \inheritanchor[from=circle]{south west}
+  \inheritanchor[from=circle]{south east}
+  \inheritbackgroundpath[from=circle]
+  \foregroundpath{
+    \centerpoint%
+    \pgf@xc=\pgf@x%
+    \pgf@yc=\pgf@y%
+    \pgfutil@tempdima=\radius%
+    \pgfmathsetlength{\pgf@xb}{\pgfkeysvalueof{/pgf/outer xsep}}%
+    \pgfmathsetlength{\pgf@yb}{\pgfkeysvalueof{/pgf/outer ysep}}%
+    \ifdim\pgf@xb<\pgf@yb%
+      \advance\pgfutil@tempdima by-\pgf@yb%
+    \else%
+      \advance\pgfutil@tempdima by-\pgf@xb%
+    \fi%
+    \pgfpathmoveto{\pgfpointadd{\pgfqpoint{\pgf@xc}{\pgf@yc}}{\pgfqpoint{-0.707107\pgfutil@tempdima}{-0.707107\pgfutil@tempdima}}}
+    \pgfpathlineto{\pgfpointadd{\pgfqpoint{\pgf@xc}{\pgf@yc}}{\pgfqpoint{0.707107\pgfutil@tempdima}{0.707107\pgfutil@tempdima}}}
+    \pgfpathmoveto{\pgfpointadd{\pgfqpoint{\pgf@xc}{\pgf@yc}}{\pgfpoint{-0.707107\pgfutil@tempdima}{0.707107\pgfutil@tempdima}}}
+    \pgfpathlineto{\pgfpointadd{\pgfqpoint{\pgf@xc}{\pgf@yc}}{\pgfqpoint{0.707107\pgfutil@tempdima}{-0.707107\pgfutil@tempdima}}}
+  }
+}
+\makeatother
+
+\newenvironment{datapath}
+               {
+                 \begin{tikzpicture}
+                   [
+                     >=stealth',
+                     constant/.style={
+                       isosceles triangle,
+                       isosceles triangle apex angle=60,
+                       draw,
+                     },
+                     register/.style={
+                       rectangle,
+                       minimum width=15mm,
+                       draw,
+                       text height=1.1ex,
+                       text depth=.20ex,
+                     },
+                     button/.style={
+                       forbidden parking,
+                       inner sep=3pt,
+                       draw
+                     },
+                     operation/.style={
+                       trapezium,
+                       draw,
+                       text height=1.1ex,
+                       text depth=.20ex,
+                     },
+                     test/.style={
+                       circle,
+                       draw
+                     },
+                     point/.style={
+                       circle,
+                       fill,
+                       draw,
+                       inner sep=1.5pt
+                     },
+                     every label/.style={font=\scriptsize}
+                   ]
+               }
+               {\end{tikzpicture}}
+
+\newenvironment{controller}
+               {
+                 \begin{tikzpicture}
+                   [
+                     font=\scriptsize,
+                     button/.style={rectangle,draw},
+                     test/.style={diamond,draw},
+                   ]
+               }
+               {\end{tikzpicture}}
+
+\begin{document}
+
+Here's the data path of a register machine computing factorials.
+
+\begin{datapath}
+  \matrix[row sep=5mm,column sep=5mm] {
+    & & \node[constant,shape border rotate=-90] (one) {$1$}; \\
+    \node[register] (n) {n}; & & \node[button]
+         [label=right:count$\la$1] (counter init) {}; &
+    & \node[button] (product init) [label=right:prod$\la$1] {}; \\
+    \node[test] (compare) {$>$}; & & \node[register] (counter)
+         {counter}; & & \node[register] (product) {product}; \\
+    & \node[operation, shape border rotate=180] (add) {$+$}; &
+    \node[button] (update counter) [label=right:count$\la+$1] {}; &
+    \node[operation,shape border
+      rotate= 180] (mul) {$*$}; &
+    \node[button] (update product) [label=right:prod$\la*$count] {}; \\
+  };
+
+  \node [point] (one inter) at ($(one.south) + (0,-.25)$) {};
+  \node [point] at (add.north east |- counter.west) {};
+
+  \path (one) edge (one inter)
+        (one inter) edge (counter init)
+        (counter init) edge[->] (counter)
+        (update counter) edge[->] (counter)
+        (product init) edge[->] (product)
+        (update product) edge[->] (product)
+        (n) edge[->] (compare)
+        (counter) edge[->] (compare);
+
+  \draw (one inter) -| (product init.north);
+  \draw (one inter) -| (add.north west);
+  \draw (add.north east |- counter.west) -- (add.north east);
+  \draw (counter.east) -| (mul.north west);
+  \draw (product.west) -| (mul.north east);
+  \draw (add.south) -- ++(0,-.5) -| (update counter.south);
+  \draw (mul.south) -- ++(0,-.5) -| (update product.south);
+\end{datapath}
+
+And here's the corresponding controller diagrams
+
+\begin{controller}
+  \node (start) {start};
+  \node [button] (prod init) [below=of start] {prod$\la1$};
+  \node [button] (count init) [below=of prod init] {count$\la1$};
+  \node [test] (compare) [below=of count init,label=above
+    right:yes,label=below right:no] {$>$};
+  \node [button] (prod update) [below=of compare] {prod$\la*$count};
+  \node [button] (count update) [below=of prod update] {count$\la+1$};
+  \node (done) [right=of compare] {done};
+
+  \path (start) edge[->] (prod init)
+        (prod init) edge[->] (count init)
+        (count init) edge[->] (compare)
+        (compare) edge[->] (prod update)
+        (prod update) edge[->] (count update)
+        (compare) edge[->] (done);
+
+\draw (count update.west) -- ++(-.5,0) [->] |- (compare.west) ;
+\end{controller}
+
+\end{document}
