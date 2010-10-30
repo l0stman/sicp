@@ -57,6 +57,7 @@
                        isosceles triangle,
                        isosceles triangle apex angle=60,
                        draw,
+                       font=\tiny
                      },
                      register/.style={
                        rectangle,
@@ -134,10 +135,10 @@ Here's the data path of a register machine computing factorials.
         (counter) edge[->] (compare);
 
   \draw (one inter) -| (product init.north);
-  \draw (one inter) -| (add.north west);
-  \draw (add.north east |- counter.west) -- (add.north east);
-  \draw (counter.east) -| (mul.north west);
-  \draw (product.west) -| (mul.north east);
+  \draw (one inter) [->] -| (add.north west);
+  \draw (add.north east |- counter.west) [->] -- (add.north east);
+  \draw (counter.east) [->] -| (mul.north west);
+  \draw (product.west) [->] -| (mul.north east);
   \draw (add.south) -- ++(0,-.5) -| (update counter.south);
   \draw (mul.south) -- ++(0,-.5) -| (update product.south);
 \end{datapath}
