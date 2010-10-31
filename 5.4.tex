@@ -1,0 +1,242 @@
+\documentclass[a4paper,12pt]{article}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+\newcommand{\la}{\leftarrow}
+\usepackage{listings}
+\usepackage{pgf}
+\usepgfmodule{plot,shapes,matrix}
+\usepackage{tikz}
+\usetikzlibrary{matrix,positioning,shapes,arrows,calc}
+
+\makeatletter
+\pgfdeclareshape{forbidden parking}
+{
+  \inheritsavedanchors[from=circle] % this is nearly a circle
+  \inheritanchorborder[from=circle]
+  \inheritanchor[from=circle]{north}
+  \inheritanchor[from=circle]{north west}
+  \inheritanchor[from=circle]{north east}
+  \inheritanchor[from=circle]{center}
+  \inheritanchor[from=circle]{west}
+  \inheritanchor[from=circle]{east}
+  \inheritanchor[from=circle]{mid}
+  \inheritanchor[from=circle]{mid west}
+  \inheritanchor[from=circle]{mid east}
+  \inheritanchor[from=circle]{base}
+  \inheritanchor[from=circle]{base west}
+  \inheritanchor[from=circle]{base east}
+  \inheritanchor[from=circle]{south}
+  \inheritanchor[from=circle]{south west}
+  \inheritanchor[from=circle]{south east}
+  \inheritbackgroundpath[from=circle]
+  \foregroundpath{
+    \centerpoint%
+    \pgf@xc=\pgf@x%
+    \pgf@yc=\pgf@y%
+    \pgfutil@tempdima=\radius%
+    \pgfmathsetlength{\pgf@xb}{\pgfkeysvalueof{/pgf/outer xsep}}%
+    \pgfmathsetlength{\pgf@yb}{\pgfkeysvalueof{/pgf/outer ysep}}%
+    \ifdim\pgf@xb<\pgf@yb%
+      \advance\pgfutil@tempdima by-\pgf@yb%
+    \else%
+      \advance\pgfutil@tempdima by-\pgf@xb%
+    \fi%
+    \pgfpathmoveto{\pgfpointadd{\pgfqpoint{\pgf@xc}{\pgf@yc}}{\pgfqpoint{-0.707107\pgfutil@tempdima}{-0.707107\pgfutil@tempdima}}}
+    \pgfpathlineto{\pgfpointadd{\pgfqpoint{\pgf@xc}{\pgf@yc}}{\pgfqpoint{0.707107\pgfutil@tempdima}{0.707107\pgfutil@tempdima}}}
+    \pgfpathmoveto{\pgfpointadd{\pgfqpoint{\pgf@xc}{\pgf@yc}}{\pgfpoint{-0.707107\pgfutil@tempdima}{0.707107\pgfutil@tempdima}}}
+    \pgfpathlineto{\pgfpointadd{\pgfqpoint{\pgf@xc}{\pgf@yc}}{\pgfqpoint{0.707107\pgfutil@tempdima}{-0.707107\pgfutil@tempdima}}}
+  }
+}
+\makeatother
+
+\newenvironment{datapath}
+               {
+                 \begin{tikzpicture}
+                   [
+                     >=stealth',
+                     constant/.style={
+                       isosceles triangle,
+                       isosceles triangle apex angle=60,
+                       draw,
+                       font=\tiny
+                     },
+                     register/.style={
+                       rectangle,
+                       minimum width=15mm,
+                       draw,
+                       text height=1.1ex,
+                       text depth=.20ex,
+                     },
+                     button/.style={
+                       forbidden parking,
+                       inner sep=3pt,
+                       draw
+                     },
+                     operation/.style={
+                       trapezium,
+                       draw,
+                       text height=1.1ex,
+                       text depth=.20ex,
+                     },
+                     test/.style={
+                       circle,
+                       draw
+                     },
+                     point/.style={
+                       circle,
+                       fill,
+                       draw,
+                       inner sep=1.5pt
+                     },
+                     every label/.style={font=\scriptsize}
+                   ]
+               }
+               {\end{tikzpicture}}
+
+\newenvironment{controller}
+               {
+                 \begin{tikzpicture}
+                   [
+                     font=\scriptsize,
+                     button/.style={rectangle,draw},
+                     test/.style={diamond,draw},
+                   ]
+               }
+               {\end{tikzpicture}}
+
+\begin{document}
+
+\subpar{a} For the recursive exponentiation, we use the following data
+paths diagram
+
+\begin{datapath}
+  \matrix[row sep=5mm,column sep=5mm] {
+    &&& \node[constant,shape border rotate=-90] (zero) {$0$}; \\
+    \node[constant,shape border rotate=-90] (one) {$1$}; &
+    \node[operation] (minus) {$-$}; &
+    \node[register] (n) {n}; &
+    \node[test] (equal) {$=$}; \\
+    \node[button,label=left:val$\la$1] (val init) {}; &&
+    \node[register] (stack) {stack}; \\
+    \node[register] (val) {val}; \\
+    \node[register] (b) {b}; & &
+    \node[register] (continue) {continue}; &
+    \node[font=\scriptsize] (controller) {controller}; \\
+  };
+
+  \node[button,label=above:n$\la$n$-$1] (decrement n) at
+  ($(minus)!.5!(n) + (0,.75)$) {};
+  \node[point] (one inter south) at ($(one.south)!.5!(val
+  init.north)$) {};
+  \node[operation,shape border rotate=270] (mul) at
+       ($(val)!.5!(b)+ (1.5,0)$) {$*$};
+  \node[point] (val inter north) at ($(val init.south)!.4!(val.north)$) {};
+  \node[button,label=above:val$\la$val$*$b] (update val) at (val inter
+  north -| mul) {};
+  \node[button,label=left:rc] (restore) at
+  ($(continue.north)!.5!(stack.south) - (.4,0)$) {};
+  \node[button,label=right:sc] (save) at
+  ($(continue.north)!.5!(stack.south) + (.4,0)$) {};
+  \node[button,below=of continue -| restore,label=left:c$\la$after-expt]
+  (after exp cont) {};
+  \node[button,below=of continue -| save,label=right:c$\la$expt-done]
+  (exp done cont) {};
+  \node[constant,label=left:after-expt,shape border rotate=90] (after exp) at
+       ($(after exp cont.south) - (0,.75)$) {};
+  \node[constant,label=right:expt-done,shape border rotate=90] (exp done) at
+       ($(exp done cont.south) - (0,.75)$) {};
+
+  \draw (minus) |- (decrement n) [->] -| (n);
+  \draw (n) [->] -- (equal);
+  \draw (zero) [->] -- (equal);
+  \draw (one) -- (val init) [->] -- (val);
+  \draw (n) -- ($(n.south)!.5!(stack.north)$) [->] -| (minus.south
+  east);
+  \draw (one inter south) [->] -| (minus.south west);
+  \draw (val.south east) [->] |- (mul.north west);
+  \draw (b.north east) [->] |- (mul.south west);
+  \draw (mul.east) -- ++(.25,0) |- (update val) -- (val inter north);
+  \draw (continue) [->] -- (controller);
+  \draw (stack.south -| restore) -- (restore) [->] --
+  (restore |- continue.north);
+  \draw (save |- continue.north) -- (save) [->] -- (stack.south -|
+  save);
+  \draw (after exp) -- (after exp cont) [->] -- (after exp cont |-
+  continue.south);
+  \draw (exp done) -- (exp done cont) [->] -- (exp done cont |-
+  continue.south);
+\end{datapath}
+
+\begin{lstlisting}
+(controller
+   (assign continue (label expt-done))
+ expt-loop
+   (test (op =) (reg n) (const 0))
+   (branch (label base-case))
+   (save continue)
+   (assign continue (label after-expt))
+   (assign n (op -) (reg n) (const 1))
+   (goto (label expt-loop))
+ after-expt
+   (restore continue)
+   (assign val (op *) (reg val) (reg b))
+   (goto (reg continue))
+ base-case
+   (assign val (const 1))
+   (goto (reg continue))
+ expt-done)
+\end{lstlisting}
+
+\subpar{b} The iterative exponentiation doesn't need a stack since the
+recursive call is in tail call position.
+
+\begin{datapath}
+  \matrix[row sep=5mm,column sep=5mm] {
+    & \node[register] (n) {n}; \\
+    & \node[button,label=left:c$\la$n] (counter init) {}; &
+    \node[constant,shape border rotate=-90] (zero) {$0$}; \\
+    \node[constant,shape border rotate=-90] (one) {$1$}; &
+    \node[register] (counter) {counter}; &
+    \node[test] (equal) {=}; \\
+    &\node[button,label=right:c$\la$c$-$1] (decrement counter) {}; \\
+    \node[button,label=left:p$\la$1] (product init) {}; &
+    \node[register] (product) {product}; \\
+    & \node[register] (b) {b}; \\
+  };
+
+  \node [operation,shape border rotate=180] (minus) at
+  ($(one.east)!.5!(counter.west) - (0,1.25)$) {$-$};
+  \node [operation,shape border rotate=270] (mul) at
+  ($(product.south)!.5!(b.north) + (1.5,0)$) {$*$};
+  \node [point] (one inter south) at ($(one.south) + (0,-.2)$) {};
+  \node [button,label=right:p$\la$p$*$b] (update product) at
+  ($(mul.east) + (.1,1)$) {};
+
+  \draw[->] (n) -- (counter init) -- (counter);
+  \draw[->] (counter) -- (equal);
+  \draw[->] (zero) -- (equal);
+  \draw (one) -- (product init) [->] -- (product);
+  \draw[->] (counter.west) -- ++(-.1,0) node (inflexion right) {} --
+  (inflexion right |- minus.north);
+  \draw[->] (one inter south) -- (one inter south -| one.east) -- ++
+  (.1,0) node (inflexion left) {} -- (inflexion left |- minus.north);
+  \draw[->] (minus.south) -- ++(0,-.1) -| (decrement counter) --
+  (counter);
+  \draw[->] (product.south east) -- (product.south east -| mul.west);
+  \draw[->] (b.north east) -- (b.north east -| mul.west);
+  \draw[->] (mul.east) -| (update product) -| (product.north east);
+\end{datapath}
+
+\begin{lstlisting}
+(controller
+   (assign counter (reg n))
+   (assign product (const 1))
+ test-counter
+   (test (op =) (reg counter) (const 0))
+   (branch (label expt-done))
+   (assign counter (op -) (reg counter) (const 1))
+   (assign product (op *) (reg product) (reg b))
+   (goto (label test-counter))
+ expt-done)
+\end{lstlisting}
+
+\end{document}
