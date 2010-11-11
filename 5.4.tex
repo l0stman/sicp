@@ -152,8 +152,12 @@ paths diagram
   \draw (n) -- ($(n.south)!.5!(stack.north)$) [->] -| (minus.south
   east);
   \draw (one inter south) [->] -| (minus.south west);
-  \draw (val.south east) [->] |- (mul.north west);
-  \draw (b.north east) [->] |- (mul.south west);
+  \draw [->] (val.south) --
+  ($(val.south)!.18!(b.north)$) node (val inflexion south) {} --
+  (val inflexion south -| mul.west);
+  \draw [->] (b.north) --
+  ($(b.north)!.18!(val.south)$) node (b inflexion north) {} --
+  (b inflexion north -| mul.west);
   \draw (mul.east) -- ++(.25,0) |- (update val) -- (val inter north);
   \draw (continue) [->] -- (controller);
   \draw (stack.south -| restore) -- (restore) [->] --
@@ -221,9 +225,13 @@ recursive call is in tail call position.
   (.1,0) node (inflexion left) {} -- (inflexion left |- minus.north);
   \draw[->] (minus.south) -- ++(0,-.1) -| (decrement counter) --
   (counter);
-  \draw[->] (product.south east) -- (product.south east -| mul.west);
-  \draw[->] (b.north east) -- (b.north east -| mul.west);
-  \draw[->] (mul.east) -| (update product) -| (product.north east);
+  \draw[->] (product.south) --
+  ($(product.south)!.18!(b.north)$) node (product inflexion south) {} --
+  (product inflexion south -| mul.west);
+  \draw[->] (b.north) --
+  ($(b.north)!.18!(product.south)$) node (b inflexion north) {} --
+  (b inflexion north -| mul.west);
+  \draw[->] (mul.east) -| (update product) -| (product.north);
 \end{datapath}
 
 \begin{lstlisting}
