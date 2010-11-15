@@ -1,0 +1,39 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+Since in the \lstinline!extract-labels! procedure, the last labels
+come before the first ones in the label table, the \lstinline!here!
+label in the first \lstinline!goto! points to the second
+\lstinline!here! label.  Thus the contents of register \lstinline!a!
+will be equal to $4$.
+
+Here's a version of \lstinline!extract-labels! that signals an error
+if the same label is used  to indicate two different locations.
+
+\begin{lstlisting}
+(define (extract-labels text receive)
+  (if (null? text)
+      (receive '() '())
+      (extract-labels
+       (cdr text)
+       (lambda (insts labels)
+         (let ((next-inst (car text)))
+           (cond ((not (symbol? next-inst))
+                  (receive (cons (make-instruction next-inst)
+                                 insts)
+                           labels))
+                 ((assoc next-inst labels)
+                  (error "label indicates two different locations"
+                         next-inst))
+                 (else
+                  (receive insts
+                      (cons (make-label-entry next-inst
+                                              insts)
+                            labels)))))))))
+\end{lstlisting}
+
+\end{document}

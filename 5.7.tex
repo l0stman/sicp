@@ -1,0 +1,89 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+\subpar{a} First we define the machine representing the recursive
+exponentiation.
+\begin{lstlisting}
+(define recur-expt-machine
+  (make-machine
+   '(val n b continue)
+   (list (list '- -) (list '= =) (list '* *))
+   '(  (assign continue (label expt-done))
+     expt-loop
+       (test (op =) (reg n) (const 0))
+       (branch (label base-case))
+       (save continue)
+       (assign continue (label after-expt))
+       (assign n (op -) (reg n) (const 1))
+       (goto (label expt-loop))
+     after-expt
+       (restore continue)
+       (assign val (op *) (reg val) (reg b))
+       (goto (reg continue))
+     base-case
+       (assign val (const 1))
+       (goto (reg continue))
+     expt-done)))
+\end{lstlisting}
+
+Here are some simulations of the machine.
+
+\begin{lstlisting}
+> (set-register-contents! recur-expt-machine 'b 2)
+done
+> (set-register-contents! recur-expt-machine 'n 3)
+done
+> (start recur-expt-machine)
+done
+> (get-register-contents recur-expt-machine 'val)
+8
+> (set-register-contents! recur-expt-machine 'n 5)
+done
+> (set-register-contents! recur-expt-machine 'b 3)
+done
+> (start recur-expt-machine)
+done
+> (get-register-contents recur-expt-machine 'val)
+243
+\end{lstlisting}
+
+\subpar{b} Here's the second machine representing the iterative
+exponentiation.
+\begin{lstlisting}
+(define iter-expt-machine
+  (make-machine
+   '(n counter product b)
+   (list (list '- -) (list '* *) (list '= =))
+   '(  (assign counter (reg n))
+       (assign product (const 1))
+     test-counter
+       (test (op =) (reg counter) (const 0))
+       (branch (label expt-done))
+       (assign counter (op -) (reg counter) (const 1))
+       (assign product (op *) (reg product) (reg b))
+       (goto (label test-counter))
+     expt-done)))
+\end{lstlisting}
+Here are some simulations of the machine.
+\begin{lstlisting}
+> (set-register-contents! iter-expt-machine 'b 2)
+done
+> (set-register-contents! iter-expt-machine 'n 3)
+done
+> (start iter-expt-machine)
+done
+> (get-register-contents iter-expt-machine 'product)
+8
+> (set-register-contents! iter-expt-machine 'b 5)
+done
+> (set-register-contents! iter-expt-machine 'n 4)
+done
+> (start iter-expt-machine)
+done
+> (get-register-contents iter-expt-machine 'product)
+625
+\end{lstlisting}
+\end{document}

@@ -1,0 +1,57 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+Let's implement the \lstinline!nop! instruction that does nothing and
+execute the next instruction.  We'll also implement the
+\lstinline!branch-not! instruction which behaves just like
+\lstinline!branch! except that the machine jumps to the specified
+location if the \lstinline!flag! register is false.
+
+\begin{lstlisting}
+(define (make-execution-procedure inst labels machine
+                                  pc flag stack ops)
+  (cond ((eq? (car inst) 'assign)
+         (make-assign inst machine labels ops pc))
+        ((eq? (car inst) 'test)
+         (make-test inst machine labels ops flag pc))
+        ((eq? (car inst) 'branch)
+         (make-branch inst machine labels flag pc))
+        ((eq? (car inst) 'goto)
+         (make-goto inst machine labels pc))
+        ((eq? (car inst) 'save)
+         (make-save inst machine stack pc))
+        ((eq? (car inst) 'restore)
+         (make-restore inst machine stack pc))
+        ((eq? (car inst) 'perform)
+         (make-perform inst machine labels ops pc))
+        ((eq? (car inst) 'nop)
+         (make-nop inst pc))
+        ((eq? (car inst) 'branch-not)
+         (make-branch-not inst machine labels flag pc))
+        (else
+         (error "Unknown instruction type -- ASSEMBLE"
+                inst))))
+
+(define (make-nop inst pc)
+  (lambda ()
+    (advance-pc pc)))
+
+(define (make-branch-not inst machine labels flag pc)
+  (let ((dest (branch-dest inst)))
+    (if (label-exp? dest)
+        (let ((insts
+               (lookup-label labels
+                             (label-exp-label dest))))
+          (lambda ()
+            (if (get-contents flag)
+                (advance-pc pc)
+                (set-contents! pc insts))))
+        (error "Bad BRANCH instruction -- ASSEMBLE"
+               inst))))
+\end{lstlisting}
+
+\end{document}
