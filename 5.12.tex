@@ -77,58 +77,31 @@ Firstly, we extend the message-passing interface to the machine
       dispatch)))
 \end{lstlisting}
 
-Secondly, we define procedures that sorts a vector and that remove
-duplicates in a sorted vector.
-
-\begin{lstlisting}
-(define (insert-sort! v cmp)
-  (do ((j 1 (+ j 1)))
-      ((>= j (vector-length v)) v)
-    (let ((key (vector-ref v j)))
-      (do ((i (- j 1) (- i 1)))
-          ((or (negative? i)
-               (cmp (vector-ref v i) key))
-           (vector-set! v (+ i 1) key))
-        (vector-set! v (+ i 1) (vector-ref v i))))))
-
-(define (remove-duplicates v)
-  (define (iter i elt res)
-    (cond ((>= i (vector-length v))
-           (reverse (cons elt res)))
-          ((equal? (vector-ref v i) elt)
-           (iter (+ i 1) elt res))
-          (else
-           (iter (+ i 1)
-                 (vector-ref v i)
-                 (cons elt res)))))
-  (if (zero? (vector-length v))
-      '()
-      (iter 1 (vector-ref v 0) '())))
-\end{lstlisting}
-
-Now we can define a procedure that sorts by instruction type with
+Secondly, we define a procedure that sorts by instruction type with
 duplicates removed.
 
 \begin{lstlisting}
 (define (sort-insts insts)
-  (define (cmp i1 i2)
-    (cond ((null? i1) #t)
-          ((null? i2) #f)
-          ((equal? (car i1) (car i2))
-           (cmp (cdr i1) (cdr i2)))
-          ((pair? (car i1))
-           (and (pair? (car i2))
-                (cmp (car i1) (car i2))))
-          ((pair? (car i2)) #t)
-          ((number? (car i1))
-           (or (symbol? (car i2))
-               (< (car i1) (car i2))))
-          ((number? (car i2)) #f)
-          (else
-           (string<? (symbol->string (car i1))
-                     (symbol->string (car i2))))))
-  (remove-duplicates
-   (insert-sort! (list->vector insts) cmp)))
+  (let ((table '()))
+    (define (flatten table)
+      (if (null? table)
+          '()
+          (append (cdar table)
+                  (flatten (cdr table)))))
+    (define (loop insts)
+      (if (null? insts)
+          (flatten table)
+          (let* ((inst (car insts))
+                 (type (car inst))
+                 (type-table (assq type table)))
+            (if type-table
+                (unless (member inst (cdr type-table))
+                  (set-cdr! type-table
+                            (cons inst (cdr type-table))))
+                (set! table
+                      (cons (list type inst) table)))
+            (loop (cdr insts)))))
+    (loop insts)))
 
 (define (assemble controller-text machine)
   (extract-labels controller-text
@@ -258,24 +231,24 @@ Here're what we obtain with the Fibonacci machine.
          (goto (reg continue))
        fib-done)))
 > (fib-machine 'sorted-instructions)
-((assign continue (label afterfib-n-1))
- (assign continue (label afterfib-n-2))
- (assign continue (label fib-done))
- (assign n (op -) (reg n) (const 1))
- (assign n (op -) (reg n) (const 2))
- (assign n (reg val))
- (assign val (op +) (reg val) (reg n))
- (assign val (reg n))
- (branch (label immediate-answer))
- (goto (label fib-loop))
- (goto (reg continue))
+((restore val)
  (restore continue)
  (restore n)
- (restore val)
- (save continue)
- (save n)
+ (goto (reg continue))
+ (goto (label fib-loop))
  (save val)
- (test (op <) (reg n) (const 2)))
+ (save n)
+ (save continue)
+ (branch (label immediate-answer))
+ (test (op <) (reg n) (const 2))
+ (assign val (reg n))
+ (assign val (op +) (reg val) (reg n))
+ (assign n (reg val))
+ (assign continue (label afterfib-n-2))
+ (assign n (op -) (reg n) (const 2))
+ (assign n (op -) (reg n) (const 1))
+ (assign continue (label afterfib-n-1))
+ (assign continue (label fib-done)))
 > (fib-machine 'entry-points-registers)
 (continue)
 > (fib-machine 'saved-or-restored-registers)
