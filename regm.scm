@@ -6,11 +6,8 @@
       (eq? (car exp) tag)
       #f))
 
-(define (make-machine register-names ops controller-text)
+(define (make-machine ops controller-text)
   (let ((machine (make-new-machine)))
-    (for-each (lambda (register-name)
-                ((machine 'allocate-register) register-name))
-              register-names)
     ((machine 'install-operations) ops)
     ((machine 'install-instruction-sequence)
      (assemble controller-text machine))
@@ -68,15 +65,15 @@
       (define (allocate-register name)
         (if (assoc name register-table)
             (error "Multiply defined register: " name)
-            (set! register-table
-                  (cons (list name (make-register name))
-                        register-table)))
-        'register-allocated)
+            (let ((reg (make-register name)))
+              (set! register-table
+                    (cons (list name reg) register-table))
+              reg)))
       (define (lookup-register name)
         (let ((val (assoc name register-table)))
           (if val
               (cadr val)
-              (error "Unknown register:" name))))
+              (allocate-register name))))
       (define (execute)
         (let ((insts (get-contents pc)))
           (if (null? insts)
