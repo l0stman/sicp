@@ -98,6 +98,10 @@
               'done
               (let ((inst (car insts)))
                 (when trace-on?
+                  (for-each (lambda (label)
+                              (display label)
+                              (newline))
+                            (instruction-preceding-labels inst))
                   (display (instruction-text inst))
                   (newline))
                 ((instruction-execution-proc inst))
@@ -154,6 +158,9 @@
                   (error "label indicates two different locations"
                          next-inst))
                  (else
+                  (when insts
+                    (add-instruction-preceding-label!
+                     (car insts) next-inst))
                   (receive insts
                       (cons (make-label-entry next-inst
                                               insts)
@@ -174,13 +181,17 @@
      insts)))
 
 (define (make-instruction text)
-  (cons text '()))
+  (list text '()))
 (define (instruction-text inst)
   (car inst))
 (define (instruction-execution-proc inst)
-  (cdr inst))
+  (cadr inst))
+(define (instruction-preceding-labels inst)
+  (cddr inst))
 (define (set-instruction-execution-proc! inst proc)
-  (set-cdr! inst proc))
+  (set-car! (cdr inst) proc))
+(define (add-instruction-preceding-label! inst label)
+  (set-cdr! (cdr inst) (cons label (cddr inst))))
 
 (define (make-label-entry label-name insts)
   (cons label-name insts))
