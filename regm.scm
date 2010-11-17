@@ -72,7 +72,8 @@
   (let ((pc (make-register 'pc))
         (flag (make-register 'flag))
         (stack (make-stack))
-        (the-instruction-sequence '()))
+        (the-instruction-sequence '())
+        (inst-count 0))
     (let ((the-ops
            (list (list 'initialize-stack
                        (lambda () (stack 'initialize)))))
@@ -96,6 +97,7 @@
               'done
               (begin
                 ((instruction-execution-proc (car insts)))
+                (set! inst-count (+ inst-count 1))
                 (execute)))))
       (define (dispatch message)
         (cond ((eq? message 'start)
@@ -109,6 +111,8 @@
                (lambda (ops) (set! the-ops (append the-ops ops))))
               ((eq? message 'stack) stack)
               ((eq? message 'operations) the-ops)
+              ((eq? message 'instruction-count) inst-count)
+              ((eq? message 'reset-count) (set! inst-count 0))
               (else (error "Unknown request -- MACHINE" message))))
       dispatch)))
 
