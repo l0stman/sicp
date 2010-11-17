@@ -1,0 +1,79 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+Let's define the factorial machine as follows
+
+\begin{lstlisting}
+(define fact-machine
+  (make-machine
+   (list
+    (list 'initialize
+          (lambda ()
+            ((fact-machine 'stack) 'initialize)))
+    (list 'print-statistics
+          (lambda ()
+            ((fact-machine 'stack) 'print-statistics)))
+    (list '= =)
+    (list '- -)
+    (list '* *)
+    (list 'read read))
+   '(FACT-LOOP
+     (perform (op initialize))
+     (assign n (op read))
+     (assign continue (label FACT-DONE))
+     TEST-N
+     (test (op =) (reg n) (const 1))
+     (branch (label BASE-CASE))
+     (save continue)
+     (save n)
+     (assign n (op -) (reg n) (const 1))
+     (assign continue (label AFTER-FACT))
+     (goto (label TEST-N))
+     AFTER-FACT
+     (restore n)
+     (restore continue)
+     (assign val (op *) (reg n) (reg val))
+     (goto (reg continue))
+     BASE-CASE
+     (assign val (const 1))
+     (goto (reg continue))
+     FACT-DONE
+     (perform (op print-statistics))
+     (goto (label FACT-LOOP)))))
+\end{lstlisting}
+
+Here are the results we obtain for small values of $n$.
+
+\begin{lstlisting}
+> (start fact-machine)
+1
+(total-pushes = 0 maximum-depth = 0)
+2
+(total-pushes = 2 maximum-depth = 2)
+3
+(total-pushes = 4 maximum-depth = 4)
+4
+(total-pushes = 6 maximum-depth = 6)
+5
+(total-pushes = 8 maximum-depth = 8)
+6
+(total-pushes = 10 maximum-depth = 10)
+7
+(total-pushes = 12 maximum-depth = 12)
+8
+(total-pushes = 14 maximum-depth = 14)
+9
+(total-pushes = 16 maximum-depth = 16)
+10
+(total-pushes = 18 maximum-depth = 18)
+\end{lstlisting}
+
+From these numbers, we could deduce that the maximum stack depth and
+the number of push operations to compute $n!$ is $2(n-1)$.  And we can
+verify easily by induction that it's the case for $n\ge1$.
+
+\end{document}
