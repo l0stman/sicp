@@ -14,11 +14,20 @@
     machine))
 
 (define (make-register name)
-  (let ((contents '*unassigned*))
+  (let ((contents '*unassigned*)
+        (trace-on? #f))
     (define (dispatch message)
       (cond ((eq? message 'get) contents)
             ((eq? message 'set)
-             (lambda (value) (set! contents value)))
+             (lambda (value)
+               (when trace-on?
+                 (display (list 'register name
+                                'old-contents '= contents
+                                'new-contents '= value))
+                 (newline))
+               (set! contents value)))
+            ((eq? message 'trace-on) (set! trace-on? #t))
+            ((eq? message 'trace-off) (set! trace-on? #f))
             (else
              (error "Unknown request -- REGISTER" message))))
     dispatch))
