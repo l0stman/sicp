@@ -5,11 +5,11 @@
 
 \begin{document}
 
-Since in the \lstinline!extract-labels! procedure, the last labels
-come before the first ones in the label table, the \lstinline!here!
-label in the first \lstinline!goto! points to the second
+Since in the \lstinline!extract-labels! procedure, the first label
+appears before the last one in the label table, the \lstinline!here!
+label in the first \lstinline!goto! points to the first
 \lstinline!here! label.  Thus the contents of register \lstinline!a!
-will be equal to $4$.
+will be equal to $3$.
 
 Here's a version of \lstinline!extract-labels! that signals an error
 if the same label is used  to indicate two different locations.
