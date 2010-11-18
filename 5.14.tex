@@ -11,9 +11,6 @@ Let's define the factorial machine as follows
 (define fact-machine
   (make-machine
    (list
-    (list 'initialize
-          (lambda ()
-            ((fact-machine 'stack) 'initialize)))
     (list 'print-statistics
           (lambda ()
             ((fact-machine 'stack) 'print-statistics)))
@@ -22,7 +19,7 @@ Let's define the factorial machine as follows
     (list '* *)
     (list 'read read))
    '(FACT-LOOP
-     (perform (op initialize))
+     (perform (op initialize-stack))
      (assign n (op read))
      (assign continue (label FACT-DONE))
      TEST-N
