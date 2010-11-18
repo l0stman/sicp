@@ -1,0 +1,149 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+First, let's add to the instruction data structure a boolean signaling
+the presence of a breakpoint at the given instruction.
+
+\begin{lstlisting}
+(define (make-instruction text)
+  (list text '() #f))
+(define (instruction-text inst)
+  (car inst))
+(define (instruction-execution-proc inst)
+  (cadr inst))
+(define (instruction-breakpoint? inst)
+  (caddr inst))
+(define (instruction-preceding-labels inst)
+  (cdddr inst))
+(define (set-instruction-execution-proc! inst proc)
+  (set-car! (cdr inst) proc))
+(define (add-instruction-preceding-label! inst label)
+  (set-cdr! (cddr inst) (cons label (cdddr inst))))
+(define (set-instruction-breakpoint! inst bool)
+  (set-car! (cddr inst) bool))
+\end{lstlisting}
+
+Secondly, since we need the correspondence between labels and
+instructions at run-time, we need to store in the machine the label
+table.
+
+\begin{lstlisting}
+(define (assemble controller-text machine)
+  (extract-labels controller-text
+                  (lambda (insts labels)
+                    (update-insts! insts labels machine)
+                    ((machine 'install-labels) labels)
+                    insts)))
+\end{lstlisting}
+
+And finally, we modify the machine interfaces to set or clear
+breakpoints.
+
+\begin{lstlisting}
+(define (make-new-machine)
+  (let ((pc (make-register 'pc))
+        (flag (make-register 'flag))
+        (stack (make-stack))
+        (the-instruction-sequence '())
+        (inst-count 0)
+        (trace-on? #f)
+        (the-labels '()))
+    (let ((the-ops
+           (list (list 'initialize-stack
+                       (lambda () (stack 'initialize)))))
+          (register-table
+           (list (list 'pc pc) (list 'flag flag))))
+      (define (allocate-register name)
+        (if (assoc name register-table)
+            (error "Multiply defined register: " name)
+            (let ((reg (make-register name)))
+              (set! register-table
+                    (cons (list name reg) register-table))
+              reg)))
+      (define (lookup-register name)
+        (let ((val (assoc name register-table)))
+          (if val
+              (cadr val)
+              (allocate-register name))))
+      (define (execute-inst inst)
+        (when trace-on?
+          (for-each (lambda (label)
+                      (display label)
+                      (newline))
+                    (instruction-preceding-labels inst))
+          (display (instruction-text inst))
+          (newline))
+        ((instruction-execution-proc inst))
+        (set! inst-count (+ inst-count 1)))
+      (define (execute)
+        (let ((insts (get-contents pc)))
+          (if (null? insts)
+              'done
+              (let ((inst (car insts)))
+                (unless (instruction-breakpoint? inst)
+                  (execute-inst inst)
+                  (execute))))))
+      (define (lookup-breakpoint label-name offset)
+        (let ((entry (assoc label-name the-labels)))
+          (if entry
+              (let loop ((n offset)
+                         (insts (cdr entry)))
+                (cond ((null? insts)
+                       (error "No instruction after label"
+                              label-name '+ offset))
+                      ((zero? n) (car insts))
+                      (else (loop (- n 1) (cdr insts)))))
+              (error "Undefined label" label-name))))
+      (define (set-breakpoint label-name n)
+        (set-instruction-breakpoint!
+         (lookup-breakpoint label-name n) #t))
+      (define (cancel-breakpoint label-name n)
+        (set-instruction-breakpoint!
+         (lookup-breakpoint label-name n) #f))
+      (define (cancel-all-breakpoints)
+        (for-each (lambda (inst)
+                    (set-instruction-breakpoint! inst #f))
+                  the-instruction-sequence))
+      (define (dispatch message)
+        (cond ((eq? message 'start)
+               (set-contents! pc the-instruction-sequence)
+               (execute))
+              ((eq? message 'install-instruction-sequence)
+               (lambda (seq) (set! the-instruction-sequence seq)))
+              ((eq? message 'allocate-register) allocate-register)
+              ((eq? message 'get-register) lookup-register)
+              ((eq? message 'install-operations)
+               (lambda (ops) (set! the-ops (append the-ops ops))))
+              ((eq? message 'stack) stack)
+              ((eq? message 'operations) the-ops)
+              ((eq? message 'instruction-count) inst-count)
+              ((eq? message 'reset-count) (set! inst-count 0))
+              ((eq? message 'trace-on) (set! trace-on? #t))
+              ((eq? message 'trace-off) (set! trace-on? #f))
+              ((eq? message 'install-labels)
+               (lambda (labels) (set! the-labels labels)))
+              ((eq? message 'set-breakpoint) set-breakpoint)
+              ((eq? message 'cancel-breakpoint) cancel-breakpoint)
+              ((eq? message 'cancel-all-breakpoints)
+               (cancel-all-breakpoints))
+              ((eq? message 'proceed-machine)
+               (execute-inst (car (get-contents pc)))
+               (execute))
+              (else (error "Unknown request -- MACHINE" message))))
+      dispatch)))
+
+(define (set-breakpoint machine label-name n)
+  ((machine 'set-breakpoint) label-name n))
+(define (proceed-machine machine)
+  (machine 'proceed-machine))
+(define (cancel-breakpoint machine label-name n)
+  ((machine 'cancel-breakpoint) label-name n))
+(define (cancel-all-breakpoints machine)
+  (machine 'cancel-all-breakpoints))
+\end{lstlisting}
+
+\end{document}
