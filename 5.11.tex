@@ -109,15 +109,17 @@ particular \lstinline!make-save! and \lstinline!make-restore! become
   ((machine 'get-register-entry)
    (stack-inst-reg-name inst)
    (lambda (reg stack)
-     (push stack (get-contents reg))
-     (advance-pc pc))))
+     (lambda ()
+      (push stack (get-contents reg))
+      (advance-pc pc)))))
 
 (define (make-restore inst machine stack pc)
   ((machine 'get-register-entry)
    (stack-inst-reg-name inst)
    (lambda (reg stack)
-     (set-contents! reg (pop stack))
-     (advance-pc pc))))
+     (lambda ()
+      (set-contents! reg (pop stack))
+      (advance-pc pc)))))
 \end{lstlisting}
 
 \end{document}
