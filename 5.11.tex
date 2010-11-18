@@ -73,10 +73,10 @@ accordingly.
           (if val
               (cadr val)
               (error "Unknown register:" name))))
-      (define (register-stack name)
+      (define (get-register-entry name cont)
         (let ((val (assoc name register-table)))
           (if val
-              (caddr val)
+              (cont (cadr val) (caddr val))
               (error "Unknown register:" name))))
       (define (execute)
         (let ((insts (get-contents pc)))
@@ -95,11 +95,29 @@ accordingly.
               ((eq? message 'get-register) lookup-register)
               ((eq? message 'install-operations)
                (lambda (ops) (set! the-ops (append the-ops ops))))
-              ((eq? message 'stack) stack)
               ((eq? message 'operations) the-ops)
-              ((eq? message 'register-name) register-name)
+              ((eq? message 'get-register-entry) get-register-entry)
               (else (error "Unknown request -- MACHINE" message))))
       dispatch)))
+\end{lstlisting}
+
+Of course all references to the general stack should be changed.  In
+particular \lstinline!make-save! and \lstinline!make-restore! become
+
+\begin{lstlisting}
+(define (make-save inst machine pc)
+  ((machine 'get-register-entry)
+   (stack-inst-reg-name inst)
+   (lambda (reg stack)
+     (push stack (get-contents reg))
+     (advance-pc pc))))
+
+(define (make-restore inst machine stack pc)
+  ((machine 'get-register-entry)
+   (stack-inst-reg-name inst)
+   (lambda (reg stack)
+     (set-contents! reg (pop stack))
+     (advance-pc pc))))
 \end{lstlisting}
 
 \end{document}
