@@ -113,7 +113,7 @@ particular \lstinline!make-save! and \lstinline!make-restore! become
       (push stack (get-contents reg))
       (advance-pc pc)))))
 
-(define (make-restore inst machine stack pc)
+(define (make-restore inst machine pc)
   ((machine 'get-register-entry)
    (stack-inst-reg-name inst)
    (lambda (reg stack)
