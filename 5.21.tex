@@ -1,0 +1,79 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\subpar{a}
+\begin{lstlisting}
+(define count-leaves-machine
+  (make-machine
+   (list (list 'null? null?)
+         (list '+ +))
+   '((assign continue (label COUNT-LEAVES-DONE))
+     COUNT-LEAVES
+     (test (op null?) (reg tree))
+     (branch (label EMPTY-TREE))
+     (test (op pair?) (reg tree))
+     (branch (label PAIR-TREE))
+     (assign val (const 1))
+     (goto (reg continue))
+     EMPTY-TREE
+     (assign val (const 0))
+     (goto (reg continue))
+     PAIR-TREE
+     (save continue)
+     (assign continue (op cdr) (reg tree))
+     (save continue)
+     (assign tree (op car) (reg tree))
+     (assign continue (label AFTER-COUNT-LEAVES-CAR))
+     (goto (label COUNT-LEAVES))
+     AFTER-COUNT-LEAVES-CAR
+     (restore tree)
+     (save val)
+     (assign continue (label AFTER-COUNT-LEAVES-CDR))
+     (goto (label COUNT-LEAVES))
+     AFTER-COUNT-LEAVES-CDR
+     (restore continue)
+     (assign val (op +) (reg val) (reg continue))
+     (restore continue)
+     (goto (reg continue))
+     COUNT-LEAVES-DONE)))
+\end{lstlisting}
+
+\subpar{b}
+\begin{lstlisting}
+(define count-leaves-machine
+  (make-machine
+   (list (list 'null? null?)
+         (list '+ +))
+   '((assign continue (label COUNT-LEAVES-DONE))
+     COUNT-LEAVES
+     (assign n (const 0))
+     COUNT-ITER
+     (test (op null?) (reg tree))
+     (branch (label EMPTY-TREE))
+     (test (op pair?) (reg tree))
+     (branch (label PAIR-TREE))
+     (assign n (op +) (reg n) (const 1))
+     EMPTY-TREE
+     (goto (reg continue))
+     PAIR-TREE
+     (save continue)
+     (assign continue (op cdr) (reg tree))
+     (save continue)
+     (assign tree (op car) (reg tree))
+     (assign continue (label AFTER-COUNT-LEAVES-CAR))
+     (goto (label COUNT-ITER))
+     AFTER-COUNT-LEAVES-CAR
+     (restore tree)
+     (assign continue (label AFTER-COUNT-LEAVES-CDR))
+     (goto (label COUNT-ITER))
+     AFTER-COUNT-LEAVES-CDR
+     (restore continue)
+     (goto (reg continue))
+     COUNT-LEAVES-DONE)))
+\end{lstlisting}
+
+\end{document}

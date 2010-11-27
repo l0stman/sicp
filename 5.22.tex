@@ -1,0 +1,48 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\begin{lstlisting}
+(define append-machine
+  (make-machine
+   (list (list 'null? null?))
+   '((assign continue (label APPEND-DONE))
+     APPEND
+     (test (op null?) (reg x))
+     (branch (label BASE-CASE))
+     (save continue)
+     (assign continue (op car) (reg x))
+     (save continue)
+     (assign x (op cdr) (reg x))
+     (assign continue (label AFTER-APPEND-CDR))
+     (goto (label APPEND))
+     AFTER-APPEND-CDR
+     (restore x)
+     (restore continue)
+     (assign val (op cons) (reg x) (reg val))
+     (goto (reg continue))
+     BASE-CASE
+     (assign val (reg y))
+     (goto (reg continue))
+     APPEND-DONE)))
+
+(define append!-machine
+  (make-machine
+   (list (list 'null? null?))
+   '(APPEND!
+     (assign ptr (reg x))
+     LAST-PAIR
+     (assign t (op cdr) (reg ptr))
+     (test (op null?) (reg t))
+     (branch (label BASE-CASE))
+     (assign ptr (reg t))
+     (goto (label LAST-PAIR))
+     BASE-CASE
+     (perform (op set-cdr!) (reg ptr) (reg y))
+     APPEND!-DONE)))
+\end{lstlisting}
+
+\end{document}
