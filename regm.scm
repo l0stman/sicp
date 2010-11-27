@@ -210,7 +210,7 @@
                   (error "label indicates two different locations"
                          next-inst))
                  (else
-                  (when insts
+                  (unless (null? insts)
                     (add-instruction-preceding-label!
                      (car insts) next-inst))
                   (receive insts
