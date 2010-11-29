@@ -210,6 +210,7 @@ Here's the expanded version in terms of arithmetic operations.
    test-guess
      (assign y (op *) (reg guess) (reg guess))
      (assign y (op -) (reg y) (reg x))
+     (assign y (op abs) (reg y))
      (test (op <) (reg y) (const 0.001))
      (branch (label sqrt-done))
      (assign y (op /) (reg x) (reg guess))
