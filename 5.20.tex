@@ -1,0 +1,14 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+Since if we build a list of $n$ elements we conses $n$ times, we've
+consed $6$ times by reading the first expression.  So the value of $x$
+is a pointer to the index number $6$.  Using the same reasoning, the
+value of $y$ points to the index number $13$.  And the final value of
+\lstinline!free! is $15$.
+
+\end{document}
