@@ -1,3 +1,6 @@
+;;; Metacircular evaluator.
+(require r5rs/init)
+
 (define (eval* exp env)
   (cond ((self-evaluating? exp) exp)
         ((variable? exp) (lookup-variable-value exp env))

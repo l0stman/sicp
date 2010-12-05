@@ -1,3 +1,6 @@
+;;; Evaluator that separates syntactic analysis from execution.
+(load "eval.scm")
+
 (define (eval* exp env)
   ((analyze exp) env))
 
