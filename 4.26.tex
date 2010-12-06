@@ -21,11 +21,11 @@ And then we define \lstinline!eval-unless! as follow
 \end{lstlisting}
 
 Now suppose we have three lists of scheme expressions of the same
-length.  We want to return a list whose $n^{th}$ is the $n^{th}$
-element of the second list if the evaluation of the $n^{th}$ element
-of the first list is true, or the $n^{th}$ element of the third list
-otherwise.  If \lstinline!unless! is implemented as function, we could
-just use
+length.  We want to return a list whose $n^{th}$ element is the
+$n^{th}$ element of the second list if the evaluation of the $n^{th}$
+element of the first list is true, or the $n^{th}$ element of the
+third list otherwise.  If \lstinline!unless! is implemented as
+function, we could just use
 
 \begin{lstlisting}
   (map unless list1 list2 list3)
