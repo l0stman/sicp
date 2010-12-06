@@ -65,7 +65,11 @@
         (list 'definition-value definition-value)
         (list 'define-variable! define-variable!)
         (list 'user-print user-print)
-        (list 'apply-primitive-procedure apply-primitive-procedure)))
+        (list 'apply-primitive-procedure apply-primitive-procedure)
+        (list 'cond? cond?)
+        (list 'cond->if cond->if)
+        (list 'let? let?)
+        (list 'let->combination let->combination)))
 
 (define eceval
   (make-machine
@@ -99,6 +103,10 @@
      (branch (label EV-LAMBDA))
      (test (op begin?) (reg exp))
      (branch (label EV-BEGIN))
+     (test (op cond?) (reg exp))
+     (branch (label EV-COND))
+     (test (op let?) (reg exp))
+     (branch (label EV-LET))
      (test (op application?) (reg exp))
      (branch (label EV-APPLICATION))
      (goto (label UNKNOWN-EXPRESSION-TYPE))
@@ -256,6 +264,14 @@
       (op define-variable!) (reg unev) (reg val) (reg env))
      (assign val (const ok))
      (goto (reg continue))
+
+     EV-COND
+     (assign exp (op cond->if) (reg exp))
+     (goto (label EVAL-DISPATCH))
+
+     EV-LET
+     (assign exp (op let->combination) (reg exp))
+     (goto (label EVAL-DISPATCH))
 
      UNKNOWN-EXPRESSION-TYPE
      (assign val (const unknown-expression-type-error))

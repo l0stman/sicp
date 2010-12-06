@@ -1,0 +1,30 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+Suppose that \lstinline!cond->if! and \lstinline!let->combination! are
+available as machine operations.  We then add in \lstinline!EVAL-DISPATCH!
+
+\begin{lstlisting}
+(test (op cond?) (reg exp))
+(branch (label EV-COND))
+(test (op let?) (reg exp))
+(branch (label EV-LET))
+\end{lstlisting}
+
+And then we add the following piece of code
+
+\begin{lstlisting}
+EV-COND
+(assign exp (op cond->if) (reg exp))
+(goto (label EVAL-DISPATCH))
+
+EV-LET
+(assign exp (op let->combination) (reg exp))
+(goto (label EVAL-DISPATCH))
+\end{lstlisting}
+
+\end{document}
