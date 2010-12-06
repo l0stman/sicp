@@ -1,0 +1,56 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+First we define the following operations and we add them to
+\lstinline!eceval-operations!
+\begin{lstlisting}
+(define (clauses exp) (cdr exp))
+(define (empty-clauses? clauses) (null? clauses))
+(define (first-clause clauses) (car clauses))
+(define (rest-clauses clauses) (cdr clauses))
+(define (else? exp) (tagged-list? exp 'else))
+(define (clause-predicate cl) (car cl))
+(define (clause-actions cl) (cdr cl))
+\end{lstlisting}
+
+Then we replace the former definition of EV-COND with the following
+code:
+
+\begin{lstlisting}
+EV-COND
+(assign exp (op clauses) (reg exp))
+EV-COND-LOOP
+(test (op empty-clauses?) (reg exp))
+(branch (label EV-COND-DONE))
+(assign unev (op first-clause) (reg exp))
+(assign exp (op rest-clauses) (reg exp))
+(test (op else?) (reg unev))
+(branch (label EV-COND-EXEC-CLAUSE))
+(save exp)
+(save env)
+(save continue)
+(assign continue (label EV-COND-DECIDE))
+(assign exp (op clause-predicate) (reg unev))
+(save unev)
+(goto (label EVAL-DISPATCH))
+EV-COND-DECIDE
+(restore unev)                          ; current clause
+(restore continue)
+(restore env)
+(restore exp)                           ; rest of clauses
+(test (op true?) (reg val))
+(branch (label EV-COND-EXEC-CLAUSE))
+(goto (label EV-COND-LOOP))
+EV-COND-EXEC-CLAUSE
+(save continue)
+(assign unev (op clause-actions) (reg unev))
+(goto (label EV-SEQUENCE))
+EV-COND-DONE
+(goto (reg continue))
+\end{lstlisting}
+
+\end{document}
