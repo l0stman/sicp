@@ -1,0 +1,73 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+We obtain the following simulation for the recursive factorial.
+\begin{lstlisting}
+;;; EC-EVAL input:
+(define (factorial n)
+  (if (= n 1)
+      1
+      (* (factorial (- n 1)) n)))
+(total-pushes = 3 maximum-depth = 3)
+
+;;; EC-Eval value:
+ok
+
+;;; EC-EVAL input:
+(factorial 1)
+(total-pushes = 16 maximum-depth = 8)
+
+;;; EC-Eval value:
+1
+
+;;; EC-EVAL input:
+(factorial 2)
+(total-pushes = 48 maximum-depth = 13)
+
+;;; EC-Eval value:
+2
+
+;;; EC-EVAL input:
+(factorial 3)
+(total-pushes = 80 maximum-depth = 18)
+
+;;; EC-Eval value:
+6
+
+;;; EC-EVAL input:
+(factorial 4)
+(total-pushes = 112 maximum-depth = 23)
+
+;;; EC-Eval value:
+24
+
+;;; EC-EVAL input:
+(factorial 5)
+(total-pushes = 144 maximum-depth = 28)
+
+;;; EC-Eval value:
+120
+
+;;; EC-EVAL input:
+(factorial 6)
+(total-pushes = 176 maximum-depth = 33)
+
+;;; EC-Eval value:
+720
+\end{lstlisting}
+
+We then deduce from these numbers the following table
+\begin{quote}
+  \begin{tabular}{|c|c|c|}
+    \hline &Maximum depth& Number of pushes \\
+    \hline Recursive factorial& $5 n + 3$ & $32 n - 16$ \\
+    \hline Iterative factorial& $10$ & $35 n + 26$ \\
+    \hline
+  \end{tabular}
+\end{quote}
+
+\end{document}
