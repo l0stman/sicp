@@ -196,9 +196,7 @@
      (assign exp (label ACTUAL-VALUE))
      (goto (label EV-APPL-OPERANDS))
      PRIM-APPLY-TO-ARGS
-     (assign val (op apply-primitive-procedure)
-             (reg proc)
-             (reg argl))
+     (assign val (op apply-primitive-procedure) (reg proc) (reg argl))
      (restore continue)
      (goto (reg continue))
 
@@ -209,10 +207,7 @@
      COMP-APPL-TO-ARGS
      (assign unev (op procedure-parameters) (reg proc))
      (assign env (op procedure-environment) (reg proc))
-     (assign env (op extend-environment)
-             (reg unev)
-             (reg argl)
-             (reg env))
+     (assign env (op extend-environment) (reg unev) (reg argl) (reg env))
      (assign unev (op procedure-body) (reg proc))
      (goto (label EV-SEQUENCE))
 
