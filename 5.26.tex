@@ -1,0 +1,72 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+We obtain the following simulation
+
+\begin{lstlisting}
+;;; EC-EVAL input:
+(define (factorial n)
+  (define (iter product counter)
+    (if (> counter n)
+        product
+        (iter (* counter product)
+              (+ counter 1))))
+  (iter 1 1))
+(total-pushes = 3 maximum-depth = 3)
+
+;;; EC-Eval value:
+ok
+
+;;; EC-EVAL input:
+(factorial 1)
+(total-pushes = 64 maximum-depth = 10)
+
+;;; EC-Eval value:
+1
+
+;;; EC-EVAL input:
+(factorial 2)
+(total-pushes = 99 maximum-depth = 10)
+
+;;; EC-Eval value:
+2
+
+;;; EC-EVAL input:
+(factorial 3)
+(total-pushes = 134 maximum-depth = 10)
+
+;;; EC-Eval value:
+6
+
+;;; EC-EVAL input:
+(factorial 4)
+(total-pushes = 169 maximum-depth = 10)
+
+;;; EC-Eval value:
+24
+
+;;; EC-EVAL input:
+(factorial 5)
+(total-pushes = 204 maximum-depth = 10)
+
+;;; EC-Eval value:
+120
+
+;;; EC-EVAL input:
+(factorial 6)
+(total-pushes = 239 maximum-depth = 10)
+
+;;; EC-Eval value:
+720
+\end{lstlisting}
+
+\subpar{a} Hence, the maximum depth required to evaluate $n!$ is $10$.
+
+\subpar{b} And from the same numbers, we deduce that the total number
+of push operations used in evaluating $n!$ is $35 n + 29$.
+
+\end{document}
