@@ -1,0 +1,103 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+By modifying \lstinline!eval-sequence! as described in section 5.4.2
+so that the evaluator is no longer tail-recursive, we obtain the
+following result
+
+\begin{lstlisting}
+;;; EC-EVAL input:
+(define (fact-iter n)
+  (define (iter product counter)
+    (if (> counter n)
+        product
+        (iter (* counter product)
+              (+ counter 1))))
+  (iter 1 1))
+(total-pushes = 3 maximum-depth = 3)
+
+;;; EC-Eval value:
+ok
+
+;;; EC-EVAL input:
+(fact-iter 1)
+(total-pushes = 70 maximum-depth = 17)
+
+;;; EC-Eval value:
+1
+
+;;; EC-EVAL input:
+(fact-iter 2)
+(total-pushes = 107 maximum-depth = 20)
+
+;;; EC-Eval value:
+2
+
+;;; EC-EVAL input:
+(fact-iter 3)
+(total-pushes = 144 maximum-depth = 23)
+
+;;; EC-Eval value:
+6
+
+;;; EC-EVAL input:
+(fact-iter 4)
+(total-pushes = 181 maximum-depth = 26)
+
+;;; EC-Eval value:
+24
+
+;;; EC-EVAL input:
+(define (fact-recur n)
+  (if (= n 1)
+      1
+      (* (fact-recur (- n 1)) n)))
+(total-pushes = 3 maximum-depth = 3)
+
+;;; EC-Eval value:
+ok
+
+;;; EC-EVAL input:
+(fact-recur 1)
+(total-pushes = 18 maximum-depth = 11)
+
+;;; EC-Eval value:
+1
+
+;;; EC-EVAL input:
+(fact-recur 2)
+(total-pushes = 52 maximum-depth = 19)
+
+;;; EC-Eval value:
+2
+
+;;; EC-EVAL input:
+(fact-recur 3)
+(total-pushes = 86 maximum-depth = 27)
+
+;;; EC-Eval value:
+6
+
+;;; EC-EVAL input:
+(fact-recur 4)
+(total-pushes = 120 maximum-depth = 35)
+
+;;; EC-Eval value:
+24
+\end{lstlisting}
+
+From these numbers we induce the following result
+\begin{quote}
+  \begin{tabular}{|c|c|c|}
+    \hline &Maximum depth& Number of pushes \\
+    \hline Recursive factorial& $8 n + 3$ & $34 n - 16$ \\
+    \hline Iterative factorial& $3 n + 14$ & $37 n + 33$ \\
+    \hline
+  \end{tabular}
+\end{quote}
+
+\end{document}
