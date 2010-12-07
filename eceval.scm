@@ -82,6 +82,7 @@
      (assign continue (label PRINT-RESULT))
      (goto (label EVAL-DISPATCH))
      PRINT-RESULT
+     (perform (op print-statistics))
      (perform (op announce-output) (const ";;; EC-Eval value:"))
      (perform (op user-print) (reg val))
      (goto (label READ-EVAL-PRINT-LOOP))
