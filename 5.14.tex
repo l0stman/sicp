@@ -10,14 +10,10 @@ Let's define the factorial machine as follows
 \begin{lstlisting}
 (define fact-machine
   (make-machine
-   (list
-    (list 'print-statistics
-          (lambda ()
-            ((fact-machine 'stack) 'print-statistics)))
-    (list '= =)
-    (list '- -)
-    (list '* *)
-    (list 'read read))
+   (list (list '= =)
+         (list '- -)
+         (list '* *)
+         (list 'read read))
    '(FACT-LOOP
      (perform (op initialize-stack))
      (assign n (op read))
