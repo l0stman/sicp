@@ -1,0 +1,86 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\begin{lstlisting}
+;;; EC-EVAL input:
+(define (fib n)
+  (if (< n 2)
+      n
+      (+ (fib (- n 1))
+         (fib (- n 2)))))
+(total-pushes = 3 maximum-depth = 3)
+
+;;; EC-Eval value:
+ok
+
+;;; EC-EVAL input:
+(fib 0)
+(total-pushes = 16 maximum-depth = 8)
+
+;;; EC-Eval value:
+0
+
+;;; EC-EVAL input:
+(fib 1)
+(total-pushes = 16 maximum-depth = 8)
+
+;;; EC-Eval value:
+1
+
+;;; EC-EVAL input:
+(fib 2)
+(total-pushes = 72 maximum-depth = 13)
+
+;;; EC-Eval value:
+1
+
+;;; EC-EVAL input:
+(fib 3)
+(total-pushes = 128 maximum-depth = 18)
+
+;;; EC-Eval value:
+2
+
+;;; EC-EVAL input:
+(fib 4)
+(total-pushes = 240 maximum-depth = 23)
+
+;;; EC-Eval value:
+3
+
+;;; EC-EVAL input:
+(fib 5)
+(total-pushes = 408 maximum-depth = 28)
+
+;;; EC-Eval value:
+5
+\end{lstlisting}
+
+\subpar{a} We then deduce that the maximum depth of the stack required
+to compute $\mathrm{Fib}(n)$ is $5 n + 3$ for $n \ge 2$.
+
+\subpar{b} Let $S(n)$ be the number of pushes used in computing
+$\mathrm{Fib}(n)$.  If we note $k$ the number pushes
+produced by the call to $<$, $+$ and the two calls to $-$ then we have
+easily for $n \ge 2$
+
+\[ S(n) = S(n-1) + S(n-2) + k.\]
+
+Moreover, if we note $c$ the number of pushes of a call to $<$, then
+\[ S(0) = S(1) = c.\]
+
+From these two properties, We could easily show by induction that for
+$n \ge 0$
+\[ S(n) = (c+k) \mathrm{Fib}(n+1) - k.\]
+
+From the results of the simulation, we have $c = 16$ and  $k = 40$,
+hence we have for $n \ge 0$
+\[ S(n) = 56\ \mathrm{Fib}(n+1) - 40.\]
+
+We then deduce that the number of pushes to compute $\mathrm{Fib}(n)$
+grows exponentially with $n$.
+\end{document}
