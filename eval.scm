@@ -21,7 +21,7 @@
         ((not? exp) (eval-not exp env))
         ((application? exp)
          (apply* (eval* (operator exp) env)
-                (list-of-values (operands exp) env)))
+                 (list-of-values (operands exp) env)))
         (else
          (error "Unknown expression type -- EVAL*" exp))))
 
