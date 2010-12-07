@@ -1,4 +1,4 @@
-;;; Explicit-control evaluator
+;;; Lazy Explicit-control evaluator
 (require r5rs/init)
 (load "lazy-eval.scm")
 (load "regm.scm")
