@@ -1,0 +1,14 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+The expression compiled to produce the code shown is
+\begin{lstlisting}
+(define (f x)
+  (+ x (g (+ x 2))))
+\end{lstlisting}
+
+\end{document}
