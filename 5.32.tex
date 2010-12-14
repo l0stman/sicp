@@ -1,0 +1,59 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\subpar{a}  We just modify \lstinline!EV-APPLICATION! as follows
+\begin{lstlisting}
+EV-APPLICATION
+(save continue)
+(assign unev (op operands) (reg exp))
+(assign exp (op operator) (reg exp))
+(test (op variable?) (reg exp))
+(branch (label EV-OPERATOR-VARIABLE))
+(save env)
+(save unev)
+(assign continue (label EV-APPL-DID-OPERATOR))
+(goto (label EVAL-DISPATCH))
+EV-OPERATOR-VARIABLE
+(assign proc (op lookup-variable-value)
+             (reg exp)
+             (reg env))
+(goto (label EV-APPL-PROC-ASSIGNED))
+EV-APPL-DID-OPERATOR
+(restore unev)                          ; the operands
+(restore env)
+(assign proc (reg val))                 ; the operator
+EV-APPL-PROC-ASSIGNED
+(assign argl (op empty-arglist))
+(test (op no-operands?) (reg unev))
+(branch (label APPLY-DISPATCH))
+(save proc)
+EV-APPL-OPERAND-LOOP
+\end{lstlisting}
+
+\subpar{b} First of all, the advantage of an interpreter compared to a
+compiler is the low overhead when starting a program.  If an
+interpreter does too much analyzes before evaluating an expression, we
+lose this advantage.
+
+Secondly even if what Alyssa says is true in theory, it would be
+impractical since the interpreter would become too bloated.  Suppose
+that we separate the syntactic analysis from execution like in 4.1.7
+to have a more efficient interpreter.  And suppose we want to
+integrate into the interpreter the optimizations in \textbf{exercise
+  5.31}.  It means that when analyzing an application expression, we
+need to dispatch the evaluation of the operator and each operands to
+the optimal version of subroutine that minimizes saves and restores.
+
+For an application with four arguments, we thus need to implement $2^4
+= 16$ subroutines according to the fact that we need to preserve the
+register \textbf{env} or not (we don't need to save it for the last
+operand).  And we also need to take into account the registers
+\textbf{proc} and \textbf{argl}.  It's easy to see that the
+implementation is really cumbersome, so if we need to do these
+implementations, a compiler is the way to go.
+
+\end{document}
