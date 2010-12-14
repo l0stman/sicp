@@ -1,0 +1,49 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+The following piece of code in the compiled version of \lstinline!factorial!
+\begin{lstlisting}
+(assign val (op lookup-variable-value)
+            (const n)
+            (reg env))
+(assign argl (op list) (reg val))
+(save argl)
+(assign proc (op lookup-variable-value)
+             (const factorial)
+             (reg env))
+\end{lstlisting}
+
+is replaced by the following code in the compiled version of
+\lstinline!factorial-alt!:
+\begin{lstlisting}
+(save env)
+(assign proc (op lookup-variable-value)
+             (const factorial-alt)
+             (reg env))
+\end{lstlisting}
+
+And later on, the piece of code
+\begin{lstlisting}
+(restore argl)
+\end{lstlisting}
+
+is replaced by
+
+\begin{lstlisting}
+(assign argl (op list) (reg val))
+(restore env)
+(assign val (op lookup-variable-value)
+            (const n)
+            (reg env))
+\end{lstlisting}
+
+These changes are just due to the fact that the order of the operands
+to \lstinline!*! are reversed in the two functions.  Given that the
+two samples code have exactly the same number of assignments, save and
+restore operations, they have the same running time.
+
+\end{document}
