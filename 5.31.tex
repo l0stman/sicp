@@ -1,0 +1,27 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+When evaluating \lstinline!(f 'x 'y)!, we don't need to save and
+restore the \textbf{env} register when evaluating the operator since
+it's a variable nor around the evaluation of each operand since
+quotations modify only the val register.  For this last reason, we
+don't need to preserve \textbf{proc} and \textbf{argl} respectively
+around the evaluation of the operand sequence and each operand.
+
+When evaluating \lstinline!((f) 'x 'y)!, preserving \textbf{proc},
+\textbf{env} and \textbf{argl} around respectively the evaluation of
+the operand sequence and each operand is unnecessary.
+
+When evaluating \lstinline!(f (g 'x) y)! and
+\lstinline!(f (g 'x) 'y)!, preserving \textbf{env} when evaluating the operators
+\lstinline!f! and \lstinline!g! are superfluous.  Preserving
+\textbf{proc} and \textbf{argl} around the evaluation of the
+operand of \lstinline!g! is also unnecessary.  And there's no need to
+save and restore \textbf{argl} when evaluating the last argument of
+\lstinline!f!.
+
+\end{document}
