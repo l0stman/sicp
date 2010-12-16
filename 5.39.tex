@@ -1,0 +1,42 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\begin{lstlisting}
+(define (frame-num lex-add) (car lex-add))
+(define (disp-num lex-add) (cadr lex-add))
+
+(define (lexical-address-lookup lex-add env)
+  (define (err)
+    (error "unbound address -- LEXICAL-ADDRESS-LOOKUP"
+           lex-add))
+  (define (nth n lst)
+    (cond ((null? lst) (err))
+          ((zero? n) (car lst))
+          (else (nth (- n 1) (cdr lst)))))
+  (let* ((frame (nth (frame-num lex-add) env))
+         (val
+          (nth (disp-num lex-add)
+               (frame-values frame))))
+    (if (eq? val '*unassigned*) (err) val)))
+
+(define (lexical-address-set! lex-add val env)
+  (define (nthcdr n lst)
+    (cond ((null? lst)
+           (error
+            "unbound address -- LEXICAL-ADDRESS-SET!"
+            lex-add))
+          ((zero? n) lst)
+          (else (nthcdr (- n 1) (cdr lst)))))
+  (let ((frame
+         (car (nthcdr (frame-num lex-add) env))))
+    (set-car!
+     (nthcdr (disp-num lex-add)
+             (frame-values frame))
+     val)))
+\end{lstlisting}
+
+\end{document}
