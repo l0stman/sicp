@@ -15,6 +15,40 @@
 (define (get-global-environment)
   the-global-environment)
 
+(define (make-lex-add frame-num disp-num)
+  (list frame-num disp-num))
+(define (frame-num lex-add) (car lex-add))
+(define (disp-num lex-add) (cadr lex-add))
+
+(define (lexical-address-lookup lex-add env)
+  (define (err)
+    (error "unbound address -- LEXICAL-ADDRESS-LOOKUP"
+           lex-add))
+  (define (nth n lst)
+    (cond ((null? lst) (err))
+          ((zero? n) (car lst))
+          (else (nth (- n 1) (cdr lst)))))
+  (let* ((frame (nth (frame-num lex-add) env))
+         (val
+          (nth (disp-num lex-add)
+               (frame-values frame))))
+    (if (eq? val '*unassigned*) (err) val)))
+
+(define (lexical-address-set! lex-add val env)
+  (define (nthcdr n lst)
+    (cond ((null? lst)
+           (error
+            "unbound address -- LEXICAL-ADDRESS-SET!"
+            lex-add))
+          ((zero? n) lst)
+          (else (nthcdr (- n 1) (cdr lst)))))
+  (let ((frame
+         (car (nthcdr (frame-num lex-add) env))))
+    (set-car!
+     (nthcdr (disp-num lex-add)
+             (frame-values frame))
+     val)))
+
 (define eceval-operations
   (list (list 'prompt-for-input prompt-for-input)
         (list 'read read)
@@ -69,7 +103,9 @@
         (list 'cond? cond?)
         (list 'cond->if cond->if)
         (list 'let? let?)
-        (list 'let->combination let->combination)))
+        (list 'let->combination let->combination)
+        (list 'lexical-address-lookup lexical-address-lookup)
+        (list 'lexical-address-set! lexical-address-set!)))
 
 (define eceval
   (make-machine
