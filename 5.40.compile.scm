@@ -174,6 +174,7 @@
 
 (define (extend-comp-time-env parms env)
   (cons parms env))
+(define the-empty-comp-time-env '())
 
 (define (compile-lambda-body exp proc-entry env)
   (let ((formals (lambda-parameters exp)))
