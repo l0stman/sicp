@@ -1,0 +1,24 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\begin{lstlisting}
+(define (find-variable var env)
+  (define (env-loop frame-num env)
+    (define (scan disp-num vars)
+      (cond ((null? vars)
+             (env-loop (+ frame-num 1)
+                       (enclosing-environment env)))
+            ((eq? var (car vars))
+             (make-lex-add frame-num disp-num))
+            (else (scan (+ 1 disp-num) (cdr vars)))))
+    (if (eq? env the-empty-comp-time-env)
+        'not-found
+        (scan 0 (first-frame env))))
+  (env-loop 0 env))
+\end{lstlisting}
+
+\end{document}
