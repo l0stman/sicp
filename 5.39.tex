@@ -6,6 +6,8 @@
 \begin{document}
 
 \begin{lstlisting}
+(define (make-lex-add frame-num disp-num)
+  (list frame-num disp-num))
 (define (frame-num lex-add) (car lex-add))
 (define (disp-num lex-add) (cadr lex-add))
 
