@@ -1,0 +1,221 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\subpar{a} The following procedure takes as arguments an open-coded
+primitive that takes two arguments, two operands, the target register
+and the type of linkage and returns a piece of code that stores in the
+target register the value of the operator applied to the argument
+registers.
+
+\begin{lstlisting}
+(define (spread-arguments operator
+                          operand1
+                          operand2
+                          target
+                          linkage)
+  (preserving
+   '(continue env)
+   (compile* operand1 'arg1 'next)
+   (preserving '(arg1 continue)
+               (compile* operand2 'arg2 'next)
+               (end-with-linkage
+                linkage
+                (make-instruction-sequence
+                 '(arg1 arg2)
+                 (list target)
+                 `((assign ,target
+                           (op ,operator)
+                           (reg arg1)
+                           (reg arg2))))))))
+\end{lstlisting}
+
+\subpar{b}  We modify \lstinline!compile*! to dispatch to a code
+generator for open-coded primitives.
+
+\begin{lstlisting}
+(define (compile* exp target linkage)
+  (cond ((self-evaluating? exp)
+         (compile-self-evaluating exp target linkage))
+        ((quoted? exp)
+         (compile-quoted exp target linkage))
+        ((variable? exp)
+         (compile-variable exp target linkage))
+        ((assignment? exp)
+         (compile-assignment exp target linkage))
+        ((definition? exp)
+         (compile-definition exp target linkage))
+        ((if? exp) (compile-if exp target linkage))
+        ((lambda? exp)
+         (compile-lambda exp target linkage))
+        ((begin? exp)
+         (compile-sequence (begin-actions exp)
+                           target
+                           linkage))
+        ((cond? exp)
+         (compile* (cond->if exp) target linkage))
+        ((open-coded-primitive? exp)
+         (compile-open-coded-primitive exp
+                                       target
+                                       linkage))
+        ((application? exp)
+         (compile-application exp target linkage))
+        (else
+         (error
+          "Unknown expression type -- COMPILE" exp))))
+
+(define (open-coded-primitive? exp)
+  (or (tagged-list? exp '+)
+      (tagged-list? exp '-)
+      (tagged-list? exp '*)
+      (tagged-list? exp '/)))
+(define (compile-open-coded-primitive exp
+                                      target
+                                      linkage)
+  (spread-arguments (operator exp)
+                    (car (operands exp))
+                    (cadr (operands exp))
+                    target
+                    linkage))
+\end{lstlisting}
+
+\subpar{c}  Consider the expression
+
+\begin{lstlisting}
+(define (factorial n)
+  (if (= n 1)
+      1
+      (* (factorial (- n 1)) 1)))
+\end{lstlisting}
+
+By compiling it with the optimized version of \lstinline!compile*!, we
+obtain
+
+\begin{lstlisting}
+(assign val
+        (op make-compiled-procedure)
+        (label entry26)
+        (reg env))
+(goto (label after-lambda27))
+entry26
+(assign env (op compiled-procedure-env) (reg proc))
+(assign env
+        (op extend-environment)
+        (const (n))
+        (reg argl)
+        (reg env))
+(save continue)
+(save env)
+(assign proc
+        (op lookup-variable-value)
+        (const =)
+        (reg env))
+(assign val (const 1))
+(assign argl (op list) (reg val))
+(assign val
+        (op lookup-variable-value)
+        (const n)
+        (reg env))
+(assign argl (op cons) (reg val) (reg argl))
+(test (op primitive-procedure?) (reg proc))
+(branch (label primitive-branch31))
+compiled-branch32
+(assign continue (label after-call33))
+(assign val (op compiled-procedure-entry) (reg proc))
+(goto (reg val))
+primitive-branch31
+(assign val
+        (op apply-primitive-procedure)
+        (reg proc)
+        (reg argl))
+after-call33
+(restore env)
+(restore continue)
+(test (op false?) (reg val))
+(branch (label false-branch29))
+true-branch28
+(assign val (const 1))
+(goto (reg continue))
+false-branch29
+(save env)
+(save continue)
+(assign proc
+        (op lookup-variable-value)
+        (const factorial)
+        (reg env))
+(assign arg1
+        (op lookup-variable-value)
+        (const n)
+        (reg env))
+(assign arg2 (const 1))
+(assign val (op -) (reg arg1) (reg arg2))
+(assign argl (op list) (reg val))
+(test (op primitive-procedure?) (reg proc))
+(branch (label primitive-branch34))
+compiled-branch35
+(assign continue (label proc-return37))
+(assign val (op compiled-procedure-entry) (reg proc))
+(goto (reg val))
+proc-return37
+(assign arg1 (reg val))
+(goto (label after-call36))
+primitive-branch34
+(assign arg1
+        (op apply-primitive-procedure)
+        (reg proc)
+        (reg argl))
+after-call36
+(restore continue)
+(restore env)
+(assign arg2
+        (op lookup-variable-value)
+        (const n)
+        (reg env))
+(assign val (op *) (reg arg1) (reg arg2))
+(goto (reg continue))
+after-if30
+after-lambda27
+(perform (op define-variable!)
+         (const factorial)
+         (reg val)
+         (reg env))
+(assign val (const ok))
+\end{lstlisting}
+
+The main difference with the version without open coding lays in the
+part after the false branch.  When evaluating the arguments of
+\lstinline!*!, we don't need to save the \textbf{proc} register.  The
+same thing goes for the argument of \lstinline!factorial!.  And the
+number of compiled branches and primitives branches when evaluating an
+application is also reduced.
+
+\subpar{d} We just use an auxiliary function that transforms an
+application with arbitrary numbers of operands into an application
+with two operands.  For example \lstinline!(+ exp1 exp2 exp3)!  is
+transformed into \lstinline!(+ (exp1 exp2) exp3)!.
+
+\begin{lstlisting}
+(define (compile-open-coded-primitive exp
+                                      target
+                                      linkage)
+  (define (->2args exp)
+    (let ((op (operator exp)))
+      (let loop ((operand1 (car (operands exp)))
+                 (rest-operands (cdr (operands exp))))
+        (if (null? rest-operands)
+            operand1
+            (loop `(,op ,operand1
+                        ,(car rest-operands))
+                  (cdr rest-operands))))))
+  (let ((exp (->2args exp)))
+    (spread-arguments (operator exp)
+                      (car (operands exp))
+                      (cadr (operands exp))
+                      target
+                      linkage)))
+\end{lstlisting}
+
+\end{document}
