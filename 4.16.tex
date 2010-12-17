@@ -48,14 +48,14 @@
          (body (reverse (caddr res))))
     (if (null? vars)
         body
-        `(let ,(map (lambda (var)
-                      `(,var '*unassigned*))
-                    vars)
-           ,@(map (lambda (var val)
-                    `(set! ,var ,val))
-                  vars
-                  vals)
-           ,@body))))
+        `((let ,(map (lambda (var)
+                       `(,var '*unassigned*))
+                     vars)
+            ,@(map (lambda (var val)
+                     `(set! ,var ,val))
+                   vars
+                   vals)
+            ,@body)))))
 \end{lstlisting}
 
 \subpar{c}
