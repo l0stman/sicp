@@ -201,6 +201,36 @@
         (compile-lambda-body exp proc-entry env))
        after-lambda))))
 
+(define (scan-out-defines body)
+  (define (loop body vars vals new-body)
+    (cond ((null? body) (list vars vals new-body))
+          ((definition? (car body))
+           (loop (cdr body)
+                 (cons (definition-variable (car body))
+                       vars)
+                 (cons (definition-value (car body))
+                       vals)
+                 new-body))
+          (else
+           (loop (cdr body)
+                 vars
+                 vals
+                 (cons (car body) new-body)))))
+  (let* ((res (loop body '() '() '()))
+         (vars (reverse (car res)))
+         (vals (reverse (cadr res)))
+         (body (reverse (caddr res))))
+    (if (null? vars)
+        body
+        `((let ,(map (lambda (var)
+                       `(,var '*unassigned*))
+                     vars)
+            ,@(map (lambda (var val)
+                     `(set! ,var ,val))
+                   vars
+                   vals)
+            ,@body)))))
+
 (define (extend-comp-time-env parms env)
   (cons parms env))
 (define the-empty-comp-time-env '())
@@ -212,13 +242,15 @@
       '(env proc argl)
       '(env)
       `(,proc-entry
-        (assign env (op compiled-procedure-env) (reg proc))
+        (assign env
+                (op compiled-procedure-env)
+                (reg proc))
         (assign env
                 (op extend-environment)
                 (const ,formals)
                 (reg argl)
                 (reg env))))
-     (compile-sequence (lambda-body exp)
+     (compile-sequence (scan-out-defines (lambda-body exp))
                        'val
                        'return
                        (extend-comp-time-env formals env)))))
