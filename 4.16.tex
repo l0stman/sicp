@@ -46,15 +46,18 @@
          (vars (reverse (car res)))
          (vals (reverse (cadr res)))
          (body (reverse (caddr res))))
-    (cons 'let
-          (cons (map (lambda (var)
-                       (list var '*unassigned*))
-                     vars)
-                (append (map (lambda (var val)
-                               (list 'set! var val))
-                             vars
-                             vals)
-                        body)))))
+    (if (null? vars)
+        body
+        (cons
+         'let
+         (cons (map (lambda (var)
+                      (list var '*unassigned*))
+                    vars)
+               (append (map (lambda (var val)
+                              (list 'set! var val))
+                            vars
+                            vals)
+                       body))))))
 \end{lstlisting}
 
 \subpar{c}
