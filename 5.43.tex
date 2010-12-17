@@ -1,0 +1,67 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+First we define the procedure \lstinline!scan-out-defines! from
+\textbf{exercise 4.16}.
+\begin{lstlisting}
+(define (scan-out-defines body)
+  (define (loop body vars vals new-body)
+    (cond ((null? body) (list vars vals new-body))
+          ((definition? (car body))
+           (loop (cdr body)
+                 (cons (definition-variable (car body))
+                       vars)
+                 (cons (definition-value (car body))
+                       vals)
+                 new-body))
+          (else
+           (loop (cdr body)
+                 vars
+                 vals
+                 (cons (car body) new-body)))))
+  (let* ((res (loop body '() '() '()))
+         (vars (reverse (car res)))
+         (vals (reverse (cadr res)))
+         (body (reverse (caddr res))))
+    (if (null? vars)
+        body
+        `((let ,(map (lambda (var)
+                       `(,var '*unassigned*))
+                     vars)
+            ,@(map (lambda (var val)
+                     `(set! ,var ,val))
+                   vars
+                   vals)
+            ,@body)))))
+\end{lstlisting}
+
+We then modify \lstinline!compile-lambda-body! as follows
+
+\begin{lstlisting}
+(define (compile-lambda-body exp proc-entry env)
+  (let ((formals (lambda-parameters exp)))
+    (append-instruction-sequences
+     (make-instruction-sequence
+      '(env proc argl)
+      '(env)
+      `(,proc-entry
+        (assign env
+                (op compiled-procedure-env)
+                (reg proc))
+        (assign env
+                (op extend-environment)
+                (const ,formals)
+                (reg argl)
+                (reg env))))
+     (compile-sequence
+      (scan-out-defines (lambda-body exp))
+      'val
+      'return
+      (extend-comp-time-env formals env)))))
+\end{lstlisting}
+
+\end{document}
