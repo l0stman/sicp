@@ -1,0 +1,232 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+Here are the modified versions of variable lookup and assignment.
+
+\begin{lstlisting}
+(define (compile-variable exp target linkage env)
+  (end-with-linkage
+   linkage
+   (make-instruction-sequence
+    '(env)
+    (list target)
+    (let ((lex-add (find-variable exp env)))
+      (if (eq? lex-add 'not-found)
+          `((assign ,target
+                    (op get-global-environment)
+                    (const ,exp)))
+          `((assign ,target
+                    (op lexical-address-lookup)
+                    (const ,lex-add)
+                    (reg env))))))))
+
+(define (compile-assignment exp target linkage env)
+  (let ((var (assignment-variable exp))
+        (get-value-code
+         (compile* (assignment-value exp)
+                   'val
+                   'next
+                   env)))
+    (end-with-linkage
+     linkage
+     (preserving
+      '(env)
+      get-value-code
+      (make-instruction-sequence
+       '(env val)
+       (list target)
+       (let ((lex-add (find-variable var env)))
+         (if (eq? lex-add 'not-found)
+             `((perform (op set-global-environment!)
+                        (const ,var)
+                        (reg val))
+               (assign ,target (const ok)))
+             `((perform (op set-variable-value!)
+                        (const ,lex-add)
+                        (reg val)
+                        (reg env))
+               (assign ,target (const ok))))))))))
+\end{lstlisting}
+
+By compiling the following expression with the modified compiler,
+\begin{lstlisting}
+((lambda (x y)
+     (lambda (a b c d e)
+       ((lambda (y z) (* x y z))
+        (* a b x)
+        (+ c d x))))
+   3
+   4)
+\end{lstlisting}
+
+we obtain
+
+\begin{lstlisting}
+(assign proc
+        (op make-compiled-procedure)
+        (label entry22)
+        (reg env))
+(goto (label after-lambda23))
+entry22
+(assign env (op compiled-procedure-env) (reg proc))
+(assign env
+        (op extend-environment)
+        (const (x y))
+        (reg argl)
+        (reg env))
+(assign val
+        (op make-compiled-procedure)
+        (label entry24)
+        (reg env))
+(goto (reg continue))
+entry24
+(assign env (op compiled-procedure-env) (reg proc))
+(assign env
+        (op extend-environment)
+        (const (a b c d e))
+        (reg argl)
+        (reg env))
+(assign proc
+        (op make-compiled-procedure)
+        (label entry26)
+        (reg env))
+(goto (label after-lambda27))
+entry26
+(assign env (op compiled-procedure-env) (reg proc))
+(assign env
+        (op extend-environment)
+        (const (y z))
+        (reg argl)
+        (reg env))
+(assign proc (op get-global-environment) (const *))
+(assign val
+        (op lexical-address-lookup)
+        (const (0 1))
+        (reg env))
+(assign argl (op list) (reg val))
+(assign val
+        (op lexical-address-lookup)
+        (const (0 0))
+        (reg env))
+(assign argl (op cons) (reg val) (reg argl))
+(assign val
+        (op lexical-address-lookup)
+        (const (2 0))
+        (reg env))
+(assign argl (op cons) (reg val) (reg argl))
+(test (op primitive-procedure?) (reg proc))
+(branch (label primitive-branch28))
+compiled-branch29
+(assign val (op compiled-procedure-entry) (reg proc))
+(goto (reg val))
+primitive-branch28
+(assign val
+        (op apply-primitive-procedure)
+        (reg proc)
+        (reg argl))
+(goto (reg continue))
+after-call30
+after-lambda27
+(save continue)
+(save proc)
+(save env)
+(assign proc (op get-global-environment) (const +))
+(assign val
+        (op lexical-address-lookup)
+        (const (1 0))
+        (reg env))
+(assign argl (op list) (reg val))
+(assign val
+        (op lexical-address-lookup)
+        (const (0 3))
+        (reg env))
+(assign argl (op cons) (reg val) (reg argl))
+(assign val
+        (op lexical-address-lookup)
+        (const (0 2))
+        (reg env))
+(assign argl (op cons) (reg val) (reg argl))
+(test (op primitive-procedure?) (reg proc))
+(branch (label primitive-branch34))
+compiled-branch35
+(assign continue (label after-call36))
+(assign val (op compiled-procedure-entry) (reg proc))
+(goto (reg val))
+primitive-branch34
+(assign val
+        (op apply-primitive-procedure)
+        (reg proc)
+        (reg argl))
+after-call36
+(assign argl (op list) (reg val))
+(restore env)
+(save argl)
+(assign proc (op get-global-environment) (const *))
+(assign val
+        (op lexical-address-lookup)
+        (const (1 0))
+        (reg env))
+(assign argl (op list) (reg val))
+(assign val
+        (op lexical-address-lookup)
+        (const (0 1))
+        (reg env))
+(assign argl (op cons) (reg val) (reg argl))
+(assign val
+        (op lexical-address-lookup)
+        (const (0 0))
+        (reg env))
+(assign argl (op cons) (reg val) (reg argl))
+(test (op primitive-procedure?) (reg proc))
+(branch (label primitive-branch31))
+compiled-branch32
+(assign continue (label after-call33))
+(assign val (op compiled-procedure-entry) (reg proc))
+(goto (reg val))
+primitive-branch31
+(assign val
+        (op apply-primitive-procedure)
+        (reg proc)
+        (reg argl))
+after-call33
+(restore argl)
+(assign argl (op cons) (reg val) (reg argl))
+(restore proc)
+(restore continue)
+(test (op primitive-procedure?) (reg proc))
+(branch (label primitive-branch37))
+compiled-branch38
+(assign val (op compiled-procedure-entry) (reg proc))
+(goto (reg val))
+primitive-branch37
+(assign val
+        (op apply-primitive-procedure)
+        (reg proc)
+        (reg argl))
+(goto (reg continue))
+after-call39
+after-lambda25
+after-lambda23
+(assign val (const 4))
+(assign argl (op list) (reg val))
+(assign val (const 3))
+(assign argl (op cons) (reg val) (reg argl))
+(test (op primitive-procedure?) (reg proc))
+(branch (label primitive-branch40))
+compiled-branch41
+(assign continue (label after-call42))
+(assign val (op compiled-procedure-entry) (reg proc))
+(goto (reg val))
+primitive-branch40
+(assign val
+        (op apply-primitive-procedure)
+        (reg proc)
+        (reg argl))
+after-call42
+\end{lstlisting}
+
+\end{document}
