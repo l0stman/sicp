@@ -100,11 +100,21 @@
   (env-loop env))
 
 (define (make-compiled-procedure entry env)
-  (list 'compile-procedure entry env))
+  (list 'compiled-procedure entry env))
 (define (compiled-procedure? proc)
   (tagged-list? proc 'compiled-procedure))
 (define (compiled-procedure-entry c-proc) (cadr c-proc))
 (define (compiled-procedure-env c-proc) (caddr c-proc))
+
+(define (user-print object)
+  (cond ((compound-procedure? object)
+         (display (list 'compound-procedure
+                        (procedure-parameters object)
+                        (procedure-body object)
+                        '<procedure-env>)))
+        ((compiled-procedure? object)
+         (display '<compiled-procedure>))
+        (else (display object))))
 
 (define eceval-operations
   (list (list 'prompt-for-input prompt-for-input)
@@ -147,6 +157,7 @@
         (list 'rest-exps rest-exps)
         (list 'if-predicate if-predicate)
         (list 'true? true?)
+        (list 'false? false?)
         (list 'if-alternative if-alternative)
         (list 'if-consequent if-consequent)
         (list 'assignment-variable assignment-variable)
@@ -165,14 +176,22 @@
         (list 'lexical-address-set! lexical-address-set!)
         (list 'lookup-in-globenv lookup-in-globenv)
         (list 'set-global-environment! set-global-environment!)
+        (list 'make-compiled-procedure make-compiled-procedure)
         (list 'compiled-procedure? compiled-procedure?)
         (list 'compiled-procedure-entry compiled-procedure-entry)
-        (list 'compiled-procedure-env compiled-procedure-env)))
+        (list 'compiled-procedure-env compiled-procedure-env)
+        (list 'list list)
+        (list 'cons cons)
+        (list '+ +)
+        (list '- -)
+        (list '* *)
+        (list '/ /)))
 
 (define eceval
   (make-machine
    eceval-operations
-   '(READ-EVAL-PRINT-LOOP
+   '((branch (label EXTERNAL-ENTRY))    ; branches if flag is set
+     READ-EVAL-PRINT-LOOP
      (perform (op initialize-stack))
      (perform (op prompt-for-input) (const ";;; EC-EVAL input:"))
      (assign exp (op read))
@@ -184,6 +203,12 @@
      (perform (op announce-output) (const ";;; EC-Eval value:"))
      (perform (op user-print) (reg val))
      (goto (label READ-EVAL-PRINT-LOOP))
+
+     EXTERNAL-ENTRY
+     (perform (op initialize-stack))
+     (assign env (op get-global-environment))
+     (assign continue (label PRINT-RESULT))
+     (goto (reg val))
 
      EVAL-DISPATCH
      (test (op self-evaluating?) (reg exp))
@@ -280,6 +305,8 @@
      (branch (label PRIMITIVE-APPLY))
      (test (op compound-procedure?) (reg proc))
      (branch (label COMPOUND-APPLY))
+     (test (op compiled-procedure?) (reg proc))
+     (branch (label COMPILED-APPLY))
      (goto (label UNKNOWN-PROCEDURE-TYPE))
 
      PRIMITIVE-APPLY
@@ -293,6 +320,11 @@
      (assign env (op extend-environment) (reg unev) (reg argl) (reg env))
      (assign unev (op procedure-body) (reg proc))
      (goto (label EV-SEQUENCE))
+
+     COMPILED-APPLY
+     (restore continue)
+     (assign val (op compiled-procedure-entry) (reg proc))
+     (goto (reg val))
 
      EV-BEGIN
      (assign unev (op begin-actions) (reg exp))
@@ -388,3 +420,8 @@
      SIGNAL-ERROR
      (perform (op user-print) (reg val))
      (goto (label READ-EVAL-PRINT-LOOP)))))
+
+(define (start-eceval)
+  (set! the-global-environment (setup-environment))
+  (set-register-contents! eceval 'flag #f)
+  (start eceval))

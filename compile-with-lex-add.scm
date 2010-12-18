@@ -499,3 +499,16 @@
    (list-union (registers-modified seq1)
                (registers-modified seq2))
    (append (statements seq1) (statements seq2))))
+
+(define (compile-and-go expression)
+  (let ((instructions
+         (assemble (statements
+                    (compile* expression
+                              'val
+                              'return
+                              the-empty-comp-time-env))
+                   eceval)))
+    (set! the-global-environment (setup-environment))
+    (set-register-contents! eceval 'val instructions)
+    (set-register-contents! eceval 'flag #t)
+    (start eceval)))
