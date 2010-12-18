@@ -202,34 +202,37 @@
        after-lambda))))
 
 (define (scan-out-defines body)
-  (define (loop body vars vals new-body)
-    (cond ((null? body) (list vars vals new-body))
+  (define (loop body vars vals new-body continue)
+    (cond ((null? body)
+           (continue (reverse vars)
+                     (reverse vals)
+                     (reverse new-body)))
           ((definition? (car body))
            (loop (cdr body)
                  (cons (definition-variable (car body))
                        vars)
                  (cons (definition-value (car body))
                        vals)
-                 new-body))
+                 new-body
+                 continue))
           (else
            (loop (cdr body)
                  vars
                  vals
-                 (cons (car body) new-body)))))
-  (let* ((res (loop body '() '() '()))
-         (vars (reverse (car res)))
-         (vals (reverse (cadr res)))
-         (body (reverse (caddr res))))
-    (if (null? vars)
-        body
-        `((let ,(map (lambda (var)
-                       `(,var '*unassigned*))
-                     vars)
-            ,@(map (lambda (var val)
-                     `(set! ,var ,val))
-                   vars
-                   vals)
-            ,@body)))))
+                 (cons (car body) new-body)
+                 continue))))
+  (loop body '() '() '()
+        (lambda (vars vals body)
+          (if (null? vars)
+              body
+              `((let ,(map (lambda (var)
+                             `(,var '*unassigned*))
+                           vars)
+                  ,@(map (lambda (var val)
+                           `(set! ,var ,val))
+                         vars
+                         vals)
+                  ,@body))))))
 
 (define (extend-comp-time-env parms env)
   (cons parms env))
