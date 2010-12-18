@@ -17,7 +17,7 @@ Here are the modified versions of variable lookup and assignment.
     (let ((lex-add (find-variable exp env)))
       (if (eq? lex-add 'not-found)
           `((assign ,target
-                    (op get-global-environment)
+                    (op lookup-in-globenv)
                     (const ,exp)))
           `((assign ,target
                     (op lexical-address-lookup)
@@ -102,7 +102,7 @@ entry26
         (const (y z))
         (reg argl)
         (reg env))
-(assign proc (op get-global-environment) (const *))
+(assign proc (op lookup-in-globenv) (const *))
 (assign val
         (op lexical-address-lookup)
         (const (0 1))
@@ -134,7 +134,7 @@ after-lambda27
 (save continue)
 (save proc)
 (save env)
-(assign proc (op get-global-environment) (const +))
+(assign proc (op lookup-in-globenv) (const +))
 (assign val
         (op lexical-address-lookup)
         (const (1 0))
@@ -165,7 +165,7 @@ after-call36
 (assign argl (op list) (reg val))
 (restore env)
 (save argl)
-(assign proc (op get-global-environment) (const *))
+(assign proc (op lookup-in-globenv) (const *))
 (assign val
         (op lexical-address-lookup)
         (const (1 0))
