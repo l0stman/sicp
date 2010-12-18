@@ -57,7 +57,7 @@ generator for open-coded primitives.
                            linkage))
         ((cond? exp)
          (compile* (cond->if exp) target linkage))
-        ((open-coded-primitive? exp)
+        ((open-coded-application? exp)
          (compile-open-coded-primitive exp
                                        target
                                        linkage))
@@ -67,7 +67,7 @@ generator for open-coded primitives.
          (error
           "Unknown expression type -- COMPILE" exp))))
 
-(define (open-coded-primitive? exp)
+(define (open-coded-application? exp)
   (or (tagged-list? exp '+)
       (tagged-list? exp '-)
       (tagged-list? exp '*)

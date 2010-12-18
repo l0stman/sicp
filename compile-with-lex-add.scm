@@ -23,7 +23,7 @@
                            linkage
                            env))
         ((cond? exp) (compile* (cond->if exp) target linkage env))
-        ((open-coded-primitive? exp env)
+        ((open-coded-application? exp env)
          (compile-open-coded-primitive exp
                                        target
                                        linkage
@@ -264,7 +264,7 @@
                        'return
                        (extend-comp-time-env formals env)))))
 
-(define (open-coded-primitive? exp env)
+(define (open-coded-application? exp env)
   (and (or (tagged-list? exp '+)
            (tagged-list? exp '-)
            (tagged-list? exp '*)
