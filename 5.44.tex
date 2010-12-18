@@ -1,0 +1,262 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+We can redefine the predicate that tests for open-coded primitive
+applications as follows
+\begin{lstlisting}
+(define (open-coded-application? exp env)
+  (and (or (tagged-list? exp '+)
+           (tagged-list? exp '-)
+           (tagged-list? exp '*)
+           (tagged-list? exp '/))
+       (eq? 'not-found
+            (find-variable (operator exp)
+                           env))))
+\end{lstlisting}
+
+We also modify the other procedures to take as additional parameter
+the compile-time environment.
+
+\begin{lstlisting}
+(define (spread-arguments operator
+                          operand1
+                          operand2
+                          target
+                          linkage
+                          env)
+  (preserving
+   '(continue env)
+   (compile* operand1 'arg1 'next env)
+   (preserving '(arg1 continue)
+               (compile* operand2 'arg2 'next env)
+               (end-with-linkage
+                linkage
+                (make-instruction-sequence
+                 '(arg1 arg2)
+                 (list target)
+                 `((assign ,target
+                           (op ,operator)
+                           (reg arg1)
+                           (reg arg2))))))))
+
+(define (compile-open-coded-primitive exp
+                                      target
+                                      linkage
+                                      env)
+  (define (->2args exp)
+    (let ((op (operator exp)))
+      (let loop ((operand1 (car (operands exp)))
+                 (rest-operands (cdr (operands exp))))
+        (if (null? rest-operands)
+            operand1
+            (loop `(,op ,operand1
+                        ,(car rest-operands))
+                  (cdr rest-operands))))))
+  (let ((exp (->2args exp)))
+    (spread-arguments (operator exp)
+                      (car (operands exp))
+                      (cadr (operands exp))
+                      target
+                      linkage
+                      env)))
+\end{lstlisting}
+
+If we then compile the expression,
+\begin{lstlisting}
+(lambda (+ * a b x y)
+  (+ (* a x) (* b y)))
+\end{lstlisting}
+
+the generated code is correct.
+
+\begin{lstlisting}
+(assign val
+        (op make-compiled-procedure)
+        (label entry1)
+        (reg env))
+(goto (label after-lambda2))
+entry1
+(assign env (op compiled-procedure-env) (reg proc))
+(assign
+ env
+ (op extend-environment)
+ (const (+ * a b x y))
+ (reg argl)
+ (reg env))
+(assign proc
+        (op lexical-address-lookup)
+        (const (0 0))
+        (reg env))
+(save continue)
+(save proc)
+(save env)
+(assign proc
+        (op lexical-address-lookup)
+        (const (0 1))
+        (reg env))
+(assign val
+        (op lexical-address-lookup)
+        (const (0 5))
+        (reg env))
+(assign argl (op list) (reg val))
+(assign val
+        (op lexical-address-lookup)
+        (const (0 3))
+        (reg env))
+(assign argl (op cons) (reg val) (reg argl))
+(test (op primitive-procedure?) (reg proc))
+(branch (label primitive-branch6))
+compiled-branch7
+(assign continue (label after-call8))
+(assign val (op compiled-procedure-entry) (reg proc))
+(goto (reg val))
+primitive-branch6
+(assign val
+        (op apply-primitive-procedure)
+        (reg proc)
+        (reg argl))
+after-call8
+(assign argl (op list) (reg val))
+(restore env)
+(save argl)
+(assign proc
+        (op lexical-address-lookup)
+        (const (0 1))
+        (reg env))
+(assign val
+        (op lexical-address-lookup)
+        (const (0 4))
+        (reg env))
+(assign argl (op list) (reg val))
+(assign val
+        (op lexical-address-lookup)
+        (const (0 2))
+        (reg env))
+(assign argl (op cons) (reg val) (reg argl))
+(test (op primitive-procedure?) (reg proc))
+(branch (label primitive-branch3))
+compiled-branch4
+(assign continue (label after-call5))
+(assign val (op compiled-procedure-entry) (reg proc))
+(goto (reg val))
+primitive-branch3
+(assign val
+        (op apply-primitive-procedure)
+        (reg proc)
+        (reg argl))
+after-call5
+(restore argl)
+(assign argl (op cons) (reg val) (reg argl))
+(restore proc)
+(restore continue)
+(test (op primitive-procedure?) (reg proc))
+(branch (label primitive-branch9))
+compiled-branch10
+(assign val
+        (op compiled-procedure-entry)
+        (reg proc))
+(goto (reg val))
+primitive-branch9
+(assign val
+        (op apply-primitive-procedure)
+        (reg proc)
+        (reg argl))
+(goto (reg continue))
+after-call11
+after-lambda2
+\end{lstlisting}
+
+However the optimizations are only correct as long we don't redefine
+or assign new values to the open-coded primitives.  To avoid this
+issue, we define the predicate to test for open-coded primitives
+application as follows:
+
+\begin{lstlisting}
+(define (open-coded-application? exp env)
+  (and (pair? exp)
+       (open-coded-primitive? op)
+       (eq? 'not-found
+            (find-variable (operator exp) env))))
+
+(define open-coded-primitives '(+ - * /))
+(define (open-coded-primitive? op)
+  (memq op open-coded-primitives))
+(define (drop-open-coded-primitive op)
+  (define (drop lst)
+    (cond ((null? lst) '())
+          ((eq? (car lst) op) (drop (cdr lst)))
+          (else (cons (car lst)
+                      (drop (cdr lst))))))
+  (set! open-coded-primitives
+        (drop open-coded-primitives)))
+\end{lstlisting}
+
+We then modify \lstinline!compile-assignment! and
+\lstinline!compile-definition!  so that if we're modifying the value
+of an open-coded primitive, it should no longer be inlined.  The
+same modification should be applied to the
+\lstinline!set-variable-value!! and \lstinline!define-variable!!
+operators if the explicit-controller evaluator is used simultaneously
+with the compiler.
+
+\begin{lstlisting}
+(define (compile-assignment exp target linkage env)
+  (let ((var (assignment-variable exp))
+        (get-value-code
+         (compile* (assignment-value exp)
+                   'val
+                   'next
+                   env)))
+    (end-with-linkage
+     linkage
+     (preserving
+      '(env)
+      get-value-code
+      (make-instruction-sequence
+       '(env val)
+       (list target)
+       (let ((lex-add (find-variable var env)))
+         (cond ((eq? lex-add 'not-found)
+                (when (open-coded-primitive? var)
+                  (drop-open-coded-primitive var))
+                `((perform (op set-global-environment!)
+                           (const ,var)
+                           (reg val))
+                  (assign ,target (const ok))))
+               (else
+                `((perform (op set-variable-value!)
+                           (const ,lex-add)
+                           (reg val)
+                           (reg env))
+                  (assign ,target (const ok)))))))))))
+
+(define (compile-definition exp target linkage env)
+  (let ((var (definition-variable exp))
+        (get-value-code
+         (compile* (definition-value exp)
+                   'val
+                   'next
+                   env)))
+    (when (and (open-coded-primitive? var)
+               (eq? 'not-found
+                    (find-variable var env)))
+      (drop-open-coded-primitive var))
+    (end-with-linkage
+     linkage
+     (preserving '(env)
+                 get-value-code
+                 (make-instruction-sequence
+                  '(env val)
+                  (list target)
+                  `((perform (op define-variable!)
+                             (const ,var)
+                             (reg val)
+                             (reg env))
+                    (assign ,target (const ok))))))))
+\end{lstlisting}
+
+\end{document}
