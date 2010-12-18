@@ -198,13 +198,6 @@
                   (compile* (first-exp seq) target 'next env)
                   (compile-sequence (rest-exps seq) target linkage env))))
 
-(define (make-compiled-procedure entry env)
-  (list 'compile-procedure entry env))
-(define (compiled-procedure? proc)
-  (tagged-list? proc 'compiled-procedure))
-(define (compiled-procedure-entry c-proc) (cadr c-proc))
-(define (compiled-procedure-env c-proc) (caddr c-proc))
-
 (define (compile-lambda exp target linkage env)
   (let ((proc-entry (make-label 'entry))
         (after-lambda (make-label 'after-lambda)))

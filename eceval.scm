@@ -99,6 +99,13 @@
                 (frame-values frame)))))
   (env-loop env))
 
+(define (make-compiled-procedure entry env)
+  (list 'compile-procedure entry env))
+(define (compiled-procedure? proc)
+  (tagged-list? proc 'compiled-procedure))
+(define (compiled-procedure-entry c-proc) (cadr c-proc))
+(define (compiled-procedure-env c-proc) (caddr c-proc))
+
 (define eceval-operations
   (list (list 'prompt-for-input prompt-for-input)
         (list 'read read)
@@ -157,7 +164,10 @@
         (list 'lexical-address-lookup lexical-address-lookup)
         (list 'lexical-address-set! lexical-address-set!)
         (list 'lookup-in-globenv lookup-in-globenv)
-        (list 'set-global-environment! set-global-environment!)))
+        (list 'set-global-environment! set-global-environment!)
+        (list 'compiled-procedure? compiled-procedure?)
+        (list 'compiled-procedure-entry compiled-procedure-entry)
+        (list 'compiled-procedure-env compiled-procedure-env)))
 
 (define eceval
   (make-machine
