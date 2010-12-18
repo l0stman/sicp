@@ -283,7 +283,7 @@
 
 (define (open-coded-application? exp env)
   (and (pair? exp)
-       (open-coded-primitive? op)
+       (open-coded-primitive? (operator exp))
        (eq? 'not-found
             (find-variable (operator exp) env))))
 
