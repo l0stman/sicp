@@ -1,5 +1,6 @@
-;;; Compiles scheme expressions into register machine codes.
-;;; Use lexical addressing in the compiler.
+;;; Compiles scheme expressions into register machine codes.  Use
+;;; lexical addressing to speed up variable lookup and the arithmetic
+;;; operations are open-coded.
 (load "eceval.scm")
 
 (define (compile* exp target linkage env)
@@ -22,6 +23,11 @@
                            linkage
                            env))
         ((cond? exp) (compile* (cond->if exp) target linkage env))
+        ((open-coded-primitive? exp env)
+         (compile-open-coded-primitive exp
+                                       target
+                                       linkage
+                                       env))
         ((application? exp)
          (compile-application exp target linkage env))
         (else
@@ -257,6 +263,57 @@
                        'val
                        'return
                        (extend-comp-time-env formals env)))))
+
+(define (open-coded-primitive? exp env)
+  (and (or (tagged-list? exp '+)
+           (tagged-list? exp '-)
+           (tagged-list? exp '*)
+           (tagged-list? exp '/))
+       (eq? 'not-found
+            (find-variable (operator exp)
+                           env))))
+
+(define (spread-arguments operator
+                          operand1
+                          operand2
+                          target
+                          linkage
+                          env)
+  (preserving
+   '(continue env)
+   (compile* operand1 'arg1 'next env)
+   (preserving '(arg1 continue)
+               (compile* operand2 'arg2 'next env)
+               (end-with-linkage
+                linkage
+                (make-instruction-sequence
+                 '(arg1 arg2)
+                 (list target)
+                 `((assign ,target
+                           (op ,operator)
+                           (reg arg1)
+                           (reg arg2))))))))
+
+(define (compile-open-coded-primitive exp
+                                      target
+                                      linkage
+                                      env)
+  (define (->2args exp)
+    (let ((op (operator exp)))
+      (let loop ((operand1 (car (operands exp)))
+                 (rest-operands (cdr (operands exp))))
+        (if (null? rest-operands)
+            operand1
+            (loop `(,op ,operand1
+                        ,(car rest-operands))
+                  (cdr rest-operands))))))
+  (let ((exp (->2args exp)))
+    (spread-arguments (operator exp)
+                      (car (operands exp))
+                      (cadr (operands exp))
+                      target
+                      linkage
+                      env)))
 
 (define (compile-application exp target linkage env)
   (let ((proc-code (compile* (operator exp) 'proc 'next env))
