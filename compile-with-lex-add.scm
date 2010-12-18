@@ -90,7 +90,7 @@
     (let ((lex-add (find-variable exp env)))
       (if (eq? lex-add 'not-found)
           `((assign ,target
-                    (op get-global-environment)
+                    (op lookup-in-globenv)
                     (const ,exp)))
           `((assign ,target
                     (op lexical-address-lookup)
@@ -110,6 +110,19 @@
        '(env val)
        (list target)
        (let ((lex-add (find-variable var env)))
+         (cond ((eq? lex-add 'not-found)
+                (when (open-coded-primitive? var)
+                  (drop-open-coded-primitive var))
+                `((perform (op set-global-environment!)
+                           (const ,var)
+                           (reg val))
+                  (assign ,target (const ok))))
+               (else
+                `((perform (op set-variable-value!)
+                           (const ,lex-add)
+                           (reg val)
+                           (reg env))
+                  (assign ,target (const ok)))))
          (if (eq? lex-add 'not-found)
              `((perform (op set-global-environment!)
                         (const ,var)
@@ -125,6 +138,10 @@
   (let ((var (definition-variable exp))
         (get-value-code
          (compile* (definition-value exp) 'val 'next env)))
+    (when (and (open-coded-primitive? var)
+               (eq? 'not-found
+                    (find-variable var env)))
+      (drop-open-coded-primitive var))
     (end-with-linkage
      linkage
      (preserving '(env)
@@ -265,13 +282,10 @@
                        (extend-comp-time-env formals env)))))
 
 (define (open-coded-application? exp env)
-  (and (or (tagged-list? exp '+)
-           (tagged-list? exp '-)
-           (tagged-list? exp '*)
-           (tagged-list? exp '/))
+  (and (pair? exp)
+       (open-coded-primitive? op)
        (eq? 'not-found
-            (find-variable (operator exp)
-                           env))))
+            (find-variable (operator exp) env))))
 
 (define (spread-arguments operator
                           operand1
