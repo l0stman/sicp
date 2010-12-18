@@ -49,6 +49,24 @@
              (frame-values frame))
      val)))
 
+(define open-coded-primitives '(+ - * /))
+(define (open-coded-primitive? op)
+  (memq op open-coded-primitives))
+(define (drop-open-coded-primitive op)
+  (define (drop lst)
+    (cond ((null? lst) '())
+          ((eq? (car lst) op) (drop (cdr lst)))
+          (else (cons (car lst)
+                      (drop (cdr lst))))))
+  (set! open-coded-primitives
+        (drop open-coded-primitives)))
+
+(define (lookup-in-globenv var)
+  (lookup-variable-value var the-global-environment))
+
+(define (set-global-environment! var val)
+  (set-variable-value! var val the-global-environment))
+
 (define eceval-operations
   (list (list 'prompt-for-input prompt-for-input)
         (list 'read read)
@@ -105,7 +123,9 @@
         (list 'let? let?)
         (list 'let->combination let->combination)
         (list 'lexical-address-lookup lexical-address-lookup)
-        (list 'lexical-address-set! lexical-address-set!)))
+        (list 'lexical-address-set! lexical-address-set!)
+        (list 'lookup-in-globenv lookup-in-globenv)
+        (list 'set-global-environment! set-global-environment!)))
 
 (define eceval
   (make-machine
