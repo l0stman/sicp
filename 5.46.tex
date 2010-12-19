@@ -1,0 +1,225 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+Here is some samples obtained by simulating the interpreted Fibonacci
+program.
+
+\begin{lstlisting}
+;;; EC-EVAL input:
+(define (fib n)
+  (if (< n 2)
+      n
+      (+ (fib (- n 1)) (fib (- n 2)))))
+(total-pushes = 3 maximum-depth = 3)
+
+;;; EC-Eval value:
+ok
+
+;;; EC-EVAL input:
+(fib 0)
+(total-pushes = 12 maximum-depth = 8)
+
+;;; EC-Eval value:
+0
+
+;;; EC-EVAL input:
+(fib 1)
+(total-pushes = 12 maximum-depth = 8)
+
+;;; EC-Eval value:
+1
+
+;;; EC-EVAL input:
+(fib 2)
+(total-pushes = 54 maximum-depth = 13)
+
+;;; EC-Eval value:
+1
+
+;;; EC-EVAL input:
+(fib 3)
+(total-pushes = 96 maximum-depth = 18)
+
+;;; EC-Eval value:
+2
+
+;;; EC-EVAL input:
+(fib 4)
+(total-pushes = 180 maximum-depth = 23)
+
+;;; EC-Eval value:
+3
+
+;;; EC-EVAL input:
+(fib 5)
+(total-pushes = 306 maximum-depth = 28)
+
+;;; EC-Eval value:
+5
+\end{lstlisting}
+
+Using the same reasoning as in \textbf{exercise 5.29}, we deduce that
+the number of pushes to compute $\mathrm{Fib}(n)$ is $42
+\mathrm{Fib(n+1)}-30$ and the maximum depth is $5n + 3$ for $n \ge 2$.
+
+For the compiled code we obtain
+
+\begin{lstlisting}
+> (compile-and-go
+   '(define (fib n)
+      (if (< n 2)
+          n
+          (+ (fib (- n 1)) (fib (- n 2))))))
+(total-pushes = 0 maximum-depth = 0)
+
+;;; EC-Eval value:
+ok
+
+;;; EC-EVAL input:
+(fib 0)
+(total-pushes = 5 maximum-depth = 3)
+
+;;; EC-Eval value:
+0
+
+;;; EC-EVAL input:
+(fib 1)
+(total-pushes = 5 maximum-depth = 3)
+
+;;; EC-Eval value:
+1
+
+;;; EC-EVAL input:
+(fib 2)
+(total-pushes = 13 maximum-depth = 4)
+
+;;; EC-Eval value:
+1
+
+;;; EC-EVAL input:
+(fib 3)
+(total-pushes = 21 maximum-depth = 6)
+
+;;; EC-Eval value:
+2
+
+;;; EC-EVAL input:
+(fib 4)
+(total-pushes = 37 maximum-depth = 8)
+
+;;; EC-Eval value:
+3
+
+;;; EC-EVAL input:
+(fib 5)
+(total-pushes = 61 maximum-depth = 10)
+
+;;; EC-Eval value:
+5
+
+;;; EC-EVAL input:
+(fib 6)
+(total-pushes = 101 maximum-depth = 12)
+
+;;; EC-Eval value:
+8
+\end{lstlisting}
+
+Using the same reasoning as before we deduce the numbers of pushes to
+compute $\mathrm{Fib}(n)$ is $8 \mathrm{Fib}(n+1)-3$ and the maximum
+depth is $2 n$ for $n \ge 2$.
+
+And finally for the special-purpose Fibonacci machine, we have
+
+\begin{lstlisting}
+> (define fib-machine
+    (make-machine
+     `((+ ,+) (- ,-) (< ,<) (read ,read))
+     '(READ-LOOP
+       (perform (op initialize-stack))
+       (assign n (op read))
+       (assign continue (label FIB-DONE))
+       FIB-LOOP
+       (test (op <) (reg n) (const 2))
+       (branch (label IMMEDIATE-ANSWER))
+       (save continue)
+       (assign continue (label afterfib-n-1))
+       (save n)
+       (assign n (op -) (reg n) (const 1))
+       (goto (label FIB-LOOP))
+       AFTERFIB-N-1
+       (restore n)
+       (restore continue)
+       (assign n (op -) (reg n) (const 2))
+       (save continue)
+       (assign continue (label AFTERFIB-N-2))
+       (save val)
+       (goto (label FIB-LOOP))
+       AFTERFIB-N-2
+       (assign n (reg val))
+       (restore val)
+       (restore continue)
+       (assign val
+               (op +) (reg val) (reg n))
+       (goto (reg continue))
+       IMMEDIATE-ANSWER
+       (assign val (reg n))
+       (goto (reg continue))
+       fib-done
+       (perform (op print-statistics))
+       (goto (label READ-LOOP)))))
+
+> (start fib-machine)
+0
+(total-pushes = 0 maximum-depth = 0)
+1
+(total-pushes = 0 maximum-depth = 0)
+2
+(total-pushes = 4 maximum-depth = 2)
+3
+(total-pushes = 8 maximum-depth = 4)
+4
+(total-pushes = 16 maximum-depth = 6)
+5
+(total-pushes = 28 maximum-depth = 8)
+6
+(total-pushes = 48 maximum-depth = 10)
+\end{lstlisting}
+
+If $S(n)$ denotes the number of pushes to compute $\mathrm{Fib(n)}$,
+with the special-purpose register machine, we deduce easily that for
+$n \ge 2$
+\[ S(n) = S(n-1) + S(n-2) + 4.\]
+
+Hence, using the same method as in \textbf{exercise 5.29}, we deduce
+that
+\[ S(n) = 4 \mathrm{Fib}(n+1) - 4\]
+
+and the maximum depth is $2(n-1)$.
+
+\medskip
+To summarize the result, we have the following table for $n \ge 2$
+
+\begin{quote}
+  \begin{tabular}{|c|c|c|}
+    \hline &Maximum depth& Number of pushes \\
+    \hline Interpreted Fibonacci & $5n+3$ & $42\mathrm{Fib}(n+1)-30$ \\
+    \hline Compiled Fibonacci & $2n$ & $8\mathrm{Fib}(n+1)-3$ \\
+    \hline Fibonacci machine & $2(n-1)$ & $4\mathrm{Fib}(n+1)$ \\
+    \hline
+  \end{tabular}
+\end{quote}
+
+The ratios between the special-purpose machine and the interpreted
+code tend to $2/5$ for the maximum depth and $2/21$ for the number of
+pushes.  Whereas these numbers are respectively, $2/5$ and $4/21$
+between the compiled code and the interpreted one.
+
+Open-coding the $<$ primitive should allow the compiled code to be as
+efficient as the special-purpose Fibonacci machine.
+
+\end{document}
