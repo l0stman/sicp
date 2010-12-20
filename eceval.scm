@@ -116,6 +116,22 @@
          (display '<compiled-procedure>))
         (else (display object))))
 
+(define (compile-and-run expression)
+  (let ((instructions
+         (assemble (statements
+                    (compile* expression
+                              'val
+                              'return
+                              the-empty-comp-time-env))
+                   eceval)))
+    (set-register-contents! eceval 'val instructions)
+    (set-register-contents! eceval 'flag #t)
+    (start eceval)))
+
+(set! primitive-procedures
+      (cons (list 'compile-and-run compile-and-run)
+            primitive-procedures))
+
 (define eceval-operations
   (list (list 'prompt-for-input prompt-for-input)
         (list 'read read)
