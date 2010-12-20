@@ -1,0 +1,73 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+We add to the new register machine an operator \lstinline!compile!
+that returns the assembled instructions for a given expression.
+Otherwise, we use the same operations as the explicit-control evaluator:
+
+\begin{lstlisting}
+(define (compile exp)
+  (assemble
+   (statements
+    (compile* exp
+              'val
+              'return
+              the-empty-comp-time-env))
+   eccompile))
+
+(define eccompile
+  (make-machine
+   (cons (list 'compile compile) eceval-operations)
+   '(READ-COMPILE-EXECUTE-PRINT-LOOP
+     (perform (op initialize-stack))
+     (perform (op prompt-for-input)
+              (const ";;; EC-COMPILE input:"))
+     (assign exp (op read))
+     (assign env (op get-global-environment))
+     (assign val (op compile) (reg exp))
+     (assign continue (label PRINT-RESULT))
+     (goto (reg val))
+     PRINT-RESULT
+     (perform (op print-statistics))
+     (perform (op announce-output)
+              (const ";;; EC-COMPILE value:"))
+     (perform (op user-print) (reg val))
+     (goto (label READ-COMPILE-EXECUTE-PRINT-LOOP)))))
+\end{lstlisting}
+
+Here's a simulation
+
+\begin{lstlisting}
+> (start eccompile)
+
+
+;;; EC-COMPILE input:
+(define (fact n)
+  (if (= n 1)
+      1
+      (* (fact (- n 1)) n)))
+(total-pushes = 0 maximum-depth = 0)
+
+;;; EC-COMPILE value:
+ok
+
+;;; EC-COMPILE input:
+(fact 3)
+(total-pushes = 10 maximum-depth = 6)
+
+;;; EC-COMPILE value:
+6
+
+;;; EC-COMPILE input:
+(fact 4)
+(total-pushes = 14 maximum-depth = 8)
+
+;;; EC-COMPILE value:
+24
+\end{lstlisting}
+
+\end{document}
