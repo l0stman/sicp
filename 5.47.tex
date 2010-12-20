@@ -1,0 +1,95 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+First we modify the procedure call produced by the compiler to
+generate another branch for an interpreted code.
+
+\begin{lstlisting}
+(define (compile-procedure-call target linkage)
+  (let ((primitive-branch
+         (make-label 'primitive-branch))
+        (compiled-branch
+         (make-label 'compiled-branch))
+        (interpreted-branch
+         (make-label 'interpreted-branch))
+        (after-call (make-label 'after-call)))
+    (let ((nonprim-linkage
+           (if (eq? linkage 'next)
+               after-call
+               linkage)))
+      (append-instruction-sequences
+       (make-instruction-sequence
+        '(proc)
+        '()
+        `((test (op primitive-procedure?) (reg proc))
+          (branch (label ,primitive-branch))
+          (test (op compiled-procedure?) (reg proc))
+          (branch (label ,compiled-branch))))
+       (parallel-instruction-sequences
+        (append-instruction-sequences
+         interpreted-branch
+         (interpreted-proc-appl target
+                                nonprim-linkage))
+        (parallel-instruction-sequences
+         (append-instruction-sequences
+          compiled-branch
+          (compile-proc-appl target nonprim-linkage))
+         (append-instruction-sequences
+          primitive-branch
+          (end-with-linkage
+           linkage
+           (make-instruction-sequence
+            '(proc argl)
+            (list target)
+            `((assign ,target
+                      (op apply-primitive-procedure)
+                      (reg proc)
+                      (reg argl))))))))
+       after-call))))
+\end{lstlisting}
+
+Then we generate special code for an interpreted procedure application
+to save the \textbf{continue} register on the stack and jump to
+\lstinline!COMPOUND-APPLY! in the evaluator whose address is saved in
+the register \textbf{compapp}.
+
+\begin{lstlisting}
+(define (interpreted-proc-appl target linkage)
+  (cond ((and (eq? target 'val)
+              (not (eq? linkage 'return)))
+         (make-instruction-sequence
+          '(proc)
+          all-regs
+          `((assign continue (label ,linkage))
+            (save continue)
+            (goto (reg compapp)))))
+        ((and (not (eq? target 'val))
+              (not (eq? linkage 'return)))
+         (let ((proc-return (make-label 'proc-return)))
+           (make-instruction-sequence
+            '(proc)
+            all-regs
+            `((assign continue (label ,proc-return))
+              (save continue)
+              (goto (reg compapp))
+              ,proc-return
+              (assign ,target (reg val))
+              (goto (label ,linkage))))))
+        ((and (eq? target 'val) (eq? linkage 'return))
+         (make-instruction-sequence
+          '(proc)
+          all-regs
+          '((save continue)
+            (goto (reg compapp)))))
+        ((and (not (eq? target 'val))
+              (eq? linkage 'return))
+         (error
+          "return linkage, target not val -- COMPILE"
+          target))))
+\end{lstlisting}
+
+\end{document}
