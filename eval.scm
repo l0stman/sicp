@@ -79,6 +79,7 @@
 (define (self-evaluating? exp)
   (cond ((number? exp) #t)
         ((string? exp) #t)
+        ((boolean? exp) #t)
         (else #f)))
 
 (define (variable? exp) (symbol? exp))
