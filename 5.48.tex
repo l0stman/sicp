@@ -1,0 +1,34 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+\lstinline!compile-and-run! is like \lstinline!compile-and-go! but we
+don't need to reset the global environment.
+
+\begin{lstlisting}
+(define (compile-and-go expression)
+  (let ((instructions
+         (assemble (statements
+                    (compile* expression
+                              'val
+                              'return
+                              the-empty-comp-time-env))
+                   eceval)))
+    (set-register-contents! eceval 'val instructions)
+    (set-register-contents! eceval 'flag #t)
+    (start eceval)))
+\end{lstlisting}
+
+We also need to add the new procedure to the list of primitives by
+adding in the explicit-control evaluator:
+
+\begin{lstlisting}
+(set! primitive-procedures
+      (cons (list 'compile-and-run compile-and-run)
+            primitive-procedures))
+\end{lstlisting}
+
+\end{document}
