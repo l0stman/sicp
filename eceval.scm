@@ -190,7 +190,8 @@
 (define eceval
   (make-machine
    eceval-operations
-   '((branch (label EXTERNAL-ENTRY))    ; branches if flag is set
+   '((assign compapp (label COMPOUND-APPLY))
+     (branch (label EXTERNAL-ENTRY))    ; branches if flag is set
      READ-EVAL-PRINT-LOOP
      (perform (op initialize-stack))
      (perform (op prompt-for-input) (const ";;; EC-EVAL input:"))
