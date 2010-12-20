@@ -92,4 +92,37 @@ the register \textbf{compapp}.
           target))))
 \end{lstlisting}
 
+Here are some codes testing this new feature:
+\begin{lstlisting}
+> (compile-and-go
+   '(define (f x)
+      (+ 1 (g x))))
+(total-pushes = 0 maximum-depth = 0)
+
+;;; EC-EVAL value:
+ok
+
+;;; EC-EVAL input:
+(define (g x)
+  (* x x))
+(total-pushes = 3 maximum-depth = 3)
+
+;;; EC-EVAL value:
+ok
+
+;;; EC-EVAL input:
+(f 3)
+(total-pushes = 12 maximum-depth = 7)
+
+;;; EC-EVAL value:
+10
+
+;;; EC-EVAL input:
+(f 4)
+(total-pushes = 12 maximum-depth = 7)
+
+;;; EC-EVAL value:
+17
+\end{lstlisting}
+
 \end{document}
