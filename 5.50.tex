@@ -1,0 +1,90 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{listings}
+\lstset{language=Lisp}
+\newcommand{\subpar}[1]{\medskip \noindent #1.}
+
+\begin{document}
+
+We try to compile the meta-circular evaluator defined in the file
+eval.scm by wrapping it inside a \lstinline!begin! statement.  First
+of all, booleans should be recognized  as self-evaluating expressions
+so compiler won't choke:
+\begin{lstlisting}
+(define (self-evaluating? exp)
+  (cond ((number? exp) #t)
+        ((string? exp) #t)
+        ((boolean? exp) #t)
+        (else #f)))
+\end{lstlisting}
+
+High order functions also pose problems since we have our own
+procedure implementation.  Hence, we can't use function such as
+\lstinline!map! as primitive procedure.  Here we redefine it:
+
+\begin{lstlisting}
+(define (map fn lst)
+     (if (null? lst)
+         '()
+         (cons (fn (car lst))
+               (map fn (cdr lst)))))
+
+(define (for-each fn lst)
+  (if (null? lst)
+      'done
+      (begin
+        (fn (car lst))
+        (for-each fn (cdr lst)))))
+\end{lstlisting}
+
+Here's a simulation of the compiled version of the meta-circular
+evaluator wrapped inside a begin:
+
+\begin{lstlisting}
+> (compile-and-go
+   '(begin
+      <meta-circular evaluator body>))
+(total-pushes = 2662 maximum-depth = 156)
+
+;;; EC-EVAL value:
+ok
+
+;;; EC-EVAL input:
+1
+(total-pushes = 0 maximum-depth = 0)
+
+;;; EC-EVAL value:
+1
+
+;;; EC-EVAL input:
+#t
+(total-pushes = 0 maximum-depth = 0)
+
+;;; EC-EVAL value:
+#t
+
+;;; EC-EVAL input:
+(define (fact n)
+  (if (= n 1)
+      1
+      (* (fact (- n 1)) n)))
+(total-pushes = 3 maximum-depth = 3)
+
+;;; EC-EVAL value:
+ok
+
+;;; EC-EVAL input:
+(fact 2)
+(total-pushes = 36 maximum-depth = 13)
+
+;;; EC-EVAL value:
+2
+
+;;; EC-EVAL input:
+(fact 4)
+(total-pushes = 84 maximum-depth = 23)
+
+;;; EC-EVAL value:
+24
+\end{lstlisting}
+
+\end{document}
