@@ -118,7 +118,7 @@
                            (reg val))
                   (assign ,target (const ok))))
                (else
-                `((perform (op set-variable-value!)
+                `((perform (op lexical-address-set!)
                            (const ,lex-add)
                            (reg val)
                            (reg env))
