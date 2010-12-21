@@ -328,6 +328,7 @@
         (list 'eval eval)
         (list 'apply apply)
         (list 'interaction-environment interaction-environment)
+        (list 'length length)
         ;; more primitives
         ))
 
