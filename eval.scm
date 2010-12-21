@@ -6,8 +6,6 @@
         ((variable? exp) (lookup-variable-value exp env))
         ((quoted? exp) (text-of-quotation exp))
         ((assignment? exp) (eval-assignment exp env))
-        ((assign-car? exp) (eval-assign-pair exp env set-car!))
-        ((assign-cdr? exp) (eval-assign-pair exp env set-cdr!))
         ((definition? exp) (eval-definition exp env))
         ((if? exp) (eval-if exp env))
         ((lambda? exp)
@@ -62,14 +60,6 @@
                        env)
   'ok)
 
-(define (eval-assign-pair exp env assign!)
-  (let ((var (eval* (assignment-variable exp) env)))
-    (cond ((pair? var)
-           (assign! var
-                    (eval* (assignment-value exp) env))
-           'ok)
-        (error "should be a pair" var))))
-
 (define (eval-definition exp env)
   (define-variable! (definition-variable exp)
     (eval* (definition-value exp) env)
@@ -98,11 +88,6 @@
   (tagged-list? exp 'set!))
 (define (assignment-variable exp) (cadr exp))
 (define (assignment-value exp) (caddr exp))
-
-(define (assign-car? exp)
-  (tagged-list? exp 'set-car!))
-(define (assign-cdr? exp)
-  (tagged-list? exp 'set-cdr!))
 
 (define (definition? exp)
   (tagged-list? exp 'define))
@@ -284,6 +269,8 @@
 (define primitive-procedures
   (list (list 'car car)
         (list 'cdr cdr)
+        (list 'set-car! set-car!)
+        (list 'set-cdr! set-cdr!)
         (list 'cadr cadr)
         (list 'cddr cddr)
         (list 'caddr caddr)
