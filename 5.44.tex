@@ -12,7 +12,8 @@ applications as follows
   (and (or (tagged-list? exp '+)
            (tagged-list? exp '-)
            (tagged-list? exp '*)
-           (tagged-list? exp '/))
+           (tagged-list? exp '/)
+           (tagged-list? exp '=))
        (eq? 'not-found
             (find-variable (operator exp)
                            env))))
@@ -182,7 +183,7 @@ application as follows:
        (eq? 'not-found
             (find-variable (operator exp) env))))
 
-(define open-coded-primitives '(+ - * /))
+(define open-coded-primitives '(+ - * / =))
 (define (open-coded-primitive? op)
   (memq op open-coded-primitives))
 (define (drop-open-coded-primitive op)
