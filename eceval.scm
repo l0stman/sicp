@@ -49,7 +49,7 @@
              (frame-values frame))
      val)))
 
-(define open-coded-primitives '(+ - * /))
+(define open-coded-primitives '(+ - * / =))
 (define (open-coded-primitive? op)
   (memq op open-coded-primitives))
 (define (drop-open-coded-primitive op)
