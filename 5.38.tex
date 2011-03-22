@@ -71,7 +71,8 @@ generator for open-coded primitives.
   (or (tagged-list? exp '+)
       (tagged-list? exp '-)
       (tagged-list? exp '*)
-      (tagged-list? exp '/)))
+      (tagged-list? exp '/)
+      (tagged-list? exp '=)))
 (define (compile-open-coded-primitive exp
                                       target
                                       linkage)
@@ -107,33 +108,15 @@ entry26
         (const (n))
         (reg argl)
         (reg env))
-(save continue)
-(save env)
-(assign proc
-        (op lookup-variable-value)
-        (const =)
-        (reg env))
-(assign val (const 1))
-(assign argl (op list) (reg val))
-(assign val
+(assign arg1
         (op lookup-variable-value)
         (const n)
         (reg env))
-(assign argl (op cons) (reg val) (reg argl))
-(test (op primitive-procedure?) (reg proc))
-(branch (label primitive-branch31))
-compiled-branch32
-(assign continue (label after-call33))
-(assign val (op compiled-procedure-entry) (reg proc))
-(goto (reg val))
-primitive-branch31
+(assign arg2 (const 1))
 (assign val
-        (op apply-primitive-procedure)
-        (reg proc)
-        (reg argl))
-after-call33
-(restore env)
-(restore continue)
+        (op =)
+        (reg arg1)
+        (reg arg2))
 (test (op false?) (reg val))
 (branch (label false-branch29))
 true-branch28
@@ -186,7 +169,9 @@ after-lambda27
 \end{lstlisting}
 
 The main difference with the version without open coding lays in the
-part after the false branch.  When evaluating the arguments of
+code generated for the predicate and the part after the false branch.
+We don't need to save the \textbf{continue} and \textbf{env} registers
+before evaluating the predicate.  And when evaluating the arguments of
 \lstinline!*!, we don't need to save the \textbf{proc} register.  The
 same thing goes for the argument of \lstinline!factorial!.  And the
 number of compiled branches and primitives branches when evaluating
