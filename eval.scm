@@ -274,6 +274,7 @@
         (list 'cadr cadr)
         (list 'cddr cddr)
         (list 'caadr caadr)
+        (list 'cdddr cdddr)
         (list 'caddr caddr)
         (list 'cdadr cdadr)
         (list 'cadddr cadddr)
