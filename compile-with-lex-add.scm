@@ -527,10 +527,41 @@
                (registers-modified seq2))
    (append (statements seq1) (statements seq2))))
 
+(define library
+  '((define (map fn lst)
+       (if (null? lst)
+           '()
+           (cons (fn (car lst))
+                 (map fn (cdr lst)))))
+
+     (define (filter pred? lst)
+       (cond ((null? lst) '())
+             ((pred? (car lst))
+              (cons (car lst)
+                    (filter pred? (cdr lst))))
+             (else
+              (filter pred? (cdr lst)))))
+
+     (define (foldl fn init lst)
+       (if (null? lst)
+           init
+           (foldl fn
+                  (fn (car lst) init)
+                  (cdr lst))))
+
+     (define (for-each fn lst)
+      (if (null? lst)
+          'done
+          (begin
+            (fn (car lst))
+            (for-each fn (cdr lst)))))))
+
 (define (compile-and-go expression)
   (let ((instructions
          (assemble (statements
-                    (compile* expression
+                    (compile* `(begin
+                                 ,@library
+                                 ,expression)
                               'val
                               'return
                               the-empty-comp-time-env))
