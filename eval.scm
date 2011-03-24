@@ -318,8 +318,8 @@
         (list 'string-length string-length)
         (list 'string-append string-append)
         (list 'substring substring)
-        (list 'eval eval)
-        (list 'apply apply)
+        (list 'eval eval*)
+        (list 'apply apply*)
         (list 'interaction-environment interaction-environment)
         (list 'length length)
         ;; more primitives
