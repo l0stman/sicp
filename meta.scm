@@ -288,8 +288,6 @@
             (list 'null? null?)
             (list 'list list)
             (list 'append append)
-            (list 'map map)
-            (list 'for-each for-each)
             (list 'member member)
             (list 'memq memq)
             (list 'abs abs)
@@ -324,8 +322,6 @@
             (list 'string-length string-length)
             (list 'string-append string-append)
             (list 'substring substring)
-            (list 'eval eval*)
-            (list 'apply apply*)
             (list 'interaction-environment interaction-environment)
             (list 'length length)
             ;; more primitives
