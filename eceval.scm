@@ -99,13 +99,6 @@
                 (frame-values frame)))))
   (env-loop env))
 
-(define (make-compiled-procedure entry env)
-  (list 'compiled-procedure entry env))
-(define (compiled-procedure? proc)
-  (tagged-list? proc 'compiled-procedure))
-(define (compiled-procedure-entry c-proc) (cadr c-proc))
-(define (compiled-procedure-env c-proc) (caddr c-proc))
-
 (define (user-print object)
   (cond ((compound-procedure? object)
          (display (list 'compound-procedure
