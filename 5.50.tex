@@ -6,7 +6,7 @@
 \begin{document}
 
 We try to compile the meta-circular evaluator defined in the file
-eval.scm by wrapping it inside a \lstinline!begin! statement.  First
+meta.scm by wrapping it inside a \lstinline!begin! statement.  First
 of all, booleans should be recognized  as self-evaluating expressions
 so the compiler won't choke:
 \begin{lstlisting}
@@ -76,47 +76,46 @@ evaluator wrapped inside a \lstinline!begin!:
 > (compile-and-go
    '(begin
       <meta-circular evaluator body>))
-(total-pushes = 2661 maximum-depth = 156)
+(total-pushes = 2973 maximum-depth = 174)
 
 ;;; EC-EVAL value:
 ok
 
 ;;; EC-EVAL input:
+(driver-loop)
+
+
+;;; M-Eval input:
 1
-(total-pushes = 0 maximum-depth = 0)
 
-;;; EC-EVAL value:
+;;; M-Eval value:
 1
 
-;;; EC-EVAL input:
-#t
-(total-pushes = 0 maximum-depth = 0)
-
-;;; EC-EVAL value:
+;;; M-Eval input:
 #t
 
-;;; EC-EVAL input:
+;;; M-Eval value:
+#t
+
+;;; M-Eval input:
 (define (fact n)
   (if (= n 1)
       1
-      (* (fact (- n 1)) n)))
-(total-pushes = 3 maximum-depth = 3)
+      (* n (fact (- n 1)))))
 
-;;; EC-EVAL value:
+;;; M-Eval value:
 ok
 
-;;; EC-EVAL input:
+;;; M-Eval input:
 (fact 2)
-(total-pushes = 36 maximum-depth = 13)
 
-;;; EC-EVAL value:
+;;; M-Eval value:
 2
 
-;;; EC-EVAL input:
+;;; M-Eval input:
 (fact 4)
-(total-pushes = 84 maximum-depth = 23)
 
-;;; EC-EVAL value:
+;;; M-Eval value:
 24
 \end{lstlisting}
 
