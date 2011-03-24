@@ -19,21 +19,54 @@ so the compiler won't choke:
 
 High order functions also pose problems since we have our own
 procedure implementation.  Hence, we can't use function such as
-\lstinline!map! as primitive procedure.  Here we redefine them:
+\lstinline!map! as primitive procedure.  We decide to implement them
+as a library that we load with the expression we wish to execute in
+\lstinline!compile-and-go!.
 
 \begin{lstlisting}
-(define (map fn lst)
-     (if (null? lst)
-         '()
-         (cons (fn (car lst))
-               (map fn (cdr lst)))))
+(define library
+  '((define (map fn lst)
+      (if (null? lst)
+          '()
+          (cons (fn (car lst))
+                (map fn (cdr lst)))))
 
-(define (for-each fn lst)
-  (if (null? lst)
-      'done
-      (begin
-        (fn (car lst))
-        (for-each fn (cdr lst)))))
+    (define (filter pred? lst)
+      (cond ((null? lst) '())
+            ((pred? (car lst))
+             (cons (car lst)
+                   (filter pred? (cdr lst))))
+            (else
+             (filter pred? (cdr lst)))))
+
+    (define (foldl fn init lst)
+      (if (null? lst)
+          init
+          (foldl fn
+                 (fn (car lst) init)
+                 (cdr lst))))
+
+    (define (for-each fn lst)
+      (if (null? lst)
+          'done
+          (begin
+            (fn (car lst))
+            (for-each fn (cdr lst)))))))
+
+(define (compile-and-go expression)
+  (let ((instructions
+         (assemble (statements
+                    (compile* `(begin
+                                 ,@library
+                                 ,expression)
+                              'val
+                              'return
+                              the-empty-comp-time-env))
+                   eceval)))
+    (set! the-global-environment (setup-environment))
+    (set-register-contents! eceval 'val instructions)
+    (set-register-contents! eceval 'flag #t)
+    (start eceval)))
 \end{lstlisting}
 
 Here's a simulation of the compiled version of the meta-circular
@@ -43,7 +76,7 @@ evaluator wrapped inside a \lstinline!begin!:
 > (compile-and-go
    '(begin
       <meta-circular evaluator body>))
-(total-pushes = 2662 maximum-depth = 156)
+(total-pushes = 2661 maximum-depth = 156)
 
 ;;; EC-EVAL value:
 ok
